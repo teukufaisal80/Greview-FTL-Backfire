@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FTL Gym — Keyword Manager</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF2FF;--green:#1B3A6B;--green-d:#152D54;--green-l:#EEF2FF;--text:#1A1A1A;--text2:#6B7280;--text3:#9CA3AF;--bg:#F3F4F6;--surface:#FFFFFF;--border:#E5E7EB;--red:#EF4444;--red-l:#FEF2F2;--amber:#F59E0B;--amber-l:#FFFBEB;--r:12px;--r-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.nav-logo{width:32px;height:32px;background:var(--navy);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px}
+.nav-links{display:flex;gap:4px;margin-left:32px}
+.nav-link{padding:6px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--text2);text-decoration:none}
+.nav-link:hover{background:var(--bg)}
+.nav-link.active{background:var(--navy-l);color:var(--navy-d)}
+main{max-width:1000px;margin:0 auto;padding:24px}
+.section-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:20px 24px;box-shadow:var(--shadow);margin-bottom:12px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700}
+.badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
+.badge-pending{background:var(--amber-l);color:#92400E}
+.badge-approved{background:var(--navy-l);color:var(--navy-d)}
+.badge-rejected{background:var(--bg);color:var(--text2)}
+.kw-table{width:100%;border-collapse:collapse;font-size:13px}
+.kw-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border)}
+.kw-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.kw-table tr:last-child td{border-bottom:none}
+.kw-table tr:hover td{background:var(--bg)}
+.kw-word{font-weight:600;color:var(--text)}
+.kw-count{font-size:12px;color:var(--text2)}
+.kw-context{font-size:12px;color:var(--text2);font-style:italic;max-width:300px}
+.kw-context-quote{background:var(--bg);border-radius:4px;padding:4px 8px;margin-bottom:4px;line-height:1.5}
+.kw-actions{display:flex;gap:6px;align-items:center}
+.btn{padding:6px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.btn:hover{background:var(--bg)}
+.btn-approve{background:#16A34A;color:#fff;border-color:#16A34A}
+.btn-approve:hover{background:#15803D}
+.btn-reject{background:var(--red-l);color:var(--red);border-color:#FECACA}
+.btn-reject:hover{background:#FEE2E2}
+.btn-restore{background:var(--amber-l);color:#92400E;border-color:#FDE68A}
+.btn-delete{background:var(--red-l);color:var(--red);border-color:#FECACA}
+.btn-delete:hover{background:#FEE2E2}
+.cat-select{padding:5px 10px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:12px;color:var(--text);background:var(--surface);min-width:150px}
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+.info-box{background:var(--navy-l);border-radius:var(--r-sm);padding:12px 16px;font-size:13px;color:var(--navy-d);margin-bottom:16px;border-left:3px solid var(--navy)}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REVIEW POPUP MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--surface);border-radius:var(--r);padding:24px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2);line-height:1;padding:2px 6px}
+.modal-review-item{background:var(--bg);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:10px}
+.modal-stars{color:var(--amber);font-size:14px;margin-bottom:6px}
+.modal-text{font-size:13px;color:var(--text);line-height:1.7}
+.kw-context-quote{background:var(--bg);border-radius:4px;padding:6px 10px;margin-bottom:6px;line-height:1.6;cursor:pointer;border:1px solid var(--border);transition:.15s}
+.kw-context-quote:hover{border-color:var(--navy);background:var(--navy-l)}
+.kw-context-quote-hint{font-size:10px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand"><div class="nav-logo">FTL</div>FTL Gym</div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Dashboard</a>
+    <a href="/competitor.html" class="nav-link">Analisis Kompetitor</a>
+    <a href="/keywords.html" class="nav-link active">Keyword Manager</a>
+  </div>
+</nav>
+<main>
+  <div class="info-box">
+    Sistem secara otomatis mendeteksi kata-kata baru yang sering muncul di review buruk (bintang 1-2) dan belum ada di dataset. Review di sini dan klik Approve untuk menambahkannya ke dataset analisis.
+  </div>
+
+  <div id="loadingState" style="text-align:center;padding:40px"><div class="spinner"></div></div>
+  <div id="content" style="display:none">
+
+    <div class="section-title">Suggested Keywords <span id="pendingCount" class="badge badge-pending" style="font-size:10px;margin-left:6px"></span></div>
+    <div class="card">
+      <div id="pendingTable"></div>
+    </div>
+
+    <div class="section-title">Approved Keywords <span id="approvedCount" class="badge badge-approved" style="font-size:10px;margin-left:6px"></span></div>
+    <div class="card">
+      <div id="approvedTable"></div>
+    </div>
+
+    <div class="section-title">Rejected Keywords <span id="rejectedCount" class="badge badge-rejected" style="font-size:10px;margin-left:6px"></span></div>
+    <div class="card">
+      <div id="rejectedTable"></div>
+    </div>
+
+  </div>
+</main>
+<script>
+let kwData = null;
+let categories = [];
+
+async function loadKeywords() {
+  const res = await fetch('/api/keywords');
+  kwData = await res.json();
+  categories = kwData.categories || [];
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+  render();
+}
+
+function render() {
+  renderPending(kwData.pending || []);
+  renderApproved(kwData.approved || []);
+  renderRejected(kwData.rejected || []);
+  document.getElementById('pendingCount').textContent = (kwData.pending||[]).length;
+  document.getElementById('approvedCount').textContent = (kwData.approved||[]).length;
+  document.getElementById('rejectedCount').textContent = (kwData.rejected||[]).length;
+}
+
+function catOptions(selected='') {
+  return categories.map((c) => `<option value="${c.key}" ${c.key===selected?'selected':''}>${c.label}</option>`).join('');
+}
+
+function renderPending(items) {
+  const el = document.getElementById('pendingTable');
+  if (!items.length) { el.innerHTML = '<div class="empty">Tidak ada keyword baru yang terdeteksi. Keyword akan muncul setelah dashboard direfresh dan ada review baru.</div>'; return; }
+  el.innerHTML = `<table class="kw-table">
+    <thead><tr><th>Keyword</th><th>Frekuensi</th><th>Contoh Review</th><th>Kategori</th><th>Aksi</th></tr></thead>
+    <tbody>${items.map((kw) => `
+      <tr id="row_${encodeURIComponent(kw.word)}">
+        <td><span class="kw-word">${kw.word}</span></td>
+        <td><span class="kw-count">${kw.count}x di review buruk</span></td>
+        <td><div class="kw-context">${(kw.context||[]).slice(0,2).map((c)=>`<div class="kw-context-quote" onclick="openReviewModal(this)" data-text="${(c.text||'').replace(/"/g,'&quot;')}" data-rating="${c.rating}">${'★'.repeat(c.rating||0)}${'☆'.repeat(5-(c.rating||0))}<br>"${c.text?.substring(0,80)}..."<div class="kw-context-quote-hint">Klik untuk baca semua</div></div>`).join('')}</div></td>
+        <td><select class="cat-select" id="cat_${encodeURIComponent(kw.word)}">${catOptions()}</select></td>
+        <td><div class="kw-actions">
+          <button class="btn btn-approve" onclick="approve('${kw.word.replace(/'/g,"\\'")}')">Approve</button>
+          <button class="btn btn-reject" onclick="reject('${kw.word.replace(/'/g,"\\'")}')">Reject</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderApproved(items) {
+  const el = document.getElementById('approvedTable');
+  if (!items.length) { el.innerHTML = '<div class="empty">Belum ada keyword yang di-approve.</div>'; return; }
+  el.innerHTML = `<table class="kw-table">
+    <thead><tr><th>Keyword</th><th>Kategori</th><th>Approved</th></tr></thead>
+    <tbody>${items.map((kw) => `
+      <tr><td><span class="kw-word">${kw.word}</span></td>
+      <td>${categories.find((c)=>c.key===kw.category)?.label||kw.category}</td>
+      <td><span class="kw-count">${kw.approvedAt?new Date(kw.approvedAt).toLocaleDateString('id-ID'):'-'}</span></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderRejected(items) {
+  const el = document.getElementById('rejectedTable');
+  if (!items.length) { el.innerHTML = '<div class="empty">Tidak ada keyword yang di-reject.</div>'; return; }
+  el.innerHTML = `<table class="kw-table">
+    <thead><tr><th>Keyword</th><th>Ditolak</th><th>Aksi</th></tr></thead>
+    <tbody>${items.map((kw) => `
+      <tr><td><span class="kw-word">${kw.word}</span></td>
+      <td><span class="kw-count">${kw.rejectedAt?new Date(kw.rejectedAt).toLocaleDateString('id-ID'):'-'}</span></td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn btn-restore" onclick="restore('${kw.word.replace(/'/g,"\\'")}')">Restore</button>
+        <button class="btn btn-delete" onclick="deletePermanent('${kw.word.replace(/'/g,"\\'")}','rejected')">Hapus</button>
+      </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+async function approve(word) {
+  const catEl = document.getElementById('cat_' + encodeURIComponent(word));
+  const category = catEl ? catEl.value : 'manajemen';
+  const res = await fetch('/api/keywords/approve', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word, category }) });
+  if (res.ok) { await loadKeywords(); } else { alert('Gagal approve keyword'); }
+}
+
+async function reject(word) {
+  const res = await fetch('/api/keywords/reject', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word }) });
+  if (res.ok) { await loadKeywords(); } else { alert('Gagal reject keyword'); }
+}
+
+async function deletePermanent(word, from) {
+  if (!confirm(`Hapus permanen "${word}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+  const res = await fetch('/api/keywords/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word, from }) });
+  if (res.ok) { await loadKeywords(); } else { alert('Gagal hapus keyword'); }
+}
+
+async function restore(word) {
+  const res = await fetch('/api/keywords/restore', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ word }) });
+  if (res.ok) { await loadKeywords(); } else { alert('Gagal restore keyword'); }
+}
+
+loadKeywords();
+</script>
+
+<!-- Review popup modal -->
+<div id="reviewModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Review Lengkap</span>
+      <button class="modal-close" onclick="document.getElementById('reviewModal').style.display='none'">&#10005;</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+function openReviewModal(el) {
+  const text = el.dataset.text || '';
+  const rating = parseInt(el.dataset.rating) || 0;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-review-item">
+      <div class="modal-stars">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
+      <div class="modal-text">${text || '(tidak ada teks)'}</div>
+    </div>`;
+  document.getElementById('reviewModal').style.display = 'flex';
+}
+</script>
+</body>
+</html>

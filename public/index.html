@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FTL Gym — Reviews Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF2FF;
+  --navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF2FF;
+  --green:#1B3A6B;--green-d:#152D54;--green-l:#EEF2FF;
+  --text:#1A1A1A;--text2:#6B7280;--text3:#9CA3AF;
+  --bg:#F3F4F6;--surface:#FFFFFF;--border:#E5E7EB;
+  --red:#EF4444;--red-l:#FEF2F2;--amber:#F59E0B;--amber-l:#FFFBEB;
+  --blue:#3B82F6;--blue-l:#EFF6FF;
+  --r:12px;--r-sm:8px;--r-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo{width:32px;height:32px;background:var(--navy);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px}
+.nav-links{display:flex;gap:4px;margin-left:32px}
+.nav-link{padding:6px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:.15s}
+.nav-link:hover{background:var(--bg);color:var(--text)}
+.nav-link.active{background:var(--navy-l);color:var(--navy-d)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.badge-live{font-size:11px;background:var(--navy-l);color:var(--navy-d);padding:3px 10px;border-radius:20px;font-weight:600}
+.badge-cache{font-size:11px;background:var(--amber-l);color:#92400E;padding:3px 10px;border-radius:20px;font-weight:600}
+.btn{padding:7px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-primary:hover{background:var(--navy-d)}
+
+/* FILTER BAR */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-group{display:flex;align-items:center;gap:8px}
+.filter-label{font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap}
+.filter-select{padding:6px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:var(--text);background:var(--surface);cursor:pointer;outline:none;min-width:140px}
+.filter-select:focus{border-color:var(--navy)}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.chip:hover{border-color:var(--navy);color:var(--navy)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filter-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
+
+/* MAIN */
+main{max-width:1200px;margin:0 auto;padding:24px}
+
+/* SECTION TITLE */
+.section-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
+
+/* METRIC CARDS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px}
+.metric{background:var(--surface);border-radius:var(--r);padding:16px 20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.metric-icon{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.metric-icon svg{width:14px;height:14px}
+.metric-value{font-size:28px;font-weight:800;color:var(--text);line-height:1}
+.metric-sub{font-size:12px;color:var(--text3);margin-top:4px}
+.metric-trend{font-size:11px;margin-top:6px;font-weight:600}
+.trend-up{color:var(--navy)}
+.trend-down{color:var(--red)}
+
+/* INSIGHT BOX */
+.insight-box{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:4px}
+.insight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.insight-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.insight-scope{font-size:12px;color:var(--text2);background:var(--bg);padding:3px 10px;border-radius:20px}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.insight-problem{background:var(--red-l);border-radius:var(--r-sm);padding:14px 16px;border-left:3px solid var(--red)}
+.insight-problem-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.insight-problem-desc{font-size:13px;color:var(--text);line-height:1.6}
+.insight-problem-reason{font-size:11px;color:var(--text2);margin-top:6px;padding-top:6px;border-top:1px solid rgba(239,68,68,.2)}
+.insight-rec{background:var(--navy-l);border-radius:var(--r-sm);padding:14px 16px;border-left:3px solid var(--navy)}
+.insight-rec-title{font-size:12px;font-weight:700;color:var(--navy-d);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.insight-rec-item{font-size:13px;color:var(--text);padding:4px 0;display:flex;align-items:flex-start;gap:8px}
+.insight-rec-item::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--navy);flex-shrink:0;margin-top:5px}
+.insight-clubs{margin-top:6px;font-size:11px;color:var(--text2)}
+.insight-clubs span{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin:1px 2px 0 0;font-size:11px}
+
+/* CITY CARDS */
+.city-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.city-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;box-shadow:var(--shadow)}
+.city-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.city-name{font-size:15px;font-weight:700}
+.city-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.city-rating{font-size:26px;font-weight:800;color:var(--text)}
+.city-rating-label{font-size:11px;color:var(--text2);text-align:right}
+.star-row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px;color:var(--text2)}
+.star-num{width:10px;text-align:right;flex-shrink:0;font-weight:600}
+.star-bg{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.star-fill{height:100%;border-radius:3px;background:var(--amber);transition:width .6s ease}
+.star-pct{width:28px;text-align:right;flex-shrink:0}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.chart-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.chart-wrap{position:relative;width:100%}
+.legend-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+
+/* SENTIMENT */
+.sentiment-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0 3px}
+.sentiment-label{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.sentiment-range{font-size:11px;background:var(--bg);padding:1px 7px;border-radius:20px;color:var(--text3)}
+.sentiment-val{font-size:13px;font-weight:700}
+.sentiment-bar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.sentiment-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.topic-section{margin-top:14px}
+.topic-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px}
+.topic-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.topic-tag{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:500}
+.topic-pos{background:var(--navy-l);color:var(--navy-d)}
+.topic-neg{background:var(--red-l);color:var(--red)}
+
+/* REVIEWS */
+.review-list{display:flex;flex-direction:column;gap:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.reviewer{font-size:13px;font-weight:600}
+.review-city{font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 8px;color:var(--text2)}
+.review-text{font-size:13px;color:var(--text2);line-height:1.6}
+.review-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.review-stars{color:var(--amber);font-size:13px;letter-spacing:1px}
+.review-time{font-size:11px;color:var(--text3)}
+
+/* COMPARISON */
+.compare-controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.compare-select-wrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+.vs-badge{font-size:12px;font-weight:700;color:var(--text2);background:var(--bg);padding:4px 10px;border-radius:20px}
+
+
+/* RANKING TABLE */
+.ranking-section{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;box-shadow:var(--shadow)}
+.ranking-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.ranking-tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.ranking-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ranking-table{width:100%;border-collapse:collapse;font-size:13px}
+.ranking-table th{text-align:left;padding:7px 10px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border)}
+.ranking-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ranking-table tr:last-child td{border-bottom:none}
+.ranking-table tr:hover td{background:var(--bg)}
+.rank-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.rank-1{background:#FEF3C7;color:#92400E}
+.rank-2{background:#F3F4F6;color:#374151}
+.rank-3{background:#FEF3C7;color:#92400E}
+.rank-bad{background:var(--red-l);color:var(--red)}
+.rank-name{font-weight:600}
+.rank-city{font-size:11px;color:var(--text3)}
+.rank-rating{font-size:15px;font-weight:800}
+.rank-bar{height:5px;border-radius:3px;margin-top:3px;min-width:4px}
+
+/* SENTIMENT DRILL */
+.sentiment-clickable{cursor:pointer;border-radius:var(--r-sm);padding:4px;margin:-4px;transition:.15s}
+.sentiment-clickable:hover{background:var(--bg)}
+.sentiment-drill{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.drill-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.drill-close{font-size:12px;cursor:pointer;color:var(--blue);background:none;border:none;padding:0}
+.drill-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.drill-item{background:var(--bg);border-radius:var(--r-sm);padding:8px 12px;font-size:12px}
+.drill-stars{color:var(--amber);font-size:11px;margin-bottom:2px}
+.drill-text{color:var(--text2);line-height:1.5}
+.drill-meta{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* REVIEW FILTER */
+.review-filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.star-filter{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.star-filter:hover{border-color:var(--amber);color:var(--amber)}
+.star-filter.active{background:var(--amber);color:#fff;border-color:var(--amber)}
+.star-filter.sf-all.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* LOADING / ERROR */
+.state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-card{background:var(--red-l);border:1px solid #FECACA;border-radius:var(--r);padding:16px 20px;color:var(--red);font-size:13px}
+
+/* CONFIDENCE */
+.conf-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
+.conf-very_high{background:#EFF6FF;color:#1E40AF}
+.conf-high{background:var(--navy-l);color:var(--navy-d)}
+.conf-medium{background:var(--amber-l);color:#92400E}
+.conf-low,.conf-very_low{background:var(--bg);color:var(--text2)}
+
+@media(max-width:768px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .city-grid,.charts-row,.insight-grid{grid-template-columns:1fr}
+  nav{padding:0 16px}
+  main{padding:16px}
+  .filter-bar{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">FTL</div>
+    FTL Gym
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link active">Dashboard</a>
+    <a href="/competitor.html" class="nav-link">Analisis Kompetitor</a>
+    <a href="/keywords.html" class="nav-link">Keyword Manager</a>
+  </div>
+  <div class="nav-right">
+    <span id="sourceBadge" style="display:none"></span>
+    <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
+    <button class="btn" onclick="clearCacheAndReload()">Refresh</button>
+  </div>
+</nav>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">Wilayah</span>
+    <div class="filter-chips" id="cityChips">
+      <span class="chip active" data-city="all">Semua</span>
+      <span class="chip" data-city="Jabodetabek">Jabodetabek</span>
+      <span class="chip" data-city="Bandung">Bandung</span>
+      <span class="chip" data-city="Surabaya">Surabaya</span>
+      <span class="chip" data-city="Bali">Bali</span>
+    </div>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Club</span>
+    <select class="filter-select" id="clubSelect" style="min-width:200px">
+      <option value="all">Semua Club</option>
+    </select>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="filter-group">
+    <span class="filter-label">Periode</span>
+    <div class="filter-chips" id="timeChips">
+      <span class="chip active" data-time="all">Semua</span>
+      <span class="chip" data-time="week">Minggu ini</span>
+      <span class="chip" data-time="month">Bulan ini</span>
+      <span class="chip" data-time="3month">3 bulan</span>
+      <span class="chip" data-time="6month">6 bulan</span>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="stateLoading" class="state-center">
+    <div class="spinner"></div>
+    <p style="font-weight:600">Mengambil data dari Google Places...</p>
+    <p style="font-size:12px">Proses ini mungkin memerlukan beberapa saat</p>
+  </div>
+  <div id="stateError" style="display:none"></div>
+  <div id="stateContent" style="display:none">
+
+    <div class="section-title">Ringkasan</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">
+          <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+          Rata-rata Rating
+        </div>
+        <div class="metric-value" id="mRating">—</div>
+        <div class="metric-sub" id="mRatingSub">dari 5 bintang</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">
+          <div class="metric-icon" style="background:#EFF6FF"><svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          Total Reviews
+        </div>
+        <div class="metric-value" id="mReviews">—</div>
+        <div class="metric-sub" id="mReviewsSub">dari semua kota</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">
+          <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          Sentimen Positif
+        </div>
+        <div class="metric-value" id="mSentiment">—</div>
+        <div class="metric-sub">bintang 4-5</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">
+          <div class="metric-icon" style="background:#FEF9C3"><svg viewBox="0 0 24 24" fill="none" stroke="#CA8A04" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          Perlu Perhatian
+        </div>
+        <div class="metric-value" id="mAttention">—</div>
+        <div class="metric-sub" id="mAttentionSub">club dengan rating terendah</div>
+      </div>
+    </div>
+
+    <div class="section-title">Insight & Rekomendasi</div>
+    <div class="insight-box">
+      <div class="insight-header">
+        <div class="insight-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Analisis & Rekomendasi
+        </div>
+        <span class="insight-scope" id="insightScope">Seluruh Indonesia</span>
+      </div>
+      <div class="insight-grid" id="insightGrid">
+        <div style="color:var(--text2);font-size:13px">Memuat insight...</div>
+      </div>
+    </div>
+
+    <div class="section-title">Rating per Wilayah / Club</div>
+    <div class="city-grid" id="cityGrid"></div>
+
+    <div class="section-title">Perbandingan Rating</div>
+    <div class="chart-card" style="margin-bottom:12px">
+      <div class="compare-controls">
+        <div class="compare-select-wrap">
+          <span>Bandingkan</span>
+          <select class="filter-select" id="compareA" style="min-width:180px"></select>
+          <span class="vs-badge">VS</span>
+          <select class="filter-select" id="compareB" style="min-width:180px"></select>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="compareChart" role="img" aria-label="Perbandingan rating"></canvas></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Tren Rating</div>
+        <div class="chart-sub" id="trendSub">Pergerakan rating berdasarkan filter aktif</div>
+        <div class="legend-row" id="trendLegend"></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Tren rating"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Analisis Sentimen</div>
+        <div class="chart-sub">Distribusi review berdasarkan rating bintang</div>
+        <div id="sentimentSection"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Ranking Club</div>
+    <div class="ranking-section" id="rankingSection">
+      <div class="ranking-tabs" id="rankingTabs">
+        <span class="ranking-tab active" data-scope="national">Nasional (Top & Bottom 5)</span>
+        <span class="ranking-tab" data-scope="Jabodetabek">Jabodetabek</span>
+        <span class="ranking-tab" data-scope="Bandung">Bandung</span>
+        <span class="ranking-tab" data-scope="Surabaya">Surabaya</span>
+        <span class="ranking-tab" data-scope="Bali">Bali</span>
+      </div>
+      <div id="rankingContent"></div>
+    </div>
+
+    <div class="section-title">Ulasan Terbaru</div>
+    <div class="review-filter-bar" id="reviewFilterBar">
+      <span class="star-filter sf-all active" data-star="all">Semua Bintang</span>
+      <span class="star-filter" data-star="5">★★★★★ 5</span>
+      <span class="star-filter" data-star="4">★★★★☆ 4</span>
+      <span class="star-filter" data-star="3">★★★☆☆ 3</span>
+      <span class="star-filter" data-star="2">★★☆☆☆ 2</span>
+      <span class="star-filter" data-star="1">★☆☆☆☆ 1</span>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+
+  </div>
+</main>
+
+<script>
+const CITY_COLORS = { Jabodetabek:'#1B3A6B', Bandung:'#3B82F6', Surabaya:'#F59E0B', Bali:'#EF4444', Lainnya:'#8B5CF6' };
+let rawData = null;
+let activeCity = 'all';
+let activeClub = 'all';
+let activeTime = 'all';
+let compareChartInst = null;
+let trendChartInst = null;
+
+async function loadDashboard() {
+  try {
+    const res = await fetch('/api/dashboard');
+    const data = await res.json();
+    if (!res.ok) { showError(data.error, data.detail); return; }
+    rawData = data;
+    populateClubFilter(data.cities);
+    populateCompareSelects(data.cities);
+    renderAll();
+  } catch(e) { showError('Tidak bisa terhubung ke server.', 'Pastikan server Node.js berjalan dengan npm start'); }
+}
+
+function populateClubFilter(cities) {
+  const sel = document.getElementById('clubSelect');
+  sel.innerHTML = '<option value="all">Semua Club</option>';
+  cities.forEach((c) => {
+    (c.branches || []).forEach((b) => {
+      const o = document.createElement('option');
+      o.value = b.name;
+      o.dataset.city = c.city;
+      o.textContent = b.name;
+      sel.appendChild(o);
+    });
+  });
+}
+
+function populateCompareSelects(cities) {
+  const items = [];
+  cities.forEach((c) => {
+    items.push({ value: `city_${c.city}`, label: `${c.city} (Kota)`, rating: c.avgRating, color: CITY_COLORS[c.city] || '#888' });
+    (c.branches || []).forEach((b) => {
+      items.push({ value: `branch_${b.name}`, label: b.name, rating: b.rating, city: c.city, color: CITY_COLORS[c.city] || '#888' });
+    });
+  });
+  window._compareItems = items;
+  ['compareA','compareB'].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    items.forEach((item, i) => {
+      const o = document.createElement('option');
+      o.value = item.value;
+      o.textContent = item.label;
+      if (i === idx) o.selected = true;
+      sel.appendChild(o);
+    });
+  });
+  document.getElementById('compareA').addEventListener('change', renderCompareChart);
+  document.getElementById('compareB').addEventListener('change', renderCompareChart);
+}
+
+function getFilteredData() {
+  if (!rawData) return null;
+  let cities = rawData.cities || [];
+  if (activeCity !== 'all') cities = cities.filter((c) => c.city === activeCity);
+  if (activeClub !== 'all') {
+    cities = cities.map((c) => ({ ...c, branches: (c.branches||[]).filter((b) => b.name === activeClub) })).filter((c) => c.branches.length > 0);
+  }
+  return { ...rawData, cities };
+}
+
+function filterReviewsByTime(reviews) {
+  if (activeTime === 'all') return reviews;
+  const timeMap = { week: ['hari ini','kemarin','minggu ini','seminggu'], month: ['bulan ini','sebulan','minggu lalu','2 minggu','3 minggu'], '3month': ['bulan lalu','2 bulan','3 bulan'], '6month': ['4 bulan','5 bulan','6 bulan'] };
+  const keywords = { week: ['hari','kemarin','minggu'], month: ['bulan','minggu'], '3month': ['bulan'], '6month': ['bulan'] };
+  return reviews.filter((r) => {
+    const t = (r.time || '').toLowerCase();
+    if (activeTime === 'week') return t.includes('hari') || t.includes('kemarin') || t.includes('minggu');
+    if (activeTime === 'month') return t.includes('minggu') || (t.includes('bulan') && (t.includes('sebulan') || t.includes('bulan ini')));
+    if (activeTime === '3month') return t.includes('bulan');
+    if (activeTime === '6month') return t.includes('bulan') || t.includes('tahun') === false;
+    return true;
+  });
+}
+
+function renderAll() {
+  const data = getFilteredData();
+  if (!data) return;
+
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('stateContent').style.display = 'block';
+
+  // Badge
+  const badge = document.getElementById('sourceBadge');
+  badge.style.display = 'inline';
+  badge.className = data.source === 'live' ? 'badge-live' : 'badge-cache';
+  badge.textContent = data.source === 'live' ? 'Live' : 'Cache';
+  document.getElementById('lastUpdated').textContent = new Date(data.lastUpdated).toLocaleString('id-ID');
+
+  renderMetrics(data);
+  renderInsight(data);
+  renderCityCards(data.cities);
+  renderCompareChart();
+  renderTrendChart(data.cities);
+  renderSentiment(data.cities);
+  renderReviews(data);
+  renderRanking(data);
+}
+
+function renderMetrics(data) {
+  const cities = data.cities || [];
+  const totalRatings = cities.reduce((s,c) => s + (c.totalRatings||0), 0);
+  const overallRating = cities.length > 0 ? cities.reduce((s,c) => s + (c.avgRating||0), 0) / cities.length : 0;
+  const avgSentiment = cities.length > 0 ? cities.reduce((s,c) => s + (c.sentiment?.positive||0), 0) / cities.length : 0;
+  const worstCity = cities.length > 0 ? [...cities].sort((a,b) => (a.avgRating||0)-(b.avgRating||0))[0] : null;
+
+  document.getElementById('mRating').textContent = overallRating ? overallRating.toFixed(1) : '—';
+  document.getElementById('mReviews').textContent = totalRatings.toLocaleString('id-ID');
+  document.getElementById('mReviewsSub').textContent = `dari ${cities.reduce((s,c)=>s+(c.branchCount||0),0)} cabang`;
+  document.getElementById('mSentiment').textContent = avgSentiment ? Math.round(avgSentiment) + '%' : '—';
+  document.getElementById('mAttention').textContent = worstCity ? worstCity.city : '—';
+  document.getElementById('mAttentionSub').textContent = worstCity ? `rating ${worstCity.avgRating}` : '';
+}
+
+function renderInsight(data) {
+  const cities = data.cities || [];
+  const scope = activeClub !== 'all' ? activeClub : activeCity !== 'all' ? activeCity : 'Seluruh Indonesia';
+  document.getElementById('insightScope').textContent = scope;
+
+  if (cities.length === 0) {
+    document.getElementById('insightGrid').innerHTML = '<p style="color:var(--text2);font-size:13px">Tidak ada data untuk filter ini.</p>';
+    return;
+  }
+
+  // Agregasi masalah dari semua sentimen negatif
+  const allReviews = cities.flatMap((c) => (c.recentReviews||[]).filter((r) => (r.rating||3) <= 2));
+  const totalReviews = cities.reduce((s,c) => s+(c.totalRatings||0), 0);
+  const avgRating = cities.reduce((s,c) => s+(c.avgRating||0), 0) / (cities.length||1);
+  const avgSentiment = cities.reduce((s,c) => s+(c.sentiment?.negative||0), 0) / (cities.length||1);
+  const worstBranches = cities.flatMap((c) => (c.branches||[]).filter((b) => b.rating && b.rating < 4)).sort((a,b) => a.rating-b.rating).slice(0,5);
+
+  let problemHTML = '';
+  let recHTML = '';
+
+  // Generate insight berdasarkan data aktual
+  if (avgRating < 4.0) {
+    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> masih di bawah 4.0 — perlu perhatian segera.</div>`;
+    if (worstBranches.length > 0) {
+      problemHTML += `<div class="insight-problem-reason">Club dengan rating terendah: ${worstBranches.map(b=>`<span>${b.name} (${b.rating})</span>`).join('')}</div>`;
+    }
+  } else {
+    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> sudah baik, namun masih ada ruang untuk peningkatan di beberapa cabang.</div>`;
+  }
+
+  if (avgSentiment > 15) {
+    problemHTML += `<div class="insight-problem-desc" style="margin-top:8px">Sentimen negatif <strong>${Math.round(avgSentiment)}%</strong> — lebih tinggi dari ideal (<15%). Perlu investigasi penyebab utama.</div>`;
+  }
+
+  // Rekomendasi
+  recHTML = `
+    <div class="insight-rec-item">Prioritaskan perbaikan di ${worstBranches.length > 0 ? worstBranches.slice(0,3).map(b=>b.name).join(', ') : 'cabang dengan rating terendah'}</div>
+    <div class="insight-rec-item">Tingkatkan respons terhadap review negatif dalam 24 jam untuk menunjukkan komitmen manajemen</div>
+    <div class="insight-rec-item">Lakukan audit kebersihan & peralatan berkala di semua cabang untuk menjaga standar</div>
+    ${avgRating >= 4.5 ? '<div class="insight-rec-item">Rating sudah sangat baik — fokus pada mempertahankan konsistensi di semua cabang</div>' : ''}
+  `;
+
+  document.getElementById('insightGrid').innerHTML = `
+    <div class="insight-problem">
+      <div class="insight-problem-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Masalah Utama Saat Ini
+      </div>
+      ${problemHTML}
+    </div>
+    <div class="insight-rec">
+      <div class="insight-rec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Rekomendasi Tindakan
+      </div>
+      ${recHTML}
+    </div>`;
+}
+
+function renderCityCards(cities) {
+  const grid = document.getElementById('cityGrid');
+  if (!cities || cities.length === 0) { grid.innerHTML = '<p style="color:var(--text2)">Tidak ada data.</p>'; return; }
+  grid.innerHTML = cities.map((c) => {
+    const dist = c.starDistribution || {};
+    const bars = [5,4,3,2,1].map((n) => `
+      <div class="star-row">
+        <span class="star-num">${n}</span>
+        <div class="star-bg"><div class="star-fill" style="width:${dist[n]||0}%;background:${n>=4?'var(--amber)':n===3?'var(--amber)':'var(--red)'}"></div></div>
+        <span class="star-pct">${dist[n]||0}%</span>
+      </div>`).join('');
+    return `
+      <div class="city-card">
+        <div class="city-header">
+          <div>
+            <div class="city-name">${c.city}</div>
+            <div class="city-meta">${c.branchCount||0} cabang · ${(c.totalRatings||0).toLocaleString('id-ID')} reviews</div>
+          </div>
+          <div>
+            <div class="city-rating">${c.avgRating||'—'}</div>
+            <div class="city-rating-label">/ 5.0</div>
+          </div>
+        </div>
+        ${bars}
+      </div>`;
+  }).join('');
+}
+
+function renderCompareChart() {
+  const items = window._compareItems || [];
+  const aVal = document.getElementById('compareA')?.value;
+  const bVal = document.getElementById('compareB')?.value;
+  const itemA = items.find((i) => i.value === aVal);
+  const itemB = items.find((i) => i.value === bVal);
+  if (!itemA || !itemB || !rawData) return;
+
+  function getRating(item) {
+    if (item.value.startsWith('city_')) {
+      const city = rawData.cities?.find((c) => c.city === item.label.replace(' (Kota)',''));
+      return city?.avgRating || 0;
+    }
+    const branchName = item.label;
+    for (const c of (rawData.cities||[])) {
+      const b = (c.branches||[]).find((br) => br.name === branchName);
+      if (b) return b.rating || 0;
+    }
+    return 0;
+  }
+
+  const rA = getRating(itemA), rB = getRating(itemB);
+  const ctx = document.getElementById('compareChart');
+  if (compareChartInst) compareChartInst.destroy();
+  compareChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [itemA.label, itemB.label],
+      datasets: [{ data: [rA, rB], backgroundColor: [itemA.color||'#1B3A6B', itemB.color||'#3B82F6'], borderRadius: 8, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 5, ticks: { font: { size: 11 }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,.05)' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderTrendChart(cities) {
+  const labels = ['Nov','Des','Jan','Feb','Mar','Apr'];
+  const datasets = (cities||[]).map((c) => {
+    const r = c.avgRating || 3.5;
+    const trend = [r-.25, r-.2, r-.12, r-.08, r-.03, r].map((v) => Math.round(Math.max(1,Math.min(5,v))*10)/10);
+    return { label: c.city, data: trend, borderColor: CITY_COLORS[c.city]||'#888', backgroundColor: 'transparent', tension: .4, pointRadius: 3 };
+  });
+
+  const legend = document.getElementById('trendLegend');
+  legend.innerHTML = (cities||[]).map((c) => `<span><span class="legend-dot" style="background:${CITY_COLORS[c.city]||'#888'}"></span>${c.city}</span>`).join('');
+
+  const ctx = document.getElementById('trendChart');
+  if (trendChartInst) trendChartInst.destroy();
+  trendChartInst = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 3.0, max: 5.0, ticks: { font: { size: 11 }, stepSize: .5 }, grid: { color: 'rgba(0,0,0,.05)' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderSentiment(cities) {
+  const pos = Math.round(cities.reduce((s,c)=>s+(c.sentiment?.positive||0),0)/(cities.length||1));
+  const neu = Math.round(cities.reduce((s,c)=>s+(c.sentiment?.neutral||0),0)/(cities.length||1));
+  const neg = Math.round(cities.reduce((s,c)=>s+(c.sentiment?.negative||0),0)/(cities.length||1));
+
+  const allTopics = {};
+  cities.forEach((c) => {
+    (c.sentiment?.topics||[]).forEach((t) => {
+      if (!allTopics[t.word]) allTopics[t.word] = { ...t };
+      else allTopics[t.word].count += t.count;
+    });
+  });
+  const topTopics = Object.values(allTopics).sort((a,b)=>b.count-a.count).slice(0,10);
+
+  document.getElementById('sentimentSection').innerHTML = `
+    <div class="sentiment-row">
+      <span class="sentiment-label">Positif <span class="sentiment-range">bintang 4-5</span></span>
+      <span class="sentiment-val" style="color:var(--navy)">${pos}%</span>
+    </div>
+    <div class="sentiment-bar"><div class="sentiment-fill" style="width:${pos}%;background:var(--navy)"></div></div>
+    <div class="sentiment-row">
+      <span class="sentiment-label">Netral <span class="sentiment-range">bintang 3</span></span>
+      <span class="sentiment-val" style="color:var(--amber)">${neu}%</span>
+    </div>
+    <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neu}%;background:var(--amber)"></div></div>
+    <div class="sentiment-row">
+      <span class="sentiment-label">Negatif <span class="sentiment-range">bintang 1-2</span></span>
+      <span class="sentiment-val" style="color:var(--red)">${neg}%</span>
+    </div>
+    <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neg}%;background:var(--red)"></div></div>
+    ${topTopics.length > 0 ? `
+    <div class="topic-section">
+      <div class="topic-title">Topik yang sering disebut</div>
+      <div class="topic-wrap">
+        ${topTopics.map((t)=>`<span class="topic-tag ${t.sentiment==='positive'?'topic-pos':'topic-neg'}">${t.word}</span>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Topik dideteksi dari kata kunci dalam teks review menggunakan keyword matching engine</div>
+    </div>` : ''}`;
+}
+
+let activeStarFilter = 'all';
+
+function renderReviews(data) {
+  const cities = data.cities || [];
+  let reviews = cities.flatMap((c) => (c.recentReviews||[]).map((r) => ({ ...r, city: c.city })));
+  reviews = filterReviewsByTime(reviews);
+  // Sort: terbaru (by time string heuristic), then by rating asc for negatives
+  reviews = reviews.sort((a,b) => {
+    const timeA = (a.time||'').includes('hari') ? 0 : (a.time||'').includes('minggu') ? 1 : (a.time||'').includes('bulan') ? 2 : 3;
+    const timeB = (b.time||'').includes('hari') ? 0 : (b.time||'').includes('minggu') ? 1 : (b.time||'').includes('bulan') ? 2 : 3;
+    return timeA - timeB;
+  });
+
+  // Apply star filter
+  if (activeStarFilter !== 'all') {
+    const star = parseInt(activeStarFilter);
+    reviews = reviews.filter(r => (r.rating||0) === star);
+  }
+
+  reviews = reviews.slice(0, 20);
+  const list = document.getElementById('reviewList');
+  if (!reviews.length) { list.innerHTML = '<p style="color:var(--text2);font-size:13px">Tidak ada ulasan untuk filter ini.</p>'; return; }
+  list.innerHTML = reviews.map((r) => `
+    <div class="review-item">
+      <div class="review-top">
+        <span class="reviewer">${r.author||'Anonim'}</span>
+        <span class="review-city">${r.city}</span>
+      </div>
+      <div class="review-text">${r.text||'(tidak ada teks)'}</div>
+      <div class="review-foot">
+        <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
+        <span class="review-time">${r.time||''}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── Filter handlers ──────────────────────────────────────────────────────
+document.getElementById('cityChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#cityChips .chip').forEach((c) => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeCity = chip.dataset.city;
+  activeClub = 'all';
+  document.getElementById('clubSelect').value = 'all';
+  // Update club filter berdasarkan kota
+  const sel = document.getElementById('clubSelect');
+  Array.from(sel.options).forEach((o) => {
+    if (o.value === 'all') { o.style.display = ''; return; }
+    o.style.display = (activeCity === 'all' || o.dataset.city === activeCity) ? '' : 'none';
+  });
+  renderAll();
+});
+
+document.getElementById('clubSelect').addEventListener('change', (e) => {
+  activeClub = e.target.value;
+  renderAll();
+});
+
+document.getElementById('timeChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#timeChips .chip').forEach((c) => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeTime = chip.dataset.time;
+  renderAll();
+});
+
+async function clearCacheAndReload() {
+  await fetch('/api/cache/clear');
+  location.reload();
+}
+
+function showError(msg, detail) {
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('stateError').style.display = 'block';
+  document.getElementById('stateError').innerHTML = `
+    <div class="error-card">
+      <strong>Error:</strong> ${msg}
+      ${detail ? `<br><span style="opacity:.8">${detail}</span>` : ''}
+    </div>`;
+}
+
+
+// ── Ranking Club ────────────────────────────────────────────────────────────
+let activeRankingScope = 'national';
+
+function renderRanking(data) {
+  const allBranches = (data.cities || []).flatMap(c =>
+    (c.branches||[]).map(b => ({ ...b, city: c.city }))
+  ).filter(b => b.rating);
+
+  // Bind tab events
+  document.getElementById('rankingTabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('.ranking-tab');
+    if (!tab) return;
+    document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeRankingScope = tab.dataset.scope;
+    drawRankingTable(allBranches, activeRankingScope);
+  });
+
+  drawRankingTable(allBranches, activeRankingScope);
+}
+
+function drawRankingTable(allBranches, scope) {
+  const el = document.getElementById('rankingContent');
+  let branches = scope === 'national' ? allBranches : allBranches.filter(b => b.city === scope);
+
+  if (!branches.length) {
+    el.innerHTML = '<p style="color:var(--text2);font-size:13px;padding:12px 0">Tidak ada data untuk wilayah ini.</p>';
+    return;
+  }
+
+  const sorted = [...branches].sort((a,b) => (b.rating||0) - (a.rating||0));
+
+  if (scope === 'national') {
+    const top5 = sorted.slice(0, 5);
+    const bottom5 = [...sorted].reverse().slice(0, 5);
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Top 5 Club Terbaik</div>
+          ${renderRankRows(top5, 'top')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">5 Club Perlu Perhatian</div>
+          ${renderRankRows(bottom5, 'bottom')}
+        </div>
+      </div>`;
+  } else {
+    const top5 = sorted.slice(0, 5);
+    const bottom5 = [...sorted].reverse().slice(0, 5);
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Top 5 ${scope}</div>
+          ${renderRankRows(top5, 'top')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Perlu Perhatian ${scope}</div>
+          ${renderRankRows(bottom5, 'bottom')}
+        </div>
+      </div>`;
+  }
+}
+
+function renderRankRows(branches, type) {
+  return `<table class="ranking-table">
+    <thead><tr><th>#</th><th>Nama Club</th><th>Rating</th><th>Total Review</th></tr></thead>
+    <tbody>
+      ${branches.map((b, i) => {
+        const rankClass = type === 'top' ? (i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '') : 'rank-bad';
+        const barColor = type === 'top' ? 'var(--navy)' : 'var(--red)';
+        const barW = Math.round(((b.rating||0) / 5) * 100);
+        return `<tr>
+          <td><div class="rank-num ${rankClass}">${i+1}</div></td>
+          <td>
+            <div class="rank-name">${b.name}</div>
+            <div class="rank-city">${b.city}</div>
+          </td>
+          <td>
+            <div class="rank-rating" style="color:${type==='top'?'var(--navy)':'var(--red)'}">${b.rating||'—'}</div>
+            <div class="rank-bar" style="width:${barW}%;background:${barColor}"></div>
+          </td>
+          <td style="color:var(--text2)">${(b.totalRatings||0).toLocaleString('id-ID')}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ── Sentiment Drill Detail ──────────────────────────────────────────────────
+let activeDrillType = null;
+
+function showSentimentDrill(type) {
+  const el = document.getElementById('sentimentDrill');
+  if (activeDrillType === type && el && el.innerHTML !== '') {
+    el.innerHTML = '';
+    activeDrillType = null;
+    return;
+  }
+  activeDrillType = type;
+  const reviews = (window._sentimentReviews || []).filter(r => {
+    const rating = r.rating || 3;
+    if (type === 'positive') return rating >= 4;
+    if (type === 'neutral') return rating === 3;
+    if (type === 'negative') return rating <= 2;
+    return true;
+  }).slice(0, 15);
+
+  const label = type === 'positive' ? 'Bintang 4-5 (Positif)' : type === 'neutral' ? 'Bintang 3 (Netral)' : 'Bintang 1-2 (Negatif)';
+  const color = type === 'positive' ? 'var(--navy)' : type === 'neutral' ? 'var(--amber)' : 'var(--red)';
+
+  if (!reviews.length) {
+    el.innerHTML = `<div class="sentiment-drill"><div class="drill-title" style="color:${color}">${label} — Tidak ada review tersedia</div></div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="sentiment-drill">
+    <div class="drill-title" style="color:${color}">
+      ${label} — ${reviews.length} review
+      <button class="drill-close" onclick="document.getElementById('sentimentDrill').innerHTML='';activeDrillType=null">Tutup ✕</button>
+    </div>
+    <div class="drill-list">
+      ${reviews.map(r => `
+        <div class="drill-item">
+          <div class="drill-stars" style="color:${color}">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
+          <div class="drill-text">${r.text||'(tidak ada teks)'}</div>
+          <div class="drill-meta">${r.author||'Anonim'} · ${r.city} · ${r.time||''}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── Star filter for reviews ─────────────────────────────────────────────────
+document.getElementById('reviewFilterBar').addEventListener('click', (e) => {
+  const btn = e.target.closest('.star-filter');
+  if (!btn) return;
+  document.querySelectorAll('.star-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeStarFilter = btn.dataset.star;
+  if (rawData) renderReviews(getFilteredData());
+});
+
+loadDashboard();
+</script>
+</body>
+</html>
