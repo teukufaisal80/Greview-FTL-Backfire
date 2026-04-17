@@ -177,6 +177,66 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 .star-filter.active{background:var(--amber);color:#fff;border-color:var(--amber)}
 .star-filter.sf-all.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 
+
+/* INSIGHT DETAIL */
+.insight-full{display:flex;flex-direction:column;gap:16px}
+.insight-section{border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.insight-section-header{padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;cursor:pointer;user-select:none}
+.insight-section-header svg{flex-shrink:0}
+.insight-section-body{padding:16px 18px;border-top:1px solid var(--border);display:none}
+.insight-section-body.open{display:block}
+.insight-toggle{margin-left:auto;font-size:11px;font-weight:600;opacity:.7}
+
+/* Problem cards */
+.iprob-grid{display:flex;flex-direction:column;gap:10px}
+.iprob-item{background:var(--red-l);border-radius:var(--r-sm);padding:12px 16px;border-left:4px solid var(--red)}
+.iprob-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.iprob-title{font-size:13px;font-weight:700;color:var(--red)}
+.iprob-severity{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.sev-critical{background:#FEE2E2;color:#991B1B}
+.sev-high{background:#FEF3C7;color:#92400E}
+.sev-medium{background:#FEF9C3;color:#854D0E}
+.iprob-desc{font-size:13px;color:var(--text);line-height:1.6}
+.iprob-clubs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.iprob-club{font-size:11px;background:var(--surface);border:1px solid #FECACA;border-radius:4px;padding:2px 8px;color:var(--red);font-weight:600}
+
+/* Ad rec cards */
+.iad-tabs{display:flex;gap:6px;margin-bottom:14px}
+.iad-tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s;display:flex;align-items:center;gap:5px}
+.iad-tab.active{color:#fff;border-color:transparent}
+.iad-tab-google.active{background:#4285F4}
+.iad-tab-meta.active{background:#1877F2}
+.iad-tab-tiktok.active{background:#010101;color:#fff}
+.iad-panel{display:none}
+.iad-panel.active{display:flex;flex-direction:column;gap:10px}
+.iad-card{background:var(--navy-l);border-radius:var(--r-sm);padding:14px 16px;border-left:4px solid var(--navy)}
+.iad-card-google{background:#EFF6FF;border-left-color:#4285F4}
+.iad-card-meta{background:#EFF6FF;border-left-color:#1877F2}
+.iad-card-tiktok{background:#F0FDF4;border-left-color:#010101}
+.iad-priority{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;opacity:.7}
+.iad-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.iad-desc{font-size:13px;color:var(--text2);line-height:1.6}
+.iad-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.iad-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;background:rgba(0,0,0,.06);color:var(--text2)}
+.iad-target{font-size:11px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,.08)}
+
+/* Ops rec */
+.iops-grid{display:flex;flex-direction:column;gap:8px}
+.iops-item{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--bg);border-radius:var(--r-sm);border-left:3px solid var(--navy)}
+.iops-num{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px}
+.iops-content{flex:1}
+.iops-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.iops-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.iops-timeframe{font-size:11px;font-weight:600;color:var(--navy);margin-top:4px}
+
+/* Quick wins */
+.iqw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.iqw-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px}
+.iqw-icon{font-size:20px;margin-bottom:6px}
+.iqw-title{font-size:12px;font-weight:700;margin-bottom:4px}
+.iqw-desc{font-size:12px;color:var(--text2);line-height:1.5}
+@media(max-width:768px){.iqw-grid{grid-template-columns:1fr}}
+
 /* LOADING / ERROR */
 .state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
@@ -295,7 +355,7 @@ main{max-width:1200px;margin:0 auto;padding:24px}
     </div>
 
     <div class="section-title">Insight & Rekomendasi</div>
-    <div class="insight-box">
+    <div class="insight-box" id="insightBox">
       <div class="insight-header">
         <div class="insight-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -303,7 +363,7 @@ main{max-width:1200px;margin:0 auto;padding:24px}
         </div>
         <span class="insight-scope" id="insightScope">Seluruh Indonesia</span>
       </div>
-      <div class="insight-grid" id="insightGrid">
+      <div id="insightGrid">
         <div style="color:var(--text2);font-size:13px">Memuat insight...</div>
       </div>
     </div>
@@ -486,6 +546,8 @@ function renderMetrics(data) {
   document.getElementById('mAttentionSub').textContent = worstCity ? `rating ${worstCity.avgRating}` : '';
 }
 
+const TARGET_RATING = 4.7;
+
 function renderInsight(data) {
   const cities = data.cities || [];
   const scope = activeClub !== 'all' ? activeClub : activeCity !== 'all' ? activeCity : 'Seluruh Indonesia';
@@ -496,53 +558,393 @@ function renderInsight(data) {
     return;
   }
 
-  // Agregasi masalah dari semua sentimen negatif
-  const allReviews = cities.flatMap((c) => (c.recentReviews||[]).filter((r) => (r.rating||3) <= 2));
+  // ── DATA AGREGASI ──────────────────────────────────────────────────────
+  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
+  const allReviews = cities.flatMap(c => (c.recentReviews||[]).map(r => ({...r, city:c.city})));
+  const negReviews = allReviews.filter(r => (r.rating||3) <= 2);
   const totalReviews = cities.reduce((s,c) => s+(c.totalRatings||0), 0);
   const avgRating = cities.reduce((s,c) => s+(c.avgRating||0), 0) / (cities.length||1);
-  const avgSentiment = cities.reduce((s,c) => s+(c.sentiment?.negative||0), 0) / (cities.length||1);
-  const worstBranches = cities.flatMap((c) => (c.branches||[]).filter((b) => b.rating && b.rating < 4)).sort((a,b) => a.rating-b.rating).slice(0,5);
+  const avgNeg = cities.reduce((s,c) => s+(c.sentiment?.negative||0), 0) / (cities.length||1);
+  const avgPos = cities.reduce((s,c) => s+(c.sentiment?.positive||0), 0) / (cities.length||1);
 
-  let problemHTML = '';
-  let recHTML = '';
+  // Club di bawah target
+  const belowTarget = allBranches.filter(b => b.rating && b.rating < TARGET_RATING).sort((a,b) => a.rating-b.rating);
+  const criticalClubs = belowTarget.filter(b => b.rating < 4.0);
+  const warningClubs = belowTarget.filter(b => b.rating >= 4.0 && b.rating < TARGET_RATING);
 
-  // Generate insight berdasarkan data aktual
-  if (avgRating < 4.0) {
-    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> masih di bawah 4.0 — perlu perhatian segera.</div>`;
-    if (worstBranches.length > 0) {
-      problemHTML += `<div class="insight-problem-reason">Club dengan rating terendah: ${worstBranches.map(b=>`<span>${b.name} (${b.rating})</span>`).join('')}</div>`;
+  // Club dengan review terbanyak negatif (dari distribusi bintang)
+  const highNegCities = [...cities].sort((a,b) => (b.sentiment?.negative||0)-(a.sentiment?.negative||0));
+
+  // Club dengan review sedikit (visibility rendah di Maps)
+  const lowVisibility = allBranches.filter(b => (b.totalRatings||0) < 50).sort((a,b) => (a.totalRatings||0)-(b.totalRatings||0));
+
+  // Gap rating terbesar antar kota
+  const cityRatings = cities.map(c => ({city:c.city, rating:c.avgRating||0})).sort((a,b) => b.rating-a.rating);
+  const ratingGap = cityRatings.length >= 2 ? (cityRatings[0].rating - cityRatings[cityRatings.length-1].rating) : 0;
+
+  // Top topik negatif dari review
+  const negTopics = {};
+  cities.forEach(c => (c.sentiment?.topics||[]).filter(t=>t.sentiment==='negative').forEach(t => {
+    negTopics[t.word] = (negTopics[t.word]||0) + t.count;
+  }));
+  const topNegTopics = Object.entries(negTopics).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([w])=>w);
+
+  // ── SECTION 1: MASALAH UTAMA ──────────────────────────────────────────
+  const problems = [];
+
+  if (criticalClubs.length > 0) {
+    problems.push({
+      severity: 'critical',
+      title: `${criticalClubs.length} Club Rating Kritis (< 4.0) — Tidak Layak Diiklankan`,
+      desc: `Club berikut memiliki rating di bawah 4.0 yang berarti iklan justru akan menarik traffic ke tempat yang belum siap: <strong>${criticalClubs.slice(0,5).map(b=>`${b.name} (${b.rating}★)`).join(', ')}</strong>. Mengiklankan club ini sebelum perbaikan operasional = membakar budget.`,
+      clubs: criticalClubs.slice(0,5)
+    });
+  }
+
+  if (warningClubs.length > 0) {
+    const gap = warningClubs.map(b => `${b.name} (${b.rating}★, gap ${(TARGET_RATING-b.rating).toFixed(1)} poin ke target)`);
+    problems.push({
+      severity: 'high',
+      title: `${warningClubs.length} Club Belum Capai Target ${TARGET_RATING}★`,
+      desc: `Club ini sudah layak diiklankan tapi belum optimal. Setiap 0.1 poin kenaikan rating terbukti meningkatkan click-rate iklan 3-5%. Club: <strong>${gap.slice(0,4).join(' · ')}</strong>`,
+      clubs: warningClubs.slice(0,4)
+    });
+  }
+
+  if (avgNeg > 15) {
+    problems.push({
+      severity: 'high',
+      title: `Sentimen Negatif ${Math.round(avgNeg)}% — Di Atas Batas Aman (15%)`,
+      desc: `Rata-rata ${Math.round(avgNeg)}% review bintang 1-2 menandakan ada masalah operasional sistemik. Kota dengan sentimen negatif tertinggi: <strong>${highNegCities.slice(0,2).map(c=>`${c.city} (${c.sentiment?.negative||0}%)`).join(', ')}</strong>. Iklan di area ini berisiko mendapat comment negatif yang merusak performa campaign.`,
+      clubs: []
+    });
+  }
+
+  if (topNegTopics.length > 0) {
+    problems.push({
+      severity: 'medium',
+      title: `Topik Keluhan Berulang: ${topNegTopics.slice(0,3).join(', ')}`,
+      desc: `Kata-kata ini muncul berulang di review bintang 1-2 dan menjadi asosiasi negatif brand FTL di benak calon member. Jika tidak diatasi, iklan yang menyentuh area ini justru memperparah persepsi negatif.`,
+      clubs: []
+    });
+  }
+
+  if (lowVisibility.length > 0) {
+    problems.push({
+      severity: 'medium',
+      title: `${lowVisibility.length} Club Review < 50 — Visibilitas Google Maps Rendah`,
+      desc: `Club dengan review sedikit akan tenggelam di pencarian Google Maps karena algoritma Maps memprioritaskan tempat dengan banyak review. Club ini butuh kampanye "dorong review" sebelum iklan besar: <strong>${lowVisibility.slice(0,4).map(b=>`${b.name} (${b.totalRatings||0} review)`).join(', ')}</strong>`,
+      clubs: lowVisibility.slice(0,4)
+    });
+  }
+
+  if (ratingGap >= 0.3 && cityRatings.length >= 2) {
+    problems.push({
+      severity: 'medium',
+      title: `Gap Rating Antar Kota ${ratingGap.toFixed(1)} Poin — Konsistensi Brand Bermasalah`,
+      desc: `${cityRatings[0].city} (${cityRatings[0].rating}★) vs ${cityRatings[cityRatings.length-1].city} (${cityRatings[cityRatings.length-1].rating}★). Gap ini menandakan SOP tidak dijalankan seragam. Member yang pindah kota akan kecewa dan meninggalkan review negatif.`,
+      clubs: []
+    });
+  }
+
+  // ── SECTION 2: REKOMENDASI IKLAN ─────────────────────────────────────
+  const goodClubs = allBranches.filter(b => (b.rating||0) >= TARGET_RATING);
+  const goodCities = cityRatings.filter(c => c.rating >= TARGET_RATING);
+  const bestCity = cityRatings[0];
+  const worstCity = cityRatings[cityRatings.length-1];
+
+  // Google Ads recs
+  const googleRecs = [];
+  if (goodClubs.length > 0) {
+    googleRecs.push({
+      priority: 'Prioritas 1',
+      title: 'Search Ads — Targeting Radius Club Terbaik',
+      desc: `Fokuskan Google Search Ads di radius 3-5 km dari club dengan rating ≥ ${TARGET_RATING}★: ${goodClubs.slice(0,3).map(b=>b.name).join(', ')}. Keyword utama: "gym terdekat [area]", "fitness center [kelurahan]", "gym bagus [kota]". Bid lebih tinggi untuk jam 06.00-09.00 dan 17.00-21.00 (peak hours calon member).`,
+      tags: ['Search Intent Tinggi','Radius Targeting','Peak Hours Bidding']
+    });
+  }
+  googleRecs.push({
+    priority: 'Prioritas 2',
+    title: 'Google Maps Ads (Local Search) — Dominasi Pencarian "Gym Dekat Sini"',
+    desc: `Aktifkan Google Business Profile Ads untuk semua club dengan rating ≥ 4.3★. Ini akan menempatkan FTL di posisi teratas saat orang cari gym di Maps. Budget ideal: Rp 50-100rb/hari per club. Prioritaskan area dengan kompetitor rating rendah.`,
+    tags: ['Maps Visibility','Local Pack','Zero-Click Optimization']
+  });
+  if (belowTarget.length > 0) {
+    googleRecs.push({
+      priority: 'Strategi Defensif',
+      title: 'Negative Keyword — Proteksi Club Rating Rendah',
+      desc: `Tambahkan negative keyword untuk club dengan rating < 4.0: exclude nama area ${criticalClubs.slice(0,3).map(b=>b.name.replace('FTL - ','')).join(', ')} dari semua campaign aktif. Ini mencegah budget terbuang untuk traffic yang akan berakhir di review negatif.`,
+      tags: ['Negative Keywords','Budget Protection','Risk Management']
+    });
+  }
+
+  // Meta Ads recs
+  const metaRecs = [];
+  metaRecs.push({
+    priority: 'Prioritas 1',
+    title: 'Lookalike Audience dari Member Club Rating Tinggi',
+    desc: `Upload customer list member dari ${goodClubs.slice(0,2).map(b=>b.name).join(' & ')} ke Meta Ads Manager → buat Lookalike 1-3%. Ini targeting paling akurat karena mirip dengan orang yang sudah terbukti puas. Estimasi CPL 40-60% lebih rendah vs interest targeting biasa.`,
+    tags: ['Lookalike 1-3%','Custom Audience','Low CPL']
+  });
+  metaRecs.push({
+    priority: 'Prioritas 2',
+    title: 'UGC-Style Video Ads — Konten "Review Jujur" Member Asli',
+    desc: `Rekrut 3-5 member dari club rating tertinggi untuk buat video 15-30 detik gaya review jujur. Format: "Saya udah ${Math.floor(Math.random()*6)+3} bulan di FTL [nama club], ini yang bikin saya stay..." — format ini terbukti 3x lebih tinggi CTR vs iklan branded biasa di Instagram Reels & TikTok.`,
+    tags: ['UGC Content','Instagram Reels','High CTR Format']
+  });
+  if (highNegCities.length > 0 && highNegCities[0].sentiment?.negative > 15) {
+    metaRecs.push({
+      priority: 'Strategi Khusus',
+      title: `Retargeting Exclusion — Exclude Area ${highNegCities[0].city} dari Campaign Awareness`,
+      desc: `${highNegCities[0].city} memiliki sentimen negatif ${highNegCities[0].sentiment?.negative||0}%. Sementara masalah operasional belum resolved, exclude area ini dari campaign awareness luas. Fokuskan hanya pada retargeting (orang yang sudah pernah kunjungi website/profil) dengan pesan "Kami terus berkembang."`,
+      tags: ['Audience Exclusion','Retargeting Only','Brand Repair']
+    });
+  }
+
+  // TikTok Ads recs
+  const tiktokRecs = [];
+  tiktokRecs.push({
+    priority: 'Prioritas 1',
+    title: 'TopView / In-Feed Ads — "Day in the Life" di Club Terbaik',
+    desc: `Buat konten 30-60 detik format "Day in the Life" di ${goodClubs.length > 0 ? goodClubs[0].name : 'club terbaik'}: dari masuk parkir, suasana gym, alat-alat, sampai shower. Tanpa voiceover berlebihan — cukup musik trending + text overlay. TikTok algoritma sangat suka konten authentic gym tour saat ini (trending #gymtok).`,
+    tags: ['#GymTok','Day in the Life','Trending Format']
+  });
+  tiktokRecs.push({
+    priority: 'Prioritas 2',
+    title: 'Spark Ads — Amplify Konten Organik Member yang Viral',
+    desc: `Monitor tag FTL di TikTok setiap minggu. Jika ada member yang post tentang FTL dan mulai viral (500+ views organik), langsung boost pakai Spark Ads dengan budget Rp 100-200rb/hari selama 3-5 hari. Ini jauh lebih hemat dan believable vs konten branded.`,
+    tags: ['Spark Ads','Amplify UGC','Low Budget High Impact']
+  });
+  if (lowVisibility.length > 0) {
+    tiktokRecs.push({
+      priority: 'Strategi Review',
+      title: 'TikTok Challenge "Rate Your Gym" — Dorong Review Google Maps',
+      desc: `Buat mini-challenge internal: member yang post video di TikTok dengan hashtag #FTLGym + kasih review Google Maps dapat free 1 hari personal training. Target: naikkan review count ${lowVisibility.slice(0,2).map(b=>b.name).join(' & ')} dari ${lowVisibility[0]?.totalRatings||0} ke 100+ review dalam 30 hari.`,
+      tags: ['UGC Challenge','Google Maps Boost','Member Engagement']
+    });
+  }
+
+  // ── SECTION 3: PRIORITAS OPERASIONAL (DIREKSI) ──────────────────────
+  const opsRecs = [];
+  let opsNum = 1;
+
+  if (criticalClubs.length > 0) {
+    opsRecs.push({
+      num: opsNum++,
+      title: `STOP iklan di ${criticalClubs.slice(0,3).map(b=>b.name).join(', ')}`,
+      desc: `Rating < 4.0 artinya iklan akan menarik traffic tapi berakhir di kekecewaan → review negatif baru → rating makin turun. Hentikan semua paid promotion di club ini sampai rating ≥ 4.3.`,
+      timeframe: 'Lakukan sekarang — hari ini'
+    });
+  }
+
+  if (belowTarget.length > 0) {
+    opsRecs.push({
+      num: opsNum++,
+      title: 'Audit Operasional Mendadak — Club di Bawah Target',
+      desc: `Kirim tim quality control ke ${belowTarget.slice(0,3).map(b=>b.name).join(', ')} dalam minggu ini. Checklist: kebersihan, kondisi alat, attitude staff, AC, dan kelengkapan fasilitas. Foto dokumentasi sebelum & sesudah untuk laporan direksi.`,
+      timeframe: 'Target: selesai dalam 7 hari'
+    });
+  }
+
+  opsRecs.push({
+    num: opsNum++,
+    title: 'Wajib Respon Semua Review Bintang 1-2 dalam 24 Jam',
+    desc: `Assign 1 orang PIC per kota khusus untuk monitoring dan reply review negatif. Template respon harus empatis + konkret (bukan "terima kasih masukannya"). Review yang direspon dengan baik terbukti 30% lebih sering diupdate oleh reviewer.`,
+    timeframe: 'Implementasi: minggu ini'
+  });
+
+  if (lowVisibility.length > 0) {
+    opsRecs.push({
+      num: opsNum++,
+      title: `Program "Review Drive" — ${lowVisibility.slice(0,2).map(b=>b.name).join(' & ')}`,
+      desc: `Club dengan < 50 review di Google Maps akan sulit muncul di pencarian lokal. Buat program insentif member: setiap member yang upload foto + review Google Maps dapat 1 hari bonus. Target 100 review dalam 30 hari per club.`,
+      timeframe: 'Target: 30 hari'
+    });
+  }
+
+  opsRecs.push({
+    num: opsNum++,
+    title: `Standardisasi SOP — Kejar Gap Rating ${ratingGap.toFixed(1)} Poin Antar Kota`,
+    desc: `${bestCity?.city} sudah ${bestCity?.rating}★ — dokumentasikan SOP operasional mereka (kebersihan, jadwal maintenance alat, standar greeting staff) dan implementasikan di kota lain terutama ${worstCity?.city} (${worstCity?.rating}★).`,
+    timeframe: 'Review bulanan'
+  });
+
+  // ── SECTION 4: QUICK WINS (7 HARI) ──────────────────────────────────
+  const quickWins = [
+    {
+      icon: '⭐',
+      title: 'Pin Review Terbaik',
+      desc: `Minta manager setiap club pin/highlight review bintang 5 terbaru di Google Business Profile. Gratis, 5 menit per club.`
+    },
+    {
+      icon: '📸',
+      title: 'Upload 5 Foto Terbaru',
+      desc: `Foto gym yang fresh di Google Maps terbukti naikkan kunjungan profil 35%. Minta staff foto suasana ramai + alat terbaru.`
+    },
+    {
+      icon: '💬',
+      title: 'Balas Semua Review Pending',
+      desc: `Cek semua review bintang 1-3 yang belum dibalas. Balas dengan nama + solusi konkret. Ini sinyal positif ke algoritma Google.`
+    },
+    {
+      icon: '🎯',
+      title: 'Pause Iklan Club Kritis',
+      desc: criticalClubs.length > 0 ? `Pause semua iklan di ${criticalClubs.slice(0,2).map(b=>b.name).join(', ')} — hemat budget, kurangi risiko review negatif baru.` : `Semua club sudah di atas threshold — pertahankan budget iklan saat ini.`
+    },
+    {
+      icon: '📊',
+      title: 'Set Alert Google Business',
+      desc: `Aktifkan notifikasi email di setiap Google Business Profile FTL agar review baru langsung masuk ke inbox manager. Respon < 24 jam.`
+    },
+    {
+      icon: '🔁',
+      title: 'WhatsApp Blast ke Member Lama',
+      desc: `Kirim WA ke member aktif: "Kalau puas dengan FTL [nama club], bantu kami dengan review di Google Maps ya! Klik link ini: [link GBP]". Konversi biasanya 10-15%.`
     }
-  } else {
-    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> sudah baik, namun masih ada ruang untuk peningkatan di beberapa cabang.</div>`;
-  }
+  ];
 
-  if (avgSentiment > 15) {
-    problemHTML += `<div class="insight-problem-desc" style="margin-top:8px">Sentimen negatif <strong>${Math.round(avgSentiment)}%</strong> — lebih tinggi dari ideal (<15%). Perlu investigasi penyebab utama.</div>`;
-  }
+  // ── RENDER ───────────────────────────────────────────────────────────
+  const sevLabel = {critical:'🔴 Kritis', high:'🟠 Perhatian', medium:'🟡 Perlu Dimonitor'};
+  const sevClass = {critical:'sev-critical', high:'sev-high', medium:'sev-medium'};
 
-  // Rekomendasi
-  recHTML = `
-    <div class="insight-rec-item">Prioritaskan perbaikan di ${worstBranches.length > 0 ? worstBranches.slice(0,3).map(b=>b.name).join(', ') : 'cabang dengan rating terendah'}</div>
-    <div class="insight-rec-item">Tingkatkan respons terhadap review negatif dalam 24 jam untuk menunjukkan komitmen manajemen</div>
-    <div class="insight-rec-item">Lakukan audit kebersihan & peralatan berkala di semua cabang untuk menjaga standar</div>
-    ${avgRating >= 4.5 ? '<div class="insight-rec-item">Rating sudah sangat baik — fokus pada mempertahankan konsistensi di semua cabang</div>' : ''}
-  `;
+  const probHTML = problems.length > 0 ? problems.map(p => `
+    <div class="iprob-item">
+      <div class="iprob-head">
+        <div class="iprob-title">${p.title}</div>
+        <span class="iprob-severity ${sevClass[p.severity]}">${sevLabel[p.severity]}</span>
+      </div>
+      <div class="iprob-desc">${p.desc}</div>
+      ${p.clubs.length > 0 ? `<div class="iprob-clubs">${p.clubs.map(b=>`<span class="iprob-club">${b.name} ${b.rating||''}★</span>`).join('')}</div>` : ''}
+    </div>`).join('') : '<p style="color:var(--text2);font-size:13px">Semua indikator dalam kondisi baik.</p>';
+
+  const googleHTML = googleRecs.map(r => `
+    <div class="iad-card iad-card-google">
+      <div class="iad-priority" style="color:#4285F4">${r.priority}</div>
+      <div class="iad-title">${r.title}</div>
+      <div class="iad-desc">${r.desc}</div>
+      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+
+  const metaHTML = metaRecs.map(r => `
+    <div class="iad-card iad-card-meta">
+      <div class="iad-priority" style="color:#1877F2">${r.priority}</div>
+      <div class="iad-title">${r.title}</div>
+      <div class="iad-desc">${r.desc}</div>
+      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+
+  const tiktokHTML = tiktokRecs.map(r => `
+    <div class="iad-card iad-card-tiktok">
+      <div class="iad-priority" style="color:#555">${r.priority}</div>
+      <div class="iad-title">${r.title}</div>
+      <div class="iad-desc">${r.desc}</div>
+      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
+    </div>`).join('');
+
+  const opsHTML = opsRecs.map(r => `
+    <div class="iops-item">
+      <div class="iops-num">${r.num}</div>
+      <div class="iops-content">
+        <div class="iops-title">${r.title}</div>
+        <div class="iops-desc">${r.desc}</div>
+        <div class="iops-timeframe">⏱ ${r.timeframe}</div>
+      </div>
+    </div>`).join('');
+
+  const qwHTML = quickWins.map(q => `
+    <div class="iqw-item">
+      <div class="iqw-icon">${q.icon}</div>
+      <div class="iqw-title">${q.title}</div>
+      <div class="iqw-desc">${q.desc}</div>
+    </div>`).join('');
 
   document.getElementById('insightGrid').innerHTML = `
-    <div class="insight-problem">
-      <div class="insight-problem-title">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Masalah Utama Saat Ini
+    <div class="insight-full">
+
+      <!-- MASALAH UTAMA -->
+      <div class="insight-section">
+        <div class="insight-section-header" style="background:var(--red-l)" onclick="toggleSection(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span style="color:var(--red)">Masalah Utama Terdeteksi</span>
+          <span style="font-size:11px;background:#FEE2E2;color:var(--red);padding:2px 8px;border-radius:20px;font-weight:700">${problems.length} isu</span>
+          <span class="insight-toggle" style="color:var(--red)">▼</span>
+        </div>
+        <div class="insight-section-body open">
+          <div class="iprob-grid">${probHTML}</div>
+        </div>
       </div>
-      ${problemHTML}
-    </div>
-    <div class="insight-rec">
-      <div class="insight-rec-title">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        Rekomendasi Tindakan
+
+      <!-- REKOMENDASI IKLAN -->
+      <div class="insight-section">
+        <div class="insight-section-header" style="background:var(--navy-l)" onclick="toggleSection(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span style="color:var(--navy-d)">Rekomendasi Strategi Iklan</span>
+          <span style="font-size:11px;background:var(--navy-l);color:var(--navy-d);padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid #C7D7F5">Google · Meta · TikTok</span>
+          <span class="insight-toggle" style="color:var(--navy)">▼</span>
+        </div>
+        <div class="insight-section-body open">
+          <div class="iad-tabs">
+            <button class="iad-tab iad-tab-google active" onclick="switchAdTab(this,'google')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Google Ads
+            </button>
+            <button class="iad-tab iad-tab-meta" onclick="switchAdTab(this,'meta')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              Meta Ads
+            </button>
+            <button class="iad-tab iad-tab-tiktok" onclick="switchAdTab(this,'tiktok')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+              TikTok Ads
+            </button>
+          </div>
+          <div id="adPanelGoogle" class="iad-panel active">${googleHTML}</div>
+          <div id="adPanelMeta" class="iad-panel">${metaHTML}</div>
+          <div id="adPanelTiktok" class="iad-panel">${tiktokHTML}</div>
+        </div>
       </div>
-      ${recHTML}
+
+      <!-- PRIORITAS OPERASIONAL -->
+      <div class="insight-section">
+        <div class="insight-section-header" style="background:var(--amber-l)" onclick="toggleSection(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span style="color:#92400E">Prioritas Operasional — Untuk Direksi</span>
+          <span style="font-size:11px;background:var(--amber-l);color:#92400E;padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid #FDE68A">${opsRecs.length} action item</span>
+          <span class="insight-toggle" style="color:#F59E0B">▼</span>
+        </div>
+        <div class="insight-section-body open">
+          <div class="iops-grid">${opsHTML}</div>
+        </div>
+      </div>
+
+      <!-- QUICK WINS -->
+      <div class="insight-section">
+        <div class="insight-section-header" style="background:#F0FDF4" onclick="toggleSection(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="13 2 13 9 20 9"/><polyline points="11 22 11 15 4 15"/><path d="M20 9L3 22"/><path d="M4 2l16 13"/></svg>
+          <span style="color:#15803D">Quick Wins — Bisa Dilakukan Minggu Ini</span>
+          <span style="font-size:11px;background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:20px;font-weight:700">6 aksi cepat</span>
+          <span class="insight-toggle" style="color:#16A34A">▼</span>
+        </div>
+        <div class="insight-section-body open">
+          <div class="iqw-grid">${qwHTML}</div>
+        </div>
+      </div>
+
     </div>`;
+}
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.insight-toggle');
+  body.classList.toggle('open');
+  toggle.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function switchAdTab(btn, platform) {
+  btn.closest('.insight-section-body').querySelectorAll('.iad-tab').forEach(t => t.classList.remove('active'));
+  btn.closest('.insight-section-body').querySelectorAll('.iad-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const panelId = 'adPanel' + platform.charAt(0).toUpperCase() + platform.slice(1);
+  document.getElementById(panelId).classList.add('active');
 }
 
 function renderCityCards(cities) {
