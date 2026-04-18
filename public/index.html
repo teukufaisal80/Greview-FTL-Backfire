@@ -18,6 +18,33 @@
   --shadow:0 1px 3px rgba(0,0,0,.06);
   --shadow-md:0 4px 16px rgba(0,0,0,.08);
 }
+[data-theme="dark"]{
+  --navy:#4A90D9;--navy-d:#82B4E8;--navy-l:rgba(74,144,217,.15);
+  --text:#F5F5F7;--text2:#98989D;--text3:#636366;
+  --bg:#000000;--surface:#1C1C1E;--border:rgba(255,255,255,.1);
+  --red:#FF453A;--red-l:rgba(255,69,58,.15);
+  --amber:#FF9F0A;--amber-l:rgba(255,159,10,.15);
+  --blue:#0A84FF;--blue-l:rgba(10,132,255,.15);
+  --shadow:0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:0 4px 16px rgba(0,0,0,.4);
+}
+/* Dark mode nav */
+[data-theme="dark"] nav,[data-theme="dark"] .filter-bar{background:rgba(28,28,30,.85)!important}
+[data-theme="dark"] .filter-chips{background:rgba(255,255,255,.08)!important}
+[data-theme="dark"] .chip.active{background:rgba(255,255,255,.15)!important;color:var(--navy-d)!important}
+[data-theme="dark"] .filter-select{background:var(--surface)!important;color:var(--text)!important;border-color:rgba(255,255,255,.15)!important}
+[data-theme="dark"] .ranking-tabs{background:rgba(255,255,255,.08)!important}
+[data-theme="dark"] .ranking-tab.active{background:rgba(255,255,255,.15)!important}
+[data-theme="dark"] .iops-item{background:rgba(255,255,255,.05)!important}
+[data-theme="dark"] .iqw-item{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.1)!important}
+[data-theme="dark"] .insight-section-body{background:var(--surface)}
+[data-theme="dark"] .review-item{background:var(--surface)}
+[data-theme="dark"] .city-card,[data-theme="dark"] .chart-card,[data-theme="dark"] .metric,[data-theme="dark"] .insight-box,[data-theme="dark"] .ranking-section{background:var(--surface)}
+
+/* Dark mode toggle button */
+.dark-toggle{width:36px;height:36px;border-radius:50%;border:0.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+.dark-toggle:hover{background:var(--bg)}
+.dark-toggle svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2;transition:.2s}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
 /* NAV — macOS style */
@@ -231,16 +258,30 @@ main{max-width:1200px;margin:0 auto;padding:28px}
 /* Quick wins */
 .iqw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .iqw-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px}
-.iqw-icon{font-size:20px;margin-bottom:6px}
+.iqw-icon{display:none}
 .iqw-title{font-size:12px;font-weight:700;margin-bottom:4px}
 .iqw-desc{font-size:12px;color:var(--text2);line-height:1.5}
 @media(max-width:768px){.iqw-grid{grid-template-columns:1fr}}
 
 /* LOADING / ERROR */
 .state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.error-card{background:var(--red-l);border:1px solid #FECACA;border-radius:var(--r);padding:16px 20px;color:var(--red);font-size:13px}
+.error-card{background:var(--red-l);border:0.5px solid rgba(255,59,48,.3);border-radius:var(--r);padding:16px 20px;color:var(--red);font-size:13px}
+
+/* SKELETON LOADING */
+.skeleton-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.skeleton-card{background:var(--surface);border-radius:18px;padding:20px 22px;border:0.5px solid rgba(0,0,0,.06)}
+.skeleton-line{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--bg) 25%,rgba(0,0,0,.04) 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;margin-bottom:10px}
+.skeleton-line.lg{height:32px;width:60%}
+.skeleton-line.sm{height:10px;width:40%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+[data-theme="dark"] .skeleton-line{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(28,28,30,.92);color:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+[data-theme="dark"] .toast{background:rgba(58,58,60,.95)}
 
 /* CONFIDENCE */
 .conf-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
@@ -262,7 +303,7 @@ main{max-width:1200px;margin:0 auto;padding:28px}
 
 <nav>
   <div class="nav-brand">
-    <img src="/ftl-logo.png" class="nav-logo" alt="FTL Gym" style="height:28px;width:auto">
+    <img src="/ftl-logo.png" class="nav-logo" alt="FTL Gym" style="height:40px;width:auto">
   </div>
   <div class="nav-links">
     <a href="/" class="nav-link active">Dashboard</a>
@@ -273,6 +314,9 @@ main{max-width:1200px;margin:0 auto;padding:28px}
     <span id="sourceBadge" style="display:none"></span>
     <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
     <button class="btn" onclick="clearCacheAndReload()">Refresh</button>
+    <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+      <svg id="darkIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </nav>
 
@@ -529,19 +573,41 @@ function renderAll() {
   renderRanking(data);
 }
 
+function animateCount(el, from, to, decimals=0, suffix='', duration=600) {
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const val = from + (to - from) * ease;
+    el.textContent = decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString('id-ID') + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
 function renderMetrics(data) {
   const cities = data.cities || [];
   const totalRatings = cities.reduce((s,c) => s + (c.totalRatings||0), 0);
   const overallRating = cities.length > 0 ? cities.reduce((s,c) => s + (c.avgRating||0), 0) / cities.length : 0;
   const avgSentiment = cities.length > 0 ? cities.reduce((s,c) => s + (c.sentiment?.positive||0), 0) / cities.length : 0;
-  const worstCity = cities.length > 0 ? [...cities].sort((a,b) => (a.avgRating||0)-(b.avgRating||0))[0] : null;
+  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
+  const worstBranch = allBranches.length > 0 ? [...allBranches].filter(b=>b.rating).sort((a,b) => (a.rating||0)-(b.rating||0))[0] : null;
 
-  document.getElementById('mRating').textContent = overallRating ? overallRating.toFixed(1) : '—';
-  document.getElementById('mReviews').textContent = totalRatings.toLocaleString('id-ID');
-  document.getElementById('mReviewsSub').textContent = `dari ${cities.reduce((s,c)=>s+(c.branchCount||0),0)} cabang`;
-  document.getElementById('mSentiment').textContent = avgSentiment ? Math.round(avgSentiment) + '%' : '—';
-  document.getElementById('mAttention').textContent = worstCity ? worstCity.city : '—';
-  document.getElementById('mAttentionSub').textContent = worstCity ? `rating ${worstCity.avgRating}` : '';
+  const mRating = document.getElementById('mRating');
+  const mReviews = document.getElementById('mReviews');
+  const mSentiment = document.getElementById('mSentiment');
+
+  if (overallRating) animateCount(mRating, 0, overallRating, 1);
+  else mRating.textContent = '—';
+
+  animateCount(mReviews, 0, totalRatings, 0);
+  document.getElementById('mReviewsSub').textContent = `from ${allBranches.length} branches`;
+
+  if (avgSentiment) animateCount(mSentiment, 0, Math.round(avgSentiment), 0, '%');
+  else mSentiment.textContent = '—';
+
+  document.getElementById('mAttention').textContent = worstBranch ? worstBranch.name.replace('FTL - ','').replace('Stride - ','') : '—';
+  document.getElementById('mAttentionSub').textContent = worstBranch ? `rating ${worstBranch.rating}` : '';
 }
 
 const TARGET_RATING = 4.7;
@@ -845,7 +911,7 @@ function renderInsight(data) {
       <div class="iops-content">
         <div class="iops-title">${r.title}</div>
         <div class="iops-desc">${r.desc}</div>
-        <div class="iops-timeframe">⏱ ${r.timeframe}</div>
+        <div class="iops-timeframe">${r.timeframe}</div>
       </div>
     </div>`).join('');
 
@@ -1085,19 +1151,30 @@ let activeStarFilter = 'all';
 
 function renderReviews(data) {
   const cities = data.cities || [];
-  let reviews = cities.flatMap((c) => (c.recentReviews||[]).map((r) => ({ ...r, city: c.city })));
+  // Collect reviews with club name
+  let reviews = [];
+  cities.forEach(c => {
+    (c.branches||[]).forEach(b => {
+      (b.reviews||[]).forEach(r => reviews.push({...r, city:c.city, clubName:b.name}));
+    });
+    // fallback to recentReviews if no branch-level reviews
+    if (!cities.some(cc => (cc.branches||[]).some(bb => (bb.reviews||[]).length > 0))) {
+      (c.recentReviews||[]).forEach(r => reviews.push({...r, city:c.city, clubName:r.clubName||c.city}));
+    }
+  });
+  if (!reviews.length) {
+    reviews = cities.flatMap(c => (c.recentReviews||[]).map(r => ({...r, city:c.city, clubName:c.city})));
+  }
+
   reviews = filterReviewsByTime(reviews);
-  // Sort: terbaru (by time string heuristic), then by rating asc for negatives
   reviews = reviews.sort((a,b) => {
     const timeA = (a.time||'').includes('hari') ? 0 : (a.time||'').includes('minggu') ? 1 : (a.time||'').includes('bulan') ? 2 : 3;
     const timeB = (b.time||'').includes('hari') ? 0 : (b.time||'').includes('minggu') ? 1 : (b.time||'').includes('bulan') ? 2 : 3;
     return timeA - timeB;
   });
 
-  // Apply star filter
   if (activeStarFilter !== 'all') {
-    const star = parseInt(activeStarFilter);
-    reviews = reviews.filter(r => (r.rating||0) === star);
+    reviews = reviews.filter(r => (r.rating||0) === parseInt(activeStarFilter));
   }
 
   reviews = reviews.slice(0, 20);
@@ -1106,10 +1183,13 @@ function renderReviews(data) {
   list.innerHTML = reviews.map((r) => `
     <div class="review-item">
       <div class="review-top">
-        <span class="reviewer">${r.author||'Anonim'}</span>
-        <span class="review-city">${r.city}</span>
+        <span class="reviewer">${r.author||'Anonymous'}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="review-city">${r.clubName||r.city}</span>
+          ${r.clubName && r.clubName !== r.city ? `<span class="review-city" style="background:var(--navy-l);color:var(--navy-d);border-color:transparent">${r.city}</span>` : ''}
+        </div>
       </div>
-      <div class="review-text">${r.text||'(tidak ada teks)'}</div>
+      <div class="review-text">${r.text||'(no review text)'}</div>
       <div class="review-foot">
         <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
         <span class="review-time">${r.time||''}</span>
@@ -1150,8 +1230,10 @@ document.getElementById('timeChips').addEventListener('click', (e) => {
 });
 
 async function clearCacheAndReload() {
+  showToast('Clearing cache...');
   await fetch('/api/cache/clear');
-  location.reload();
+  showToast('Refreshing data...');
+  setTimeout(() => location.reload(), 500);
 }
 
 function showError(msg, detail) {
@@ -1306,7 +1388,75 @@ document.getElementById('reviewFilterBar').addEventListener('click', (e) => {
   if (rawData) renderReviews(getFilteredData());
 });
 
+// ── Dark mode ──────────────────────────────────────────────────────────────
+function initDarkMode() {
+  const saved = localStorage.getItem('ftl-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  if (isDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    updateDarkIcon(true);
+  }
+}
+
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('ftl-theme', 'light');
+    updateDarkIcon(false);
+    showToast('Light mode');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('ftl-theme', 'dark');
+    updateDarkIcon(true);
+    showToast('Dark mode');
+  }
+}
+
+function updateDarkIcon(isDark) {
+  const icon = document.getElementById('darkIcon');
+  if (!icon) return;
+  if (isDark) {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Skeleton loading ────────────────────────────────────────────────────────
+function showSkeleton() {
+  const el = document.getElementById('stateLoading');
+  el.innerHTML = `
+    <div style="width:100%;max-width:1200px;padding:28px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Summary</div>
+      <div class="skeleton-grid">
+        ${[1,2,3,4].map(()=>`<div class="skeleton-card"><div class="skeleton-line sm"></div><div class="skeleton-line lg"></div><div class="skeleton-line sm"></div></div>`).join('')}
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Insights & Recommendations</div>
+      <div class="skeleton-card" style="height:120px;border-radius:18px"></div>
+    </div>`;
+  el.style.display = 'flex';
+  el.style.alignItems = 'flex-start';
+  el.style.justifyContent = 'center';
+  el.style.minHeight = '0';
+}
+
+initDarkMode();
+showSkeleton();
 loadDashboard();
 </script>
+<div class="toast" id="toast"></div>
 </body>
 </html>
