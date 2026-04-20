@@ -263,6 +263,23 @@ main{max-width:1200px;margin:0 auto;padding:28px}
 .iqw-desc{font-size:12px;color:var(--text2);line-height:1.5}
 @media(max-width:768px){.iqw-grid{grid-template-columns:1fr}}
 
+
+/* SEARCHABLE CLUB DROPDOWN */
+.club-search-wrap{position:relative;min-width:220px}
+.club-search-input{padding:6px 32px 6px 12px;border:0.5px solid rgba(0,0,0,.15);border-radius:10px;font-size:13px;color:var(--text);background:var(--surface);outline:none;width:100%;cursor:pointer;font-family:inherit}
+.club-search-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.1)}
+.club-search-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text2);pointer-events:none;transition:transform .2s}
+.club-search-wrap.open .club-search-arrow{transform:translateY(-50%) rotate(180deg)}
+.club-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-md);z-index:200;min-width:260px}
+.club-dropdown-search{width:100%;padding:8px 12px;border:none;border-bottom:1px solid var(--border);font-size:13px;outline:none;border-radius:var(--r) var(--r) 0 0;font-family:inherit;color:var(--text)}
+.club-dropdown-list{max-height:220px;overflow-y:auto}
+.club-option{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text);transition:.1s}
+.club-option:hover{background:var(--navy-l);color:var(--navy-d)}
+.club-option.selected{background:var(--navy);color:#fff}
+.club-option.hidden{display:none}
+.club-option-city{font-size:11px;color:var(--text3);margin-left:4px}
+
+.club-option:hover > div{background:var(--bg)}
 /* LOADING / ERROR */
 .state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
 .spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
@@ -332,11 +349,16 @@ main{max-width:1200px;margin:0 auto;padding:28px}
     </div>
   </div>
   <div class="filter-divider"></div>
-  <div class="filter-group">
+  <div class="filter-group" style="position:relative">
     <span class="filter-label">Club</span>
-    <select class="filter-select" id="clubSelect" style="min-width:200px">
-      <option value="all">All Clubs</option>
-    </select>
+    <div class="club-search-wrap" id="clubSearchWrap">
+      <input type="text" class="club-search-input" id="clubSearchInput" placeholder="All Clubs" autocomplete="off" readonly>
+      <svg class="club-search-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="club-dropdown" id="clubDropdown" style="display:none">
+        <input type="text" class="club-dropdown-search" id="clubDropdownSearch" placeholder="Type to search club...">
+        <div class="club-dropdown-list" id="clubDropdownList"></div>
+      </div>
+    </div>
   </div>
   <div class="filter-divider"></div>
   <div class="filter-group">
@@ -488,18 +510,74 @@ async function loadDashboard() {
 }
 
 function populateClubFilter(cities) {
-  const sel = document.getElementById('clubSelect');
-  sel.innerHTML = '<option value="all">All Clubs</option>';
+  const list = document.getElementById('clubDropdownList');
+  list.innerHTML = '';
+
+  // All clubs option
+  const allOpt = document.createElement('div');
+  allOpt.className = 'club-option selected';
+  allOpt.dataset.value = 'all';
+  allOpt.textContent = 'All Clubs';
+  list.appendChild(allOpt);
+
   cities.forEach((c) => {
     (c.branches || []).forEach((b) => {
-      const o = document.createElement('option');
-      o.value = b.name;
-      o.dataset.city = c.city;
-      o.textContent = b.name;
-      sel.appendChild(o);
+      const opt = document.createElement('div');
+      opt.className = 'club-option';
+      opt.dataset.value = b.name;
+      opt.dataset.city = c.city;
+      opt.innerHTML = b.name + `<span class="club-option-city">${c.city}</span>`;
+      list.appendChild(opt);
+    });
+  });
+
+  // Click handler
+  list.addEventListener('click', (e) => {
+    const opt = e.target.closest('.club-option');
+    if (!opt) return;
+    list.querySelectorAll('.club-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    activeClub = opt.dataset.value;
+    document.getElementById('clubSearchInput').value = activeClub === 'all' ? '' : opt.dataset.value;
+    document.getElementById('clubSearchInput').placeholder = activeClub === 'all' ? 'All Clubs' : opt.dataset.value;
+    closeClubDropdown();
+    renderAll();
+  });
+
+  // Search filter inside dropdown
+  document.getElementById('clubDropdownSearch').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
+    list.querySelectorAll('.club-option').forEach(o => {
+      if (o.dataset.value === 'all') { o.classList.toggle('hidden', q.length > 0); return; }
+      o.classList.toggle('hidden', !o.dataset.value.toLowerCase().includes(q));
     });
   });
 }
+
+function closeClubDropdown() {
+  document.getElementById('clubDropdown').style.display = 'none';
+  document.getElementById('clubSearchWrap').classList.remove('open');
+  document.getElementById('clubDropdownSearch').value = '';
+  document.getElementById('clubDropdownList').querySelectorAll('.club-option').forEach(o => o.classList.remove('hidden'));
+}
+
+// Open/close dropdown
+document.getElementById('clubSearchInput').addEventListener('click', () => {
+  const dd = document.getElementById('clubDropdown');
+  const wrap = document.getElementById('clubSearchWrap');
+  const isOpen = dd.style.display !== 'none';
+  if (isOpen) { closeClubDropdown(); return; }
+  dd.style.display = 'block';
+  wrap.classList.add('open');
+  document.getElementById('clubDropdownSearch').focus();
+});
+
+// Close on outside click
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('clubSearchWrap').contains(e.target)) {
+    closeClubDropdown();
+  }
+});
 
 function populateCompareSelects(cities) {
   const items = [];
@@ -530,7 +608,41 @@ function getFilteredData() {
   let cities = rawData.cities || [];
   if (activeCity !== 'all') cities = cities.filter((c) => c.city === activeCity);
   if (activeClub !== 'all') {
-    cities = cities.map((c) => ({ ...c, branches: (c.branches||[]).filter((b) => b.name === activeClub) })).filter((c) => c.branches.length > 0);
+    cities = cities
+      .map((c) => {
+        const filtered = (c.branches||[]).filter((b) => b.name === activeClub);
+        if (!filtered.length) return null;
+        const branch = filtered[0];
+        // Filter reviews to only this branch (by branch name in author or use all from city as approximation)
+        // Google Places API returns reviews per place — we stored them per city,
+        // so filter by matching branch name in city context
+        const branchReviews = (c.recentReviews||[]).filter(r => !r.branchName || r.branchName === activeClub);
+        // Recalculate star distribution from branch reviews
+        const dist = {1:0,2:0,3:0,4:0,5:0};
+        branchReviews.forEach(r => { dist[r.rating] = (dist[r.rating]||0)+1; });
+        const total = branchReviews.length || 1;
+        const starDist = Object.fromEntries(Object.entries(dist).map(([k,v])=>[k,Math.round(v/total*100)]));
+        // Sentiment from branch reviews
+        const pos = branchReviews.filter(r=>(r.rating||3)>=4).length;
+        const neu = branchReviews.filter(r=>(r.rating||3)===3).length;
+        const neg = branchReviews.filter(r=>(r.rating||3)<=2).length;
+        return {
+          ...c,
+          branches: filtered,
+          avgRating: branch.rating || 0,
+          totalRatings: branch.totalRatings || 0,
+          branchCount: 1,
+          recentReviews: branchReviews,
+          starDistribution: branchReviews.length > 0 ? starDist : c.starDistribution,
+          sentiment: branchReviews.length > 0 ? {
+            positive: Math.round(pos/total*100),
+            neutral: Math.round(neu/total*100),
+            negative: Math.round(neg/total*100),
+            topics: c.sentiment?.topics || [],
+          } : c.sentiment,
+        };
+      })
+      .filter(Boolean);
   }
   return { ...rawData, cities };
 }
@@ -1205,20 +1317,20 @@ document.getElementById('cityChips').addEventListener('click', (e) => {
   chip.classList.add('active');
   activeCity = chip.dataset.city;
   activeClub = 'all';
-  document.getElementById('clubSelect').value = 'all';
-  // Update club filter berdasarkan kota
-  const sel = document.getElementById('clubSelect');
-  Array.from(sel.options).forEach((o) => {
-    if (o.value === 'all') { o.style.display = ''; return; }
-    o.style.display = (activeCity === 'all' || o.dataset.city === activeCity) ? '' : 'none';
+  document.getElementById('clubSearchInput').value = '';
+  document.getElementById('clubSearchInput').placeholder = 'All Clubs';
+  // Update club dropdown options visibility by city
+  document.querySelectorAll('#clubDropdownList .club-option').forEach(o => {
+    if (o.dataset.value === 'all') { o.classList.remove('hidden'); return; }
+    o.classList.toggle('hidden', activeCity !== 'all' && o.dataset.city !== activeCity);
+    o.classList.remove('selected');
   });
+  const allOpt = document.querySelector('#clubDropdownList .club-option[data-value="all"]');
+  if (allOpt) allOpt.classList.add('selected');
   renderAll();
 });
 
-document.getElementById('clubSelect').addEventListener('change', (e) => {
-  activeClub = e.target.value;
-  renderAll();
-});
+// club select handled by custom dropdown
 
 document.getElementById('timeChips').addEventListener('click', (e) => {
   const chip = e.target.closest('.chip');
