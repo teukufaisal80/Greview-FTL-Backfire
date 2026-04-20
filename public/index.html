@@ -1393,7 +1393,8 @@ function drawRankingTable(allBranches, scope) {
 
   if (scope === 'national') {
     const top5 = sorted.slice(0, 5);
-    const bottom5 = [...sorted].reverse().slice(0, 5);
+    const top5ids = new Set(top5.map(b => b.name));
+    const bottom5 = [...sorted].reverse().filter(b => !top5ids.has(b.name)).slice(0, 5);
     el.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div>
@@ -1407,7 +1408,8 @@ function drawRankingTable(allBranches, scope) {
       </div>`;
   } else {
     const top5 = sorted.slice(0, 5);
-    const bottom5 = [...sorted].reverse().slice(0, 5);
+    const top5ids = new Set(top5.map(b => b.name));
+    const bottom5 = [...sorted].reverse().filter(b => !top5ids.has(b.name)).slice(0, 5);
     el.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div>
