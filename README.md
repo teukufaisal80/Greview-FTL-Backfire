@@ -99,5 +99,3 @@ Edit file `.env` untuk mengubah:
 - `BRAND_NAME` — nama brand yang dicari
 - `CITIES` — daftar kota (pisah koma)
 - `CACHE_TTL` — durasi cache dalam detik
-"# Greview-FTL-Backfire" 
-"# Greview-FTL-Backfire" 
