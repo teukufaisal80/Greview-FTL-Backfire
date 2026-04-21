@@ -1,424 +1,1274 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>FTL Gym — Analisis Competitors</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF4FF;
-  --text:#1C1C1E;--text2:#6B7280;--text3:#AEAEB2;
-  --bg:#F2F2F7;--surface:#FFFFFF;--border:rgba(0,0,0,.08);
-  --red:#FF3B30;--red-l:#FFF1F0;--amber:#FF9500;--amber-l:#FFF8EC;
-  --blue:#007AFF;--blue-l:#EBF5FF;
-  --r:14px;--r-sm:10px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08)
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>FTL Gym — Analisis Competitors</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-[data-theme="dark"]{
-  --navy:#4A90D9;--navy-d:#82B4E8;--navy-l:rgba(74,144,217,.15);
-  --text:#F5F5F7;--text2:#98989D;--text3:#636366;
-  --bg:#000000;--surface:#1C1C1E;--border:rgba(255,255,255,.1);
-  --red:#FF453A;--red-l:rgba(255,69,58,.15);
-  --amber:#FF9F0A;--amber-l:rgba(255,159,10,.15);
-  --blue:#0A84FF;--blue-l:rgba(10,132,255,.15);
-  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);
-}
-[data-theme="dark"] nav,[data-theme="dark"] .control-bar{background:rgba(28,28,30,.85)!important}
-[data-theme="dark"] .radius-group{background:rgba(255,255,255,.08)!important}
-[data-theme="dark"] .chip.active{background:rgba(255,255,255,.15)!important;color:var(--navy-d)!important}
-[data-theme="dark"] .comp-card,[data-theme="dark"] .overall-box,[data-theme="dark"] .branch-card,[data-theme="dark"] .filter-bar{background:var(--surface)!important}
-.dark-toggle{width:36px;height:36px;border-radius:50%;border:0.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
-.dark-toggle:hover{background:var(--bg)}
-.dark-toggle svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(28,28,30,.92);color:#fff;backdrop-filter:blur(20px);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    :root {
+      --navy: #1B3A6B;
+      --navy-d: #152D54;
+      --navy-l: #EEF4FF;
+      --text: #1C1C1E;
+      --text2: #6B7280;
+      --text3: #AEAEB2;
+      --bg: #F2F2F7;
+      --surface: #FFFFFF;
+      --border: rgba(0, 0, 0, .08);
+      --red: #FF3B30;
+      --red-l: #FFF1F0;
+      --amber: #FF9500;
+      --amber-l: #FFF8EC;
+      --blue: #007AFF;
+      --blue-l: #EBF5FF;
+      --r: 14px;
+      --r-sm: 10px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .06);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, .08)
+    }
 
-/* ISSUE BAR CHART */
-.issue-chart-section{background:var(--surface);border:0.5px solid rgba(0,0,0,.06);border-radius:18px;padding:20px 24px;margin-bottom:14px;box-shadow:var(--shadow)}
-.issue-chart-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
-.issue-bar-row{margin-bottom:12px;cursor:pointer;border-radius:10px;padding:8px 10px;transition:.15s}
-.issue-bar-row:hover{background:var(--bg)}
-.issue-bar-row.active-row{background:var(--navy-l)}
-.issue-bar-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.issue-bar-label{font-size:13px;font-weight:500;color:var(--text)}
-.issue-bar-pct{font-size:13px;font-weight:600}
-.issue-bar-track{height:8px;background:rgba(0,0,0,.06);border-radius:4px;overflow:hidden}
-.issue-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-[data-theme="dark"] .issue-bar-track{background:rgba(255,255,255,.08)}
-.issue-drill{margin-top:14px;border-radius:12px;padding:14px 16px;border:0.5px solid var(--border);animation:fadeIn .2s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.issue-drill-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.issue-drill-comp{padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px;cursor:pointer;color:var(--navy-d);font-weight:500}
-.issue-drill-comp:last-child{border-bottom:none}
-.issue-drill-comp:hover{color:var(--navy)}
+    [data-theme="dark"] {
+      --navy: #4A90D9;
+      --navy-d: #82B4E8;
+      --navy-l: rgba(74, 144, 217, .15);
+      --text: #F5F5F7;
+      --text2: #98989D;
+      --text3: #636366;
+      --bg: #000000;
+      --surface: #1C1C1E;
+      --border: rgba(255, 255, 255, .1);
+      --red: #FF453A;
+      --red-l: rgba(255, 69, 58, .15);
+      --amber: #FF9F0A;
+      --amber-l: rgba(255, 159, 10, .15);
+      --blue: #0A84FF;
+      --blue-l: rgba(10, 132, 255, .15);
+      --shadow: 0 1px 3px rgba(0, 0, 0, .3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, .4);
+    }
 
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
-nav{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 28px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:100}
-.nav-brand{display:flex;align-items:center;gap:0}
-.nav-logo-img{height:28px;width:auto}
-.nav-links{display:flex;gap:2px;margin-left:28px}
-.nav-link{padding:6px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:.15s}
-.nav-link:hover{background:var(--bg)}
-.nav-link:hover{background:rgba(0,0,0,.05);color:var(--text)}
-.nav-link.active{background:rgba(27,58,107,.1);color:var(--navy-d);font-weight:600}
-.control-bar{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:0.5px solid rgba(0,0,0,.08);padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.ctrl-label{font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap}
-.ctrl-select{padding:7px 12px;border:0.5px solid rgba(0,0,0,.15);border-radius:10px;font-size:13px;color:var(--text);background:var(--surface);min-width:240px;flex:1;max-width:400px;outline:none;font-family:inherit}
-.ctrl-select:focus{border-color:var(--navy)}
-.radius-group{display:flex;gap:4px;background:rgba(0,0,0,.05);border-radius:10px;padding:3px}
-.chip{padding:5px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:.15s}
-.chip:hover{color:var(--text)}
-.chip.active{background:var(--surface);color:var(--navy-d);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.btn-analyze{padding:8px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--navy);color:#fff;transition:.15s;flex-shrink:0;letter-spacing:-.01em}
-.btn-analyze:hover{background:var(--navy-d)}
-.btn-analyze:disabled{opacity:.5;cursor:not-allowed}
-main{max-width:1200px;margin:0 auto;padding:24px}
-.state-center{display:flex;align-items:center;justify-content:center;min-height:300px;flex-direction:column;gap:12px;color:var(--text2);text-align:center}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
-.branch-card{background:var(--surface);border-radius:18px;border:0.5px solid rgba(0,0,0,.06);padding:18px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:4px;box-shadow:var(--shadow)}
-.branch-icon{width:44px;height:44px;border-radius:var(--r);background:var(--navy-l);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.branch-icon svg{width:22px;height:22px;stroke:var(--navy-d);fill:none;stroke-width:2}
-.branch-info h2{font-size:15px;font-weight:700}
-.branch-info p{font-size:12px;color:var(--text2);margin-top:2px}
-.branch-stats{display:flex;gap:20px;margin-left:auto}
-.bstat{text-align:center}
-.bstat-val{font-size:20px;font-weight:800}
-.bstat-label{font-size:11px;color:var(--text2)}
+    [data-theme="dark"] nav,
+    [data-theme="dark"] .control-bar {
+      background: rgba(28, 28, 30, .85) !important
+    }
 
-/* OVERALL BOX — clickable recs */
-.overall-box{background:var(--surface);border:0.5px solid rgba(27,58,107,.2);border-radius:18px;padding:22px 26px;margin-bottom:4px;box-shadow:var(--shadow-md)}
-.overall-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.overall-title{font-size:15px;font-weight:700;color:var(--navy-d)}
-.overall-badge{font-size:11px;background:var(--navy-l);color:var(--navy-d);padding:3px 10px;border-radius:20px;font-weight:600}
-.overall-recs{display:flex;flex-direction:column;gap:10px}
-.overall-rec{background:var(--navy-l);border-radius:var(--r-sm);padding:14px 16px;cursor:pointer;border:2px solid transparent;transition:.15s}
-.overall-rec:hover{border-color:var(--navy);background:#E0E8FF}
-.overall-rec-priority{font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
-.overall-rec-text{font-size:13px;font-weight:600;color:var(--navy-d)}
-.overall-rec-sub{font-size:12px;color:var(--navy);margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
-.kw-chip{font-size:11px;background:rgba(27,58,107,.15);color:var(--navy-d);padding:2px 8px;border-radius:20px;font-weight:500}
-.rec-scroll-hint{font-size:11px;color:var(--navy);font-weight:600}
+    [data-theme="dark"] .radius-group {
+      background: rgba(255, 255, 255, .08) !important
+    }
 
-/* FILTER BAR */
-.filter-bar{background:var(--surface);border:0.5px solid rgba(0,0,0,.06);border-radius:16px;padding:14px 18px;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow)}
-.filter-bar-label{font-size:12px;font-weight:700;color:var(--text2)}
-.filter-chips{display:flex;flex-wrap:wrap;gap:6px}
-/* brand-colored filter chips */
-.filter-chip{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.12);background:var(--surface);color:var(--text2);transition:.15s;white-space:nowrap}
-.filter-chip:hover{opacity:.85}
-.filter-chip.active{color:#fff!important;border-color:transparent!important}
-.fc-default{border-color:var(--border)!important}
-.fc-default.active{background:var(--navy)!important}
+    [data-theme="dark"] .chip.active {
+      background: rgba(255, 255, 255, .15) !important;
+      color: var(--navy-d) !important
+    }
 
-/* COMPETITOR CARDS */
-.comp-grid{display:flex;flex-direction:column;gap:14px}
-.comp-card{background:var(--surface);border:0.5px solid rgba(0,0,0,.07);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
-.comp-card.hidden{display:none}
-.comp-card.highlighted{border:2px solid var(--navy);box-shadow:0 0 0 3px var(--navy-l)}
-.comp-header{padding:14px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border)}
-.comp-name{font-size:14px;font-weight:700}
-.comp-brand-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
-.comp-addr{font-size:12px;color:var(--text2);margin-top:3px}
-.comp-meta{font-size:12px;color:var(--text3);margin-top:4px}
-.comp-right{text-align:right;flex-shrink:0}
-.comp-rating{font-size:22px;font-weight:800}
-.comp-rating-label{font-size:11px;color:var(--text2)}
-.comp-dist{font-size:11px;background:var(--bg);padding:2px 8px;border-radius:20px;color:var(--text2);margin-top:4px;display:inline-block}
-.comp-body{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.section-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.sub-red{color:var(--red)}
-.sub-green{color:var(--navy-d)}
-.problem-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.problem-info{flex:1}
-.problem-label{font-size:13px;font-weight:600}
-.problem-kws{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
-.problem-kw{font-size:11px;background:var(--red-l);color:var(--red);padding:1px 7px;border-radius:20px;font-weight:500}
-/* review dropdown in problem section */
-.reviews-dropdown{margin-top:10px}
-.reviews-toggle{font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--navy-l);border:none;border-radius:var(--r-sm);padding:5px 12px;display:flex;align-items:center;gap:6px}
-.reviews-toggle svg{width:12px;height:12px;stroke:var(--navy);fill:none;stroke-width:2.5;transition:transform .2s}
-.reviews-toggle.open svg{transform:rotate(180deg)}
-.reviews-list{display:none;margin-top:8px;border-left:3px solid var(--red);padding-left:10px}
-.reviews-list.open{display:block}
-.rev-item{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:1px solid var(--border);line-height:1.5}
-.rev-item:last-child{border-bottom:none}
-.rev-stars{color:var(--amber);font-size:11px;margin-bottom:2px}
-.rev-author{font-size:11px;color:var(--text3)}
+    [data-theme="dark"] .comp-card,
+    [data-theme="dark"] .overall-box,
+    [data-theme="dark"] .branch-card,
+    [data-theme="dark"] .filter-bar {
+      background: var(--surface) !important
+    }
 
-.ad-item{background:var(--navy-l);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px}
-.ad-target{font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:4px}
-.ad-text{font-size:13px;font-weight:600;color:var(--navy-d)}
-.ad-kws{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
-.ad-kw{font-size:11px;background:rgba(27,58,107,.15);color:var(--navy-d);padding:1px 7px;border-radius:20px}
-.comp-stats{display:flex;gap:16px;padding:10px 20px;background:var(--bg);border-top:1px solid var(--border);font-size:12px;color:var(--text2);flex-wrap:wrap}
-.conf-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
-.conf-very_high{background:var(--blue-l);color:#1E40AF}
-.conf-high{background:var(--navy-l);color:var(--navy-d)}
-.conf-medium{background:var(--amber-l);color:#92400E}
-.conf-low,.conf-very_low{background:var(--bg);color:var(--text2)}
-.no-data{font-size:13px;color:var(--text3);font-style:italic}
-.error-card{background:var(--red-l);border:1px solid #FECACA;border-radius:var(--r);padding:16px;color:var(--red);font-size:13px}
-@media(max-width:700px){.comp-body{grid-template-columns:1fr}}
+    .dark-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 0.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: .2s;
+      flex-shrink: 0
+    }
 
-/* MODAL for review full text */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-box{background:var(--surface);border-radius:var(--r);padding:24px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.modal-title{font-size:15px;font-weight:700}
-.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text2);line-height:1;padding:2px 6px}
-.modal-stars{color:var(--amber);margin-bottom:6px}
-.modal-author{font-size:12px;color:var(--text3);margin-bottom:12px}
-.modal-text{font-size:14px;color:var(--text);line-height:1.7}
-</style>
+    .dark-toggle:hover {
+      background: var(--bg)
+    }
+
+    .dark-toggle svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text2);
+      fill: none;
+      stroke-width: 2
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(28, 28, 30, .92);
+      color: #fff;
+      backdrop-filter: blur(20px);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    /* ISSUE BAR CHART */
+    .issue-chart-section {
+      background: var(--surface);
+      border: 0.5px solid rgba(0, 0, 0, .06);
+      border-radius: 18px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow)
+    }
+
+    .issue-chart-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 16px
+    }
+
+    .issue-bar-row {
+      margin-bottom: 12px;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 8px 10px;
+      transition: .15s
+    }
+
+    .issue-bar-row:hover {
+      background: var(--bg)
+    }
+
+    .issue-bar-row.active-row {
+      background: var(--navy-l)
+    }
+
+    .issue-bar-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px
+    }
+
+    .issue-bar-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text)
+    }
+
+    .issue-bar-pct {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .issue-bar-track {
+      height: 8px;
+      background: rgba(0, 0, 0, .06);
+      border-radius: 4px;
+      overflow: hidden
+    }
+
+    .issue-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    [data-theme="dark"] .issue-bar-track {
+      background: rgba(255, 255, 255, .08)
+    }
+
+    .issue-drill {
+      margin-top: 14px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 0.5px solid var(--border);
+      animation: fadeIn .2s ease
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .issue-drill-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px
+    }
+
+    .issue-drill-comp {
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--navy-d);
+      font-weight: 500
+    }
+
+    .issue-drill-comp:last-child {
+      border-bottom: none
+    }
+
+    .issue-drill-comp:hover {
+      color: var(--navy)
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased
+    }
+
+    nav {
+      background: rgba(255, 255, 255, .85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, .1);
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0
+    }
+
+    .nav-logo-img {
+      height: 28px;
+      width: auto
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2px;
+      margin-left: 28px
+    }
+
+    .nav-link {
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      text-decoration: none;
+      transition: .15s
+    }
+
+    .nav-link:hover {
+      background: var(--bg)
+    }
+
+    .nav-link:hover {
+      background: rgba(0, 0, 0, .05);
+      color: var(--text)
+    }
+
+    .nav-link.active {
+      background: rgba(27, 58, 107, .1);
+      color: var(--navy-d);
+      font-weight: 600
+    }
+
+    .control-bar {
+      background: rgba(255, 255, 255, .9);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, .08);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap
+    }
+
+    .ctrl-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      white-space: nowrap
+    }
+
+    .ctrl-select {
+      padding: 7px 12px;
+      border: 0.5px solid rgba(0, 0, 0, .15);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface);
+      min-width: 240px;
+      flex: 1;
+      max-width: 400px;
+      outline: none;
+      font-family: inherit
+    }
+
+    .ctrl-select:focus {
+      border-color: var(--navy)
+    }
+
+    .radius-group {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, .05);
+      border-radius: 10px;
+      padding: 3px
+    }
+
+    .chip {
+      padding: 5px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      transition: .15s
+    }
+
+    .chip:hover {
+      color: var(--text)
+    }
+
+    .chip.active {
+      background: var(--surface);
+      color: var(--navy-d);
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .12)
+    }
+
+    .btn-analyze {
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: var(--navy);
+      color: #fff;
+      transition: .15s;
+      flex-shrink: 0;
+      letter-spacing: -.01em
+    }
+
+    .btn-analyze:hover {
+      background: var(--navy-d)
+    }
+
+    .btn-analyze:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px
+    }
+
+    .state-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--text2);
+      text-align: center
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 24px 0 12px
+    }
+
+    .branch-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 0.5px solid rgba(0, 0, 0, .06);
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+      box-shadow: var(--shadow)
+    }
+
+    .branch-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r);
+      background: var(--navy-l);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .branch-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--navy-d);
+      fill: none;
+      stroke-width: 2
+    }
+
+    .branch-info h2 {
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .branch-info p {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px
+    }
+
+    .branch-stats {
+      display: flex;
+      gap: 20px;
+      margin-left: auto
+    }
+
+    .bstat {
+      text-align: center
+    }
+
+    .bstat-val {
+      font-size: 20px;
+      font-weight: 800
+    }
+
+    .bstat-label {
+      font-size: 11px;
+      color: var(--text2)
+    }
+
+    /* OVERALL BOX — clickable recs */
+    .overall-box {
+      background: var(--surface);
+      border: 0.5px solid rgba(27, 58, 107, .2);
+      border-radius: 18px;
+      padding: 22px 26px;
+      margin-bottom: 4px;
+      box-shadow: var(--shadow-md)
+    }
+
+    .overall-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .overall-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy-d)
+    }
+
+    .overall-badge {
+      font-size: 11px;
+      background: var(--navy-l);
+      color: var(--navy-d);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600
+    }
+
+    .overall-recs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .overall-rec {
+      background: var(--navy-l);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: .15s
+    }
+
+    .overall-rec:hover {
+      border-color: var(--navy);
+      background: #E0E8FF
+    }
+
+    .overall-rec-priority {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy-d);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .overall-rec-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy-d)
+    }
+
+    .overall-rec-sub {
+      font-size: 12px;
+      color: var(--navy);
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center
+    }
+
+    .kw-chip {
+      font-size: 11px;
+      background: rgba(27, 58, 107, .15);
+      color: var(--navy-d);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500
+    }
+
+    .rec-scroll-hint {
+      font-size: 11px;
+      color: var(--navy);
+      font-weight: 600
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      background: var(--surface);
+      border: 0.5px solid rgba(0, 0, 0, .06);
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      box-shadow: var(--shadow)
+    }
+
+    .filter-bar-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text2)
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    /* brand-colored filter chips */
+    .filter-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 0.5px solid rgba(0, 0, 0, .12);
+      background: var(--surface);
+      color: var(--text2);
+      transition: .15s;
+      white-space: nowrap
+    }
+
+    .filter-chip:hover {
+      opacity: .85
+    }
+
+    .filter-chip.active {
+      color: #fff !important;
+      border-color: transparent !important
+    }
+
+    .fc-default {
+      border-color: var(--border) !important
+    }
+
+    .fc-default.active {
+      background: var(--navy) !important
+    }
+
+    /* COMPETITOR CARDS */
+    .comp-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .comp-card {
+      background: var(--surface);
+      border: 0.5px solid rgba(0, 0, 0, .07);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow)
+    }
+
+    .comp-card.hidden {
+      display: none
+    }
+
+    .comp-card.highlighted {
+      border: 2px solid var(--navy);
+      box-shadow: 0 0 0 3px var(--navy-l)
+    }
+
+    .comp-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .comp-name {
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .comp-brand-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: 6px;
+      vertical-align: middle
+    }
+
+    .comp-addr {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 3px
+    }
+
+    .comp-meta {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 4px
+    }
+
+    .comp-right {
+      text-align: right;
+      flex-shrink: 0
+    }
+
+    .comp-rating {
+      font-size: 22px;
+      font-weight: 800
+    }
+
+    .comp-rating-label {
+      font-size: 11px;
+      color: var(--text2)
+    }
+
+    .comp-dist {
+      font-size: 11px;
+      background: var(--bg);
+      padding: 2px 8px;
+      border-radius: 20px;
+      color: var(--text2);
+      margin-top: 4px;
+      display: inline-block
+    }
+
+    .comp-body {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .section-sub {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 10px
+    }
+
+    .sub-red {
+      color: var(--red)
+    }
+
+    .sub-green {
+      color: var(--navy-d)
+    }
+
+    .problem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px
+    }
+
+    .problem-info {
+      flex: 1
+    }
+
+    .problem-label {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .problem-kws {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 4px
+    }
+
+    .problem-kw {
+      font-size: 11px;
+      background: var(--red-l);
+      color: var(--red);
+      padding: 1px 7px;
+      border-radius: 20px;
+      font-weight: 500
+    }
+
+    /* review dropdown in problem section */
+    .reviews-dropdown {
+      margin-top: 10px
+    }
+
+    .reviews-toggle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      background: var(--navy-l);
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .reviews-toggle svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--navy);
+      fill: none;
+      stroke-width: 2.5;
+      transition: transform .2s
+    }
+
+    .reviews-toggle.open svg {
+      transform: rotate(180deg)
+    }
+
+    .reviews-list {
+      display: none;
+      margin-top: 8px;
+      border-left: 3px solid var(--red);
+      padding-left: 10px
+    }
+
+    .reviews-list.open {
+      display: block
+    }
+
+    .rev-item {
+      font-size: 12px;
+      color: var(--text2);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5
+    }
+
+    .rev-item:last-child {
+      border-bottom: none
+    }
+
+    .rev-stars {
+      color: var(--amber);
+      font-size: 11px;
+      margin-bottom: 2px
+    }
+
+    .rev-author {
+      font-size: 11px;
+      color: var(--text3)
+    }
+
+    .ad-item {
+      background: var(--navy-l);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px
+    }
+
+    .ad-target {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--navy-d);
+      margin-bottom: 4px
+    }
+
+    .ad-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy-d)
+    }
+
+    .ad-kws {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 6px
+    }
+
+    .ad-kw {
+      font-size: 11px;
+      background: rgba(27, 58, 107, .15);
+      color: var(--navy-d);
+      padding: 1px 7px;
+      border-radius: 20px
+    }
+
+    .comp-stats {
+      display: flex;
+      gap: 16px;
+      padding: 10px 20px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text2);
+      flex-wrap: wrap
+    }
+
+    .conf-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      display: inline-block
+    }
+
+    .conf-very_high {
+      background: var(--blue-l);
+      color: #1E40AF
+    }
+
+    .conf-high {
+      background: var(--navy-l);
+      color: var(--navy-d)
+    }
+
+    .conf-medium {
+      background: var(--amber-l);
+      color: #92400E
+    }
+
+    .conf-low,
+    .conf-very_low {
+      background: var(--bg);
+      color: var(--text2)
+    }
+
+    .no-data {
+      font-size: 13px;
+      color: var(--text3);
+      font-style: italic
+    }
+
+    .error-card {
+      background: var(--red-l);
+      border: 1px solid #FECACA;
+      border-radius: var(--r);
+      padding: 16px;
+      color: var(--red);
+      font-size: 13px
+    }
+
+    @media(max-width:700px) {
+      .comp-body {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* MODAL for review full text */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--r);
+      padding: 24px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .3)
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--text2);
+      line-height: 1;
+      padding: 2px 6px
+    }
+
+    .modal-stars {
+      color: var(--amber);
+      margin-bottom: 6px
+    }
+
+    .modal-author {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 12px
+    }
+
+    .modal-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7
+    }
+  </style>
 </head>
+
 <body>
-<nav>
-  <div class="nav-brand"><img src="/ftl-logo.png" style="height:40px;width:auto" alt="FTL Gym"></div>
-  <div class="nav-links">
-    <a href="/" class="nav-link">Dashboard</a>
-    <a href="/competitor.html" class="nav-link active">Competitor Analysis</a>
-    <a href="/keywords.html" class="nav-link">Keyword Manager</a>
-  </div>
-  <div style="margin-left:auto">
-    <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
-      <svg id="darkIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-  </div>
-</nav>
-
-<div class="control-bar">
-  <span class="ctrl-label">FTL Branch:</span>
-  <select class="ctrl-select" id="branchSelect" disabled><option>Loading branches...</option></select>
-  <span class="ctrl-label">Radius:</span>
-  <div class="radius-group">
-    <span class="chip active" data-km="1">1 km</span>
-    <span class="chip" data-km="2">2 km</span>
-    <span class="chip" data-km="3">3 km</span>
-    <span class="chip" data-km="5">5 km</span>
-  </div>
-  <button class="btn-analyze" id="analyzeBtn" disabled onclick="runAnalysis()">Analyze</button>
-</div>
-
-<main>
-  <div id="stateEmpty" class="state-center">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <p style="font-size:15px;font-weight:700">Select an FTL branch and click Analyze</p>
-    <p style="font-size:13px">System will find nearby competitors, analyze negative reviews,<br>and generate targeted ad recommendations.</p>
-  </div>
-  <div id="stateLoading" class="state-center" style="display:none">
-    <div class="spinner"></div>
-    <p style="font-size:15px;font-weight:700" id="loadingText">Finding competitors...</p>
-    <p style="font-size:12px">This may take a moment</p>
-  </div>
-  <div id="stateError" style="display:none"></div>
-  <div id="stateResult" style="display:none"></div>
-</main>
-
-<!-- Modal review fulltext -->
-<div id="reviewModal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title" id="modalTitle">Review</span>
-      <button class="modal-close" onclick="document.getElementById('reviewModal').style.display='none'">&#10005;</button>
+  <nav>
+    <div class="nav-brand"><img src="/ftl-logo.png" style="height:40px;width:auto" alt="FTL Gym"></div>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/competitor.html" class="nav-link active"> 123 Analysis</a>
+      <a href="/keywords.html" class="nav-link">Keyword Manager</a>
     </div>
-    <div class="modal-stars" id="modalStars"></div>
-    <div class="modal-author" id="modalAuthor"></div>
-    <div class="modal-text" id="modalText"></div>
+    <div style="margin-left:auto">
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+        <svg id="darkIcon" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="control-bar">
+    <span class="ctrl-label">FTL Branch:</span>
+    <select class="ctrl-select" id="branchSelect" disabled>
+      <option>Loading branches...</option>
+    </select>
+    <span class="ctrl-label">Radius:</span>
+    <div class="radius-group">
+      <span class="chip active" data-km="1">1 km</span>
+      <span class="chip" data-km="2">2 km</span>
+      <span class="chip" data-km="3">3 km</span>
+      <span class="chip" data-km="5">5 km</span>
+    </div>
+    <button class="btn-analyze" id="analyzeBtn" disabled onclick="runAnalysis()">Analyze</button>
   </div>
-</div>
 
-<script>
-// Brand color map — nama brand → {bg, text}
-const BRAND_COLORS = {
-  'anytime fitness': { bg:'#7C3AED', text:'#fff', label:'Anytime' },
-  'fithub':          { bg:'#059669', text:'#fff', label:'FitHub' },
-  'fit hub':         { bg:'#059669', text:'#fff', label:'FitHub' },
-  'willfitness':     { bg:'#1A1A1A', text:'#fff', label:'Will' },
-  'will fitness':    { bg:'#1A1A1A', text:'#fff', label:'Will' },
-  'fitx':            { bg:'#16A34A', text:'#fff', label:'FitX' },
-  'fit x':           { bg:'#16A34A', text:'#fff', label:'FitX' },
-  'local performance': { bg:'#CA8A04', text:'#1A1A1A', label:'Local Perf' },
-  'osbond':          { bg:'#B91C1C', text:'#fff', label:'Osbond' },
-  "gold's gym":      { bg:'#D97706', text:'#fff', label:"Gold's" },
-  'golds gym':       { bg:'#D97706', text:'#fff', label:"Gold's" },
-  'refit':           { bg:'#EAB308', text:'#1A1A1A', label:'ReFit' },
-  'fitness first':   { bg:'#DC2626', text:'#fff', label:'FF' },
-  'celebrity fitness': { bg:'#7C3AED', text:'#fff', label:'Celeb' },
-  'snap fitness':    { bg:'#EA580C', text:'#fff', label:'Snap' },
-};
+  <main>
+    <div id="stateEmpty" class="state-center">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.35-4.35" />
+      </svg>
+      <p style="font-size:15px;font-weight:700">Select an FTL branch and click Analyze</p>
+      <p style="font-size:13px">System will find nearby competitors, analyze negative reviews,<br>and generate targeted
+        ad recommendations.</p>
+    </div>
+    <div id="stateLoading" class="state-center" style="display:none">
+      <div class="spinner"></div>
+      <p style="font-size:15px;font-weight:700" id="loadingText">Finding competitors...</p>
+      <p style="font-size:12px">This may take a moment</p>
+    </div>
+    <div id="stateError" style="display:none"></div>
+    <div id="stateResult" style="display:none"></div>
+  </main>
 
-function getBrandInfo(name) {
-  if (!name) return null;
-  const lower = name.toLowerCase();
-  for (const [key, val] of Object.entries(BRAND_COLORS)) {
-    if (lower.includes(key)) return val;
-  }
-  return null;
-}
+  <!-- Modal review fulltext -->
+  <div id="reviewModal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-title" id="modalTitle">Review</span>
+        <button class="modal-close"
+          onclick="document.getElementById('reviewModal').style.display='none'">&#10005;</button>
+      </div>
+      <div class="modal-stars" id="modalStars"></div>
+      <div class="modal-author" id="modalAuthor"></div>
+      <div class="modal-text" id="modalText"></div>
+    </div>
+  </div>
 
-let selectedRadius = 1;
-let currentData = null;
-let activeCompFilter = 'all';
-let activeProblemFilter = 'all';
+  <script>
+    // Brand color map — nama brand → {bg, text}
+    const BRAND_COLORS = {
+      'anytime fitness': { bg: '#7C3AED', text: '#fff', label: 'Anytime' },
+      'fithub': { bg: '#059669', text: '#fff', label: 'FitHub' },
+      'fit hub': { bg: '#059669', text: '#fff', label: 'FitHub' },
+      'willfitness': { bg: '#1A1A1A', text: '#fff', label: 'Will' },
+      'will fitness': { bg: '#1A1A1A', text: '#fff', label: 'Will' },
+      'fitx': { bg: '#16A34A', text: '#fff', label: 'FitX' },
+      'fit x': { bg: '#16A34A', text: '#fff', label: 'FitX' },
+      'local performance': { bg: '#CA8A04', text: '#1A1A1A', label: 'Local Perf' },
+      'osbond': { bg: '#B91C1C', text: '#fff', label: 'Osbond' },
+      "gold's gym": { bg: '#D97706', text: '#fff', label: "Gold's" },
+      'golds gym': { bg: '#D97706', text: '#fff', label: "Gold's" },
+      'refit': { bg: '#EAB308', text: '#1A1A1A', label: 'ReFit' },
+      'fitness first': { bg: '#DC2626', text: '#fff', label: 'FF' },
+      'celebrity fitness': { bg: '#7C3AED', text: '#fff', label: 'Celeb' },
+      'snap fitness': { bg: '#EA580C', text: '#fff', label: 'Snap' },
+    };
 
-function toggleIssueDrill(row, cat) {
-  const drill = document.getElementById('issueDrill');
-  const allRows = document.querySelectorAll('.issue-bar-row');
+    function getBrandInfo(name) {
+      if (!name) return null;
+      const lower = name.toLowerCase();
+      for (const [key, val] of Object.entries(BRAND_COLORS)) {
+        if (lower.includes(key)) return val;
+      }
+      return null;
+    }
 
-  if (row.classList.contains('active-row')) {
-    row.classList.remove('active-row');
-    drill.style.display = 'none';
-    allRows.forEach(r => r.querySelector('.issue-bar-fill').style.opacity = '1');
-    return;
-  }
+    let selectedRadius = 1;
+    let currentData = null;
+    let activeCompFilter = 'all';
+    let activeProblemFilter = 'all';
 
-  allRows.forEach(r => {
-    r.classList.remove('active-row');
-    r.querySelector('.issue-bar-fill').style.opacity = r === row ? '1' : '0.3';
-  });
-  row.classList.add('active-row');
+    function toggleIssueDrill(row, cat) {
+      const drill = document.getElementById('issueDrill');
+      const allRows = document.querySelectorAll('.issue-bar-row');
 
-  // Find competitors with this issue
-  const affectedComps = (currentData?.competitors||[]).filter(c =>
-    (c.topProblems||[]).some(p => p.category === cat)
-  ).sort((a,b) => (b.negativeReviewCount||0)-(a.negativeReviewCount||0));
+      if (row.classList.contains('active-row')) {
+        row.classList.remove('active-row');
+        drill.style.display = 'none';
+        allRows.forEach(r => r.querySelector('.issue-bar-fill').style.opacity = '1');
+        return;
+      }
 
-  if (!affectedComps.length) { drill.style.display = 'none'; return; }
+      allRows.forEach(r => {
+        r.classList.remove('active-row');
+        r.querySelector('.issue-bar-fill').style.opacity = r === row ? '1' : '0.3';
+      });
+      row.classList.add('active-row');
 
-  const color = row.querySelector('.issue-bar-fill').style.background;
-  const label = row.querySelector('.issue-bar-label').textContent;
+      // Find competitors with this issue
+      const affectedComps = (currentData?.competitors || []).filter(c =>
+        (c.topProblems || []).some(p => p.category === cat)
+      ).sort((a, b) => (b.negativeReviewCount || 0) - (a.negativeReviewCount || 0));
 
-  drill.style.display = 'block';
-  drill.innerHTML = `<div class="issue-drill" style="border-color:${color}20;background:${color}08">
+      if (!affectedComps.length) { drill.style.display = 'none'; return; }
+
+      const color = row.querySelector('.issue-bar-fill').style.background;
+      const label = row.querySelector('.issue-bar-label').textContent;
+
+      drill.style.display = 'block';
+      drill.innerHTML = `<div class="issue-drill" style="border-color:${color}20;background:${color}08">
     <div class="issue-drill-title" style="color:${color}">${label} — ${affectedComps.length} competitors affected</div>
     ${affectedComps.map(c => {
-      const prob = (c.topProblems||[]).find(p=>p.category===cat);
-      const kws = (prob?.topKeywords||[]).slice(0,3).map(k=>k.keyword).join(', ');
-      return `<div class="issue-drill-comp" onclick="scrollToComp('${c.placeId}')">
-        ${c.name} <span style="color:var(--text3);font-size:12px;font-weight:400">— ${c.negativeReviewCount||0} neg. reviews${kws?' · "'+kws+'"':''}</span>
+        const prob = (c.topProblems || []).find(p => p.category === cat);
+        const kws = (prob?.topKeywords || []).slice(0, 3).map(k => k.keyword).join(', ');
+        return `<div class="issue-drill-comp" onclick="scrollToComp('${c.placeId}')">
+        ${c.name} <span style="color:var(--text3);font-size:12px;font-weight:400">— ${c.negativeReviewCount || 0} neg. reviews${kws ? ' · "' + kws + '"' : ''}</span>
       </div>`;
-    }).join('')}
+      }).join('')}
   </div>`;
 
-  drill.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
+      drill.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-// ── Dark mode ──────────────────────────────────────────────────────────────
-function initDarkMode() {
-  const saved = localStorage.getItem('ftl-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if ((saved === 'dark') || (!saved && prefersDark)) {
-    document.documentElement.setAttribute('data-theme','dark');
-    const icon = document.getElementById('darkIcon');
-    if (icon) icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-  }
-}
+    // ── Dark mode ──────────────────────────────────────────────────────────────
+    function initDarkMode() {
+      const saved = localStorage.getItem('ftl-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if ((saved === 'dark') || (!saved && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        const icon = document.getElementById('darkIcon');
+        if (icon) icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      }
+    }
 
-function toggleDarkMode() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const icon = document.getElementById('darkIcon');
-  if (isDark) {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('ftl-theme','light');
-    if (icon) icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  } else {
-    document.documentElement.setAttribute('data-theme','dark');
-    localStorage.setItem('ftl-theme','dark');
-    if (icon) icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-  }
-}
+    function toggleDarkMode() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const icon = document.getElementById('darkIcon');
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('ftl-theme', 'light');
+        if (icon) icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('ftl-theme', 'dark');
+        if (icon) icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      }
+    }
 
-initDarkMode();
+    initDarkMode();
 
-async function loadBranches() {
-  try {
-    const res = await fetch('/api/branches');
-    const data = await res.json();
-    if (!res.ok) return;
-    const sel = document.getElementById('branchSelect');
-    sel.innerHTML = '<option value="">-- Pilih cabang FTL --</option>';
-    data.forEach((b) => {
-      const o = document.createElement('option');
-      o.value = b.placeId;
-      o.textContent = `${b.name} (${b.city})`;
-      sel.appendChild(o);
+    async function loadBranches() {
+      try {
+        const res = await fetch('/api/branches');
+        const data = await res.json();
+        if (!res.ok) return;
+        const sel = document.getElementById('branchSelect');
+        sel.innerHTML = '<option value="">-- Pilih cabang FTL --</option>';
+        data.forEach((b) => {
+          const o = document.createElement('option');
+          o.value = b.placeId;
+          o.textContent = `${b.name} (${b.city})`;
+          sel.appendChild(o);
+        });
+        sel.disabled = false;
+        document.getElementById('analyzeBtn').disabled = false;
+      } catch (e) { }
+    }
+
+    document.querySelectorAll('.radius-group .chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.radius-group .chip').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRadius = parseFloat(btn.dataset.km);
+      });
     });
-    sel.disabled = false;
-    document.getElementById('analyzeBtn').disabled = false;
-  } catch(e) {}
-}
 
-document.querySelectorAll('.radius-group .chip').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.radius-group .chip').forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedRadius = parseFloat(btn.dataset.km);
-  });
-});
+    async function runAnalysis() {
+      const placeId = document.getElementById('branchSelect').value;
+      if (!placeId) { alert('Please select an FTL branch first.'); return; }
+      setState('loading');
+      document.getElementById('loadingText').textContent = 'Searching for nearby gym competitors...';
+      try {
+        const res = await fetch(`/api/competitor/${placeId}?radius=${selectedRadius}`);
+        const data = await res.json();
+        if (!res.ok) { showError(data.error, data.detail); return; }
+        currentData = data;
+        renderResult(data);
+      } catch (e) { showError('Failed to connect to server.'); }
+    }
 
-async function runAnalysis() {
-  const placeId = document.getElementById('branchSelect').value;
-  if (!placeId) { alert('Please select an FTL branch first.'); return; }
-  setState('loading');
-  document.getElementById('loadingText').textContent = 'Searching for nearby gym competitors...';
-  try {
-    const res = await fetch(`/api/competitor/${placeId}?radius=${selectedRadius}`);
-    const data = await res.json();
-    if (!res.ok) { showError(data.error, data.detail); return; }
-    currentData = data;
-    renderResult(data);
-  } catch(e) { showError('Failed to connect to server.'); }
-}
+    function scrollToComp(placeId) {
+      const el = document.getElementById('comp_' + placeId);
+      if (!el) return;
+      // Remove existing highlights
+      document.querySelectorAll('.comp-card.highlighted').forEach(c => c.classList.remove('highlighted'));
+      el.classList.add('highlighted');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => el.classList.remove('highlighted'), 2500);
+    }
 
-function scrollToComp(placeId) {
-  const el = document.getElementById('comp_' + placeId);
-  if (!el) return;
-  // Remove existing highlights
-  document.querySelectorAll('.comp-card.highlighted').forEach(c => c.classList.remove('highlighted'));
-  el.classList.add('highlighted');
-  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => el.classList.remove('highlighted'), 2500);
-}
+    function renderResult(data) {
+      setState('result');
+      const el = document.getElementById('stateResult');
+      const { branch, competitors, overallInsight, totalCompetitorsFound, radiusKm } = data;
 
-function renderResult(data) {
-  setState('result');
-  const el = document.getElementById('stateResult');
-  const { branch, competitors, overallInsight, totalCompetitorsFound, radiusKm } = data;
+      // Build competitor placeId lookup for scrolling
+      const compById = {};
+      (competitors || []).forEach(c => compById[c.placeId] = c);
 
-  // Build competitor placeId lookup for scrolling
-  const compById = {};
-  (competitors || []).forEach(c => compById[c.placeId] = c);
+      // Collect all problem categories
+      const allProblems = new Set();
+      (competitors || []).forEach((c) => (c.topProblems || []).forEach((p) => allProblems.add(p.category + '|' + p.label)));
 
-  // Collect all problem categories
-  const allProblems = new Set();
-  (competitors || []).forEach((c) => (c.topProblems||[]).forEach((p) => allProblems.add(p.category + '|' + p.label)));
+      let html = '';
 
-  let html = '';
-
-  // Branch summary card
-  html += `
+      // Branch summary card
+      html += `
     <div class="branch-card">
       <div class="branch-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="branch-info"><h2>${branch.name}</h2><p>${branch.address}</p></div>
       <div class="branch-stats">
         <div class="bstat"><div class="bstat-val">${totalCompetitorsFound}</div><div class="bstat-label">Competitors</div></div>
         <div class="bstat"><div class="bstat-val">${radiusKm}km</div><div class="bstat-label">Radius</div></div>
-        <div class="bstat"><div class="bstat-val" style="color:var(--navy)">${branch.rating||'—'}</div><div class="bstat-label">FTL Rating</div></div>
+        <div class="bstat"><div class="bstat-val" style="color:var(--navy)">${branch.rating || '—'}</div><div class="bstat-label">FTL Rating</div></div>
       </div>
     </div>`;
 
-  if (totalCompetitorsFound === 0) {
-    html += `<div class="state-center" style="min-height:200px"><p>Tidak ada competitors ditemukan dalam radius ${radiusKm}km.</p></div>`;
-    el.innerHTML = html;
-    return;
-  }
+      if (totalCompetitorsFound === 0) {
+        html += `<div class="state-center" style="min-height:200px"><p>Tidak ada competitors ditemukan dalam radius ${radiusKm}km.</p></div>`;
+        el.innerHTML = html;
+        return;
+      }
 
-  // Overall recommendations — each rec is clickable → scroll to relevant competitor
-  if (overallInsight?.adRecommendations?.length) {
-    html += `<div class="section-title">Overall Ad Recommendations</div>
+      // Overall recommendations — each rec is clickable → scroll to relevant competitor
+      if (overallInsight?.adRecommendations?.length) {
+        html += `<div class="section-title">Overall Ad Recommendations</div>
     <div class="overall-box">
       <div class="overall-header">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--navy-d)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -427,9 +1277,9 @@ function renderResult(data) {
         ${overallInsight.confidence ? `<span class="conf-badge conf-${overallInsight.confidence.level}">${overallInsight.confidence.label}</span>` : ''}
       </div>
       <div class="overall-recs">
-        ${(overallInsight.adRecommendations||[]).map((rec) => {
+        ${(overallInsight.adRecommendations || []).map((rec) => {
           // Find first competitor affected for scroll target
-          const targetComp = (competitors||[]).find(c => (rec.competitorsAffected||[]).includes(c.name));
+          const targetComp = (competitors || []).find(c => (rec.competitorsAffected || []).includes(c.name));
           const scrollTarget = targetComp ? `onclick="scrollToComp('${targetComp.placeId}')"` : '';
           return `
           <div class="overall-rec" ${scrollTarget}>
@@ -440,60 +1290,60 @@ function renderResult(data) {
             <div class="overall-rec-text">${rec.recommendation}</div>
             <div class="overall-rec-sub">
               Keyword buruk competitors:
-              ${(rec.basedOnKeywords||[]).map((k)=>`<span class="kw-chip">"${k}"</span>`).join('')}
+              ${(rec.basedOnKeywords || []).map((k) => `<span class="kw-chip">"${k}"</span>`).join('')}
             </div>
             ${rec.competitorsAffected?.length ? `<div style="font-size:11px;color:var(--text2);margin-top:4px">Competitors lemah di area ini: ${rec.competitorsAffected.join(', ')}</div>` : ''}
           </div>`;
         }).join('')}
       </div>
     </div>`;
-  }
+      }
 
-  // Filter bar — brand-colored chips, known brands listed first
-  const sortedComps = sortCompetitorsByBrand(competitors || []);
-  html += `<div class="section-title">Detail per Competitors</div>
+      // Filter bar — brand-colored chips, known brands listed first
+      const sortedComps = sortCompetitorsByBrand(competitors || []);
+      html += `<div class="section-title">Detail per Competitors</div>
   <div class="filter-bar">
     <span class="filter-bar-label">Filter Competitors:</span>
     <div class="filter-chips" id="compFilter">
       <span class="filter-chip fc-default active" data-comp="all">All (${totalCompetitorsFound})</span>
-      ${sortedComps.map((c)=>{
+      ${sortedComps.map((c) => {
         const brand = getBrandInfo(c.name);
         const style = brand ? `style="background:${brand.bg};color:${brand.text};border-color:${brand.bg}"` : 'class="fc-default"';
-        return `<span class="filter-chip" data-comp="${c.placeId}" ${brand?style:''} data-brand="${brand?'1':'0'}">${c.name.split(' ').slice(0,4).join(' ')}</span>`;
+        return `<span class="filter-chip" data-comp="${c.placeId}" ${brand ? style : ''} data-brand="${brand ? '1' : '0'}">${c.name.split(' ').slice(0, 4).join(' ')}</span>`;
       }).join('')}
     </div>
     <span class="filter-bar-label" style="margin-left:8px">Issues:</span>
     <div class="filter-chips" id="problemFilter">
       <span class="filter-chip fc-default active" data-prob="all">All</span>
-      ${[...allProblems].map((p)=>{const[cat,label]=p.split('|');return `<span class="filter-chip fc-default" data-prob="${cat}">${label}</span>`}).join('')}
+      ${[...allProblems].map((p) => { const [cat, label] = p.split('|'); return `<span class="filter-chip fc-default" data-prob="${cat}">${label}</span>` }).join('')}
     </div>
   </div>`;
 
-  // Sort competitors: most negative reviews first, then known brands
-  const sortedByIssues = [...competitors].sort((a,b) => {
-    const aNeg = (a.negativeReviewCount||0) + (a.topProblems?.length||0)*0.1;
-    const bNeg = (b.negativeReviewCount||0) + (b.topProblems?.length||0)*0.1;
-    return bNeg - aNeg;
-  });
+      // Sort competitors: most negative reviews first, then known brands
+      const sortedByIssues = [...competitors].sort((a, b) => {
+        const aNeg = (a.negativeReviewCount || 0) + (a.topProblems?.length || 0) * 0.1;
+        const bNeg = (b.negativeReviewCount || 0) + (b.topProblems?.length || 0) * 0.1;
+        return bNeg - aNeg;
+      });
 
-  // Build issue distribution bar chart data
-  const issueTotals = {};
-  const issueComps = {};
-  (competitors||[]).forEach(comp => {
-    (comp.topProblems||[]).forEach(prob => {
-      if (!issueTotals[prob.category]) { issueTotals[prob.category] = {label:prob.label, score:0, comps:[]}; }
-      issueTotals[prob.category].score += (prob.totalScore||1);
-      if (!issueTotals[prob.category].comps.includes(comp.placeId)) {
-        issueTotals[prob.category].comps.push(comp.placeId);
-      }
-    });
-  });
-  const issueList = Object.entries(issueTotals).sort((a,b)=>b[1].score-a[1].score).slice(0,6);
-  const maxScore = issueList[0]?.[1]?.score || 1;
-  const ISSUE_COLORS = ['#FF3B30','#FF9500','#007AFF','#AF52DE','#34C759','#FF6B6B'];
+      // Build issue distribution bar chart data
+      const issueTotals = {};
+      const issueComps = {};
+      (competitors || []).forEach(comp => {
+        (comp.topProblems || []).forEach(prob => {
+          if (!issueTotals[prob.category]) { issueTotals[prob.category] = { label: prob.label, score: 0, comps: [] }; }
+          issueTotals[prob.category].score += (prob.totalScore || 1);
+          if (!issueTotals[prob.category].comps.includes(comp.placeId)) {
+            issueTotals[prob.category].comps.push(comp.placeId);
+          }
+        });
+      });
+      const issueList = Object.entries(issueTotals).sort((a, b) => b[1].score - a[1].score).slice(0, 6);
+      const maxScore = issueList[0]?.[1]?.score || 1;
+      const ISSUE_COLORS = ['#FF3B30', '#FF9500', '#007AFF', '#AF52DE', '#34C759', '#FF6B6B'];
 
-  if (issueList.length > 0) {
-    html += `<div class="issue-chart-section">
+      if (issueList.length > 0) {
+        html += `<div class="issue-chart-section">
       <div class="issue-chart-title">Issue Distribution — All Competitors</div>
       <div id="issueChart">
         ${issueList.map(([cat, d], i) => {
@@ -509,75 +1359,75 @@ function renderResult(data) {
         <div id="issueDrill" style="display:none"></div>
       </div>
     </div>`;
-  }
+      }
 
-  // Competitor cards — sorted by most issues
-  html += `<div class="comp-grid" id="compGrid">
+      // Competitor cards — sorted by most issues
+      html += `<div class="comp-grid" id="compGrid">
     ${sortedByIssues.map((comp) => renderCompCard(comp)).join('')}
   </div>`;
 
-  html += `<p style="font-size:11px;color:var(--text3);margin-top:16px;text-align:right">
+      html += `<p style="font-size:11px;color:var(--text3);margin-top:16px;text-align:right">
     ${new Date(data.lastUpdated).toLocaleString('id-ID')} · ${data.source}
     <button onclick="clearAndRerun()" style="margin-left:8px;font-size:11px;background:none;border:none;color:var(--blue);cursor:pointer">Refresh</button>
   </p>`;
 
-  el.innerHTML = html;
+      el.innerHTML = html;
 
-  // Animate issue bars
-  setTimeout(() => {
-    document.querySelectorAll('.issue-bar-fill').forEach(bar => {
-      bar.style.width = bar.dataset.width + '%';
-    });
-  }, 100);
+      // Animate issue bars
+      setTimeout(() => {
+        document.querySelectorAll('.issue-bar-fill').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+      }, 100);
 
-  // Re-bind filter events
-  document.getElementById('compFilter').addEventListener('click', (e) => {
-    const chip = e.target.closest('.filter-chip');
-    if (!chip) return;
-    document.querySelectorAll('#compFilter .filter-chip').forEach((c)=>c.classList.remove('active'));
-    chip.classList.add('active');
-    activeCompFilter = chip.dataset.comp;
-    applyFilters();
-  });
-  document.getElementById('problemFilter').addEventListener('click', (e) => {
-    const chip = e.target.closest('.filter-chip');
-    if (!chip) return;
-    document.querySelectorAll('#problemFilter .filter-chip').forEach((c)=>c.classList.remove('active'));
-    chip.classList.add('active');
-    activeProblemFilter = chip.dataset.prob;
-    applyFilters();
-  });
-}
+      // Re-bind filter events
+      document.getElementById('compFilter').addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        document.querySelectorAll('#compFilter .filter-chip').forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCompFilter = chip.dataset.comp;
+        applyFilters();
+      });
+      document.getElementById('problemFilter').addEventListener('click', (e) => {
+        const chip = e.target.closest('.filter-chip');
+        if (!chip) return;
+        document.querySelectorAll('#problemFilter .filter-chip').forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeProblemFilter = chip.dataset.prob;
+        applyFilters();
+      });
+    }
 
-function sortCompetitorsByBrand(competitors) {
-  // Known brands come first
-  return [...competitors].sort((a, b) => {
-    const aKnown = getBrandInfo(a.name) ? 0 : 1;
-    const bKnown = getBrandInfo(b.name) ? 0 : 1;
-    return aKnown - bKnown;
-  });
-}
+    function sortCompetitorsByBrand(competitors) {
+      // Known brands come first
+      return [...competitors].sort((a, b) => {
+        const aKnown = getBrandInfo(a.name) ? 0 : 1;
+        const bKnown = getBrandInfo(b.name) ? 0 : 1;
+        return aKnown - bKnown;
+      });
+    }
 
-function renderCompCard(comp) {
-  const hasProblems = comp.topProblems?.length > 0;
-  const hasAds = comp.adRecommendations?.length > 0;
-  const ratingColor = comp.rating >= 4 ? 'var(--navy)' : comp.rating >= 3 ? 'var(--amber)' : 'var(--red)';
-  const brand = getBrandInfo(comp.name);
-  const brandBadge = brand ? `<span class="comp-brand-badge" style="background:${brand.bg};color:${brand.text}">${brand.label}</span>` : '';
+    function renderCompCard(comp) {
+      const hasProblems = comp.topProblems?.length > 0;
+      const hasAds = comp.adRecommendations?.length > 0;
+      const ratingColor = comp.rating >= 4 ? 'var(--navy)' : comp.rating >= 3 ? 'var(--amber)' : 'var(--red)';
+      const brand = getBrandInfo(comp.name);
+      const brandBadge = brand ? `<span class="comp-brand-badge" style="background:${brand.bg};color:${brand.text}">${brand.label}</span>` : '';
 
-  // Reviews from negative reviews (rating 1-2) for dropdown
-  const negReviews = (comp.rawNegativeReviews || []).filter(r => (r.rating||5) <= 2);
-  const allNegReviews = (comp.rawNegativeReviews || []);
+      // Reviews from negative reviews (rating 1-2) for dropdown
+      const negReviews = (comp.rawNegativeReviews || []).filter(r => (r.rating || 5) <= 2);
+      const allNegReviews = (comp.rawNegativeReviews || []);
 
-  return `<div class="comp-card" id="comp_${comp.placeId}" data-problems="${(comp.topProblems||[]).map(p=>p.category).join(',')}">
+      return `<div class="comp-card" id="comp_${comp.placeId}" data-problems="${(comp.topProblems || []).map(p => p.category).join(',')}">
     <div class="comp-header">
       <div>
         <div class="comp-name">${comp.name}${brandBadge}</div>
         <div class="comp-addr">${comp.address}</div>
-        <div class="comp-meta">${comp.negativeReviewCount} negative reviews analyzed from ${comp.totalReviewsAnalyzed} reviews · ${comp.confidence?.label||''}</div>
+        <div class="comp-meta">${comp.negativeReviewCount} negative reviews analyzed from ${comp.totalReviewsAnalyzed} reviews · ${comp.confidence?.label || ''}</div>
       </div>
       <div class="comp-right">
-        <div class="comp-rating" style="color:${ratingColor}">${comp.rating||'—'}</div>
+        <div class="comp-rating" style="color:${ratingColor}">${comp.rating || '—'}</div>
         <div class="comp-rating-label">/ 5.0</div>
         <div class="comp-dist">${comp.distance} km</div>
         ${comp.confidence ? `<div style="margin-top:4px"><span class="conf-badge conf-${comp.confidence.level}">${comp.confidence.label}</span></div>` : ''}
@@ -586,11 +1436,11 @@ function renderCompCard(comp) {
     <div class="comp-body">
       <div>
         <div class="section-sub sub-red">Issues from Negative Reviews</div>
-        ${hasProblems ? comp.topProblems.slice(0,4).map((p) => `
+        ${hasProblems ? comp.topProblems.slice(0, 4).map((p) => `
           <div class="problem-item">
             <div class="problem-info">
               <div class="problem-label">${p.label}</div>
-              <div class="problem-kws">${(p.topKeywords||[]).map((k)=>`<span class="problem-kw">"${k.keyword}" ×${k.count}</span>`).join('')}</div>
+              <div class="problem-kws">${(p.topKeywords || []).map((k) => `<span class="problem-kw">"${k.keyword}" ×${k.count}</span>`).join('')}</div>
             </div>
           </div>`).join('') : '<p class="no-data">No negative reviews detected.</p>'}
         ${allNegReviews.length > 0 ? `
@@ -600,11 +1450,11 @@ function renderCompCard(comp) {
               View ${allNegReviews.length} Google 1-2 star reviews
             </button>
             <div class="reviews-list">
-              ${allNegReviews.map((r)=>`
-                <div class="rev-item" onclick="openModal(this)" data-text="${(r.text||'(tidak ada teks)').replace(/"/g,'&quot;')}" data-author="${(r.author||'Anonim').replace(/"/g,'&quot;')}" data-rating="${r.rating||0}" data-comp="${comp.name.replace(/"/g,'&quot;')}">
-                  <div class="rev-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
-                  <div style="cursor:pointer;color:var(--navy-d)">${(r.text||'(tidak ada teks)').substring(0,100)}${(r.text||''). length>100?'... <span style="font-size:11px;color:var(--navy)">[baca semua]':''}</span></div>
-                  <div class="rev-author">${r.author||'Anonim'} · ${r.time||''}</div>
+              ${allNegReviews.map((r) => `
+                <div class="rev-item" onclick="openModal(this)" data-text="${(r.text || '(tidak ada teks)').replace(/"/g, '&quot;')}" data-author="${(r.author || 'Anonim').replace(/"/g, '&quot;')}" data-rating="${r.rating || 0}" data-comp="${comp.name.replace(/"/g, '&quot;')}">
+                  <div class="rev-stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</div>
+                  <div style="cursor:pointer;color:var(--navy-d)">${(r.text || '(tidak ada teks)').substring(0, 100)}${(r.text || '').length > 100 ? '... <span style="font-size:11px;color:var(--navy)">[baca semua]' : ''}</span></div>
+                  <div class="rev-author">${r.author || 'Anonim'} · ${r.time || ''}</div>
                 </div>`).join('')}
             </div>
           </div>` : ''}
@@ -615,73 +1465,74 @@ function renderCompCard(comp) {
           <div class="ad-item">
             <div class="ad-target">Target: ${ad.targetWeakness}</div>
             <div class="ad-text">${ad.recommendation}</div>
-            <div class="ad-kws">${(ad.basedOnKeywords||[]).map((k)=>`<span class="ad-kw">"${k}"</span>`).join('')}</div>
+            <div class="ad-kws">${(ad.basedOnKeywords || []).map((k) => `<span class="ad-kw">"${k}"</span>`).join('')}</div>
           </div>`).join('') : '<p class="no-data">Insufficient data for specific recommendations.</p>'}
       </div>
     </div>
     <div class="comp-stats">
-      <span>Rating: <strong>${comp.rating||'—'}</strong></span>
-      <span>Total Maps reviews: <strong>${(comp.totalRatings||0).toLocaleString('id-ID')}</strong></span>
+      <span>Rating: <strong>${comp.rating || '—'}</strong></span>
+      <span>Total Maps reviews: <strong>${(comp.totalRatings || 0).toLocaleString('id-ID')}</strong></span>
       <span>1-2 star reviews analyzed: <strong>${allNegReviews.length}</strong></span>
       <span>Distance: <strong>${comp.distance} km</strong></span>
     </div>
   </div>`;
-}
+    }
 
-function toggleReviews(btn) {
-  btn.classList.toggle('open');
-  const list = btn.nextElementSibling;
-  list.classList.toggle('open');
-  const count = list.querySelectorAll('.rev-item').length;
-  btn.querySelector('svg').style.transform = list.classList.contains('open') ? 'rotate(180deg)' : '';
-}
+    function toggleReviews(btn) {
+      btn.classList.toggle('open');
+      const list = btn.nextElementSibling;
+      list.classList.toggle('open');
+      const count = list.querySelectorAll('.rev-item').length;
+      btn.querySelector('svg').style.transform = list.classList.contains('open') ? 'rotate(180deg)' : '';
+    }
 
-function openModal(el) {
-  const text = el.dataset.text || '';
-  const author = el.dataset.author || 'Anonim';
-  const rating = parseInt(el.dataset.rating) || 0;
-  const comp = el.dataset.comp || '';
-  document.getElementById('modalTitle').textContent = comp;
-  document.getElementById('modalStars').textContent = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-  document.getElementById('modalAuthor').textContent = author;
-  document.getElementById('modalText').textContent = text;
-  document.getElementById('reviewModal').style.display = 'flex';
-}
+    function openModal(el) {
+      const text = el.dataset.text || '';
+      const author = el.dataset.author || 'Anonim';
+      const rating = parseInt(el.dataset.rating) || 0;
+      const comp = el.dataset.comp || '';
+      document.getElementById('modalTitle').textContent = comp;
+      document.getElementById('modalStars').textContent = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      document.getElementById('modalAuthor').textContent = author;
+      document.getElementById('modalText').textContent = text;
+      document.getElementById('reviewModal').style.display = 'flex';
+    }
 
-function closeModal(e) {
-  if (e.target === document.getElementById('reviewModal')) {
-    document.getElementById('reviewModal').style.display = 'none';
-  }
-}
+    function closeModal(e) {
+      if (e.target === document.getElementById('reviewModal')) {
+        document.getElementById('reviewModal').style.display = 'none';
+      }
+    }
 
-function applyFilters() {
-  document.querySelectorAll('.comp-card').forEach((card) => {
-    const problems = card.dataset.problems || '';
-    const compMatch = activeCompFilter === 'all' || card.id === 'comp_' + activeCompFilter;
-    const probMatch = activeProblemFilter === 'all' || problems.includes(activeProblemFilter);
-    card.classList.toggle('hidden', !compMatch || !probMatch);
-  });
-}
+    function applyFilters() {
+      document.querySelectorAll('.comp-card').forEach((card) => {
+        const problems = card.dataset.problems || '';
+        const compMatch = activeCompFilter === 'all' || card.id === 'comp_' + activeCompFilter;
+        const probMatch = activeProblemFilter === 'all' || problems.includes(activeProblemFilter);
+        card.classList.toggle('hidden', !compMatch || !probMatch);
+      });
+    }
 
-async function clearAndRerun() {
-  await fetch('/api/cache/clear');
-  runAnalysis();
-}
+    async function clearAndRerun() {
+      await fetch('/api/cache/clear');
+      runAnalysis();
+    }
 
-function setState(state) {
-  ['Empty','Loading','Error','Result'].forEach((s) => {
-    const el = document.getElementById('state'+s);
-    if (el) el.style.display = s.toLowerCase()===state ? (state==='empty'||state==='loading'?'flex':'block') : 'none';
-  });
-}
+    function setState(state) {
+      ['Empty', 'Loading', 'Error', 'Result'].forEach((s) => {
+        const el = document.getElementById('state' + s);
+        if (el) el.style.display = s.toLowerCase() === state ? (state === 'empty' || state === 'loading' ? 'flex' : 'block') : 'none';
+      });
+    }
 
-function showError(msg, detail) {
-  setState('error');
-  document.getElementById('stateError').innerHTML = `<div class="error-card"><strong>Error:</strong> ${msg}${detail?`<br><span style="opacity:.8">${detail}</span>`:''}</div>`;
-}
+    function showError(msg, detail) {
+      setState('error');
+      document.getElementById('stateError').innerHTML = `<div class="error-card"><strong>Error:</strong> ${msg}${detail ? `<br><span style="opacity:.8">${detail}</span>` : ''}</div>`;
+    }
 
-loadBranches();
-</script>
-<div class="toast" id="toast"></div>
+    loadBranches();
+  </script>
+  <div class="toast" id="toast"></div>
 </body>
+
 </html>
