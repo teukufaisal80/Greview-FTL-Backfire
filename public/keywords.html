@@ -385,10 +385,14 @@ function openReviewModal(el) {
 <div class="toast" id="toast"></div>
 <script>
 // ── Auth ─────────────────────────────────────────────────────────────────────
-const _storedToken = sessionStorage.getItem('ftl_token');
+const _storedToken = localStorage.getItem('ftl_token');
 if (_storedToken) {
   document.getElementById('loginOverlay').style.display = 'none';
   window._authToken = _storedToken;
+  // Auto-load after token restored
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadKeywords === 'function') loadKeywords();
+  });
 }
 
 async function doLogin() {
@@ -407,7 +411,7 @@ async function doLogin() {
     const data = await res.json();
     if (data.success) {
       window._authToken = data.token;
-      sessionStorage.setItem('ftl_token', data.token);
+      localStorage.setItem('ftl_token', data.token);
       document.getElementById('loginOverlay').style.display = 'none';
       if (typeof loadDashboard === 'function') loadDashboard();
       else if (typeof loadBranches === 'function') loadBranches();
