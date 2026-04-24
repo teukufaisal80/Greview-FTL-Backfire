@@ -79,9 +79,33 @@ main{max-width:1000px;margin:0 auto;padding:28px}
 .kw-context-quote{background:var(--bg);border-radius:4px;padding:6px 10px;margin-bottom:6px;line-height:1.6;cursor:pointer;border:1px solid var(--border);transition:.15s}
 .kw-context-quote:hover{border-color:var(--navy);background:var(--navy-l)}
 .kw-context-quote-hint{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* LOGIN SCREEN */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--surface);border-radius:var(--r-lg, 16px);padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.12);text-align:center}
+.login-logo{width:56px;height:56px;background:var(--navy);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;margin:0 auto 16px}
+.login-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.login-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:var(--bg);color:var(--text);transition:.15s;margin-bottom:12px}
+.login-input:focus{border-color:var(--navy);background:var(--surface)}
+.login-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.login-btn:hover{opacity:.9}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-error{font-size:13px;color:var(--red);margin-top:8px;min-height:18px}
 </style>
 </head>
 <body>
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">FTL</div>
+    <div class="login-title">FTL Gym Dashboard</div>
+    <div class="login-sub">Masukkan password untuk melanjutkan</div>
+    <input class="login-input" type="password" id="loginInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()" id="loginBtn">Masuk</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
 <nav>
   <div class="nav-brand"><img src="/ftl-logo.png" class="nav-logo" alt="FTL Gym" style="height:40px;width:auto"></div>
   <div class="nav-links">
@@ -221,7 +245,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-loadKeywords(); } else { alert('Failed to approve keyword'); }
+if (window._authToken) { loadKeywords(); } } else { alert('Failed to approve keyword'); }
 }
 
 async function reject(word) {
@@ -249,7 +273,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-loadKeywords(); } else { alert('Failed to reject keyword'); }
+if (window._authToken) { loadKeywords(); } } else { alert('Failed to reject keyword'); }
 }
 
 async function deletePermanent(word, from) {
@@ -278,7 +302,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-loadKeywords(); } else { alert('Failed to delete keyword'); }
+if (window._authToken) { loadKeywords(); } } else { alert('Failed to delete keyword'); }
 }
 
 async function restore(word) {
@@ -306,7 +330,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-loadKeywords(); } else { alert('Failed to restore keyword'); }
+if (window._authToken) { loadKeywords(); } } else { alert('Failed to restore keyword'); }
 }
 
 function initDarkMode() {
@@ -332,7 +356,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-loadKeywords();
+if (window._authToken) { loadKeywords(); }
 </script>
 
 <!-- Review popup modal -->
@@ -359,5 +383,55 @@ function openReviewModal(el) {
 }
 </script>
 <div class="toast" id="toast"></div>
+<script>
+// ── Auth ─────────────────────────────────────────────────────────────────────
+const _storedToken = sessionStorage.getItem('ftl_token');
+if (_storedToken) {
+  document.getElementById('loginOverlay').style.display = 'none';
+  window._authToken = _storedToken;
+}
+
+async function doLogin() {
+  const pw = document.getElementById('loginInput').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  if (!pw) { err.textContent = 'Masukkan password dulu.'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Memverifikasi...';
+  try {
+    const res = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (data.success) {
+      window._authToken = data.token;
+      sessionStorage.setItem('ftl_token', data.token);
+      document.getElementById('loginOverlay').style.display = 'none';
+      if (typeof loadDashboard === 'function') loadDashboard();
+      else if (typeof loadBranches === 'function') loadBranches();
+      else if (typeof loadKeywords === 'function') if (window._authToken) { loadKeywords(); }
+    } else {
+      err.textContent = data.message || 'Password salah.';
+      btn.disabled = false;
+      btn.textContent = 'Masuk';
+    }
+  } catch(e) {
+    err.textContent = 'Gagal menghubungi server.';
+    btn.disabled = false;
+    btn.textContent = 'Masuk';
+  }
+}
+
+// Inject token into all fetch calls
+const _origFetch = window.fetch;
+window.fetch = function(url, opts={}) {
+  if (typeof url === 'string' && url.startsWith('/api/') && url !== '/api/auth') {
+    opts.headers = { ...(opts.headers||{}), 'x-app-token': window._authToken||'' };
+  }
+  return _origFetch(url, opts);
+};
+</script>
 </body>
 </html>

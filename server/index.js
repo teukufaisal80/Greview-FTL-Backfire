@@ -4,13 +4,81 @@ const axios = require("axios");
 const cors = require("cors");
 const NodeCache = require("node-cache");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
-const cache = new NodeCache({ stdTTL: Number(process.env.CACHE_TTL) || 3600 });
+
+// Cache 5 jam — hemat Google Places API quota
+const CACHE_TTL_SECONDS = 5 * 60 * 60; // 5 jam
+const cache = new NodeCache({ stdTTL: CACHE_TTL_SECONDS });
+
+// File-based persistent cache — agar data tidak hilang saat server restart
+const PERSISTENT_CACHE_FILE = path.join(__dirname, "../data/persistent_cache.json");
+
+function loadPersistentCache() {
+  try {
+    if (fs.existsSync(PERSISTENT_CACHE_FILE)) {
+      const raw = JSON.parse(fs.readFileSync(PERSISTENT_CACHE_FILE, "utf8"));
+      const now = Date.now();
+      let loaded = 0;
+      for (const [key, { value, expiresAt }] of Object.entries(raw)) {
+        if (expiresAt > now) {
+          const ttlLeft = Math.floor((expiresAt - now) / 1000);
+          cache.set(key, value, ttlLeft);
+          loaded++;
+        }
+      }
+      console.log(`📦 Loaded ${loaded} cached entries from disk`);
+    }
+  } catch (e) {
+    console.log("⚠️  Could not load persistent cache:", e.message);
+  }
+}
+
+function savePersistentCache() {
+  try {
+    const keys = cache.keys();
+    const data = {};
+    for (const key of keys) {
+      const value = cache.get(key);
+      const ttl = cache.getTtl(key); // timestamp ms when it expires
+      if (value !== undefined && ttl) {
+        data[key] = { value, expiresAt: ttl };
+      }
+    }
+    fs.mkdirSync(path.dirname(PERSISTENT_CACHE_FILE), { recursive: true });
+    fs.writeFileSync(PERSISTENT_CACHE_FILE, JSON.stringify(data));
+  } catch (e) {
+    console.log("⚠️  Could not save persistent cache:", e.message);
+  }
+}
+
+// Save cache to disk every 10 minutes
+setInterval(savePersistentCache, 10 * 60 * 1000);
+loadPersistentCache();
+
+// ── Password protection middleware ───────────────────────────────────────────
+const APP_PASSWORD = process.env.APP_PASSWORD || "ftlsmart";
+
+function requireAuth(req, res, next) {
+  const token = req.headers["x-app-token"] || req.query._token;
+  if (token === APP_PASSWORD) return next();
+  return res.status(401).json({ error: "Unauthorized", message: "Invalid or missing token." });
+}
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
+
+// ── Auth endpoint — frontend calls this to get a session token ───────────────
+app.post("/api/auth", (req, res) => {
+  const { password } = req.body;
+  if (password === APP_PASSWORD) {
+    res.json({ success: true, token: APP_PASSWORD });
+  } else {
+    res.status(401).json({ success: false, message: "Password salah." });
+  }
+});
 
 const PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
@@ -287,7 +355,7 @@ function analyzeSentiment(reviews = []) {
 }
 
 // ── GET /api/dashboard ─────────────────────────────────────────────────────
-app.get("/api/dashboard", async (req, res) => {
+app.get("/api/dashboard", requireAuth, async (req, res) => {
   const cacheKey = "dashboard_all";
   if (cache.has(cacheKey)) {
     return res.json({ source: "cache", ...cache.get(cacheKey) });
@@ -415,7 +483,7 @@ app.get("/api/dashboard", async (req, res) => {
 });
 
 // ── GET /api/competitor/:placeId — analisis kompetitor sekitar 1 cabang FTL
-app.get("/api/competitor/:placeId", async (req, res) => {
+app.get("/api/competitor/:placeId", requireAuth, async (req, res) => {
   const { analyzeCompetitorsForBranch } = require("./competitor");
   const { placeId } = req.params;
   const radiusKm = parseFloat(req.query.radius) || 2;
@@ -455,7 +523,7 @@ app.get("/api/competitor/:placeId", async (req, res) => {
 });
 
 // ── GET /api/branches — daftar semua cabang FTL (untuk dropdown halaman competitor)
-app.get("/api/branches", async (req, res) => {
+app.get("/api/branches", requireAuth, async (req, res) => {
   const cacheKey = "all_branches";
   if (cache.has(cacheKey)) return res.json(cache.get(cacheKey));
 
@@ -519,7 +587,7 @@ app.get("/api/keywords", (req, res) => {
 });
 
 // ── POST /api/keywords/approve ────────────────────────────────────────────
-app.post("/api/keywords/approve", (req, res) => {
+app.post("/api/keywords/approve", requireAuth, (req, res) => {
   const { approveKeyword } = require("./keywords");
   const { word, category } = req.body;
   if (!word || !category) return res.status(400).json({ error: "word dan category wajib diisi" });
@@ -530,7 +598,7 @@ app.post("/api/keywords/approve", (req, res) => {
 });
 
 // ── POST /api/keywords/reject ─────────────────────────────────────────────
-app.post("/api/keywords/reject", (req, res) => {
+app.post("/api/keywords/reject", requireAuth, (req, res) => {
   const { rejectKeyword } = require("./keywords");
   const { word, reason } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -540,7 +608,7 @@ app.post("/api/keywords/reject", (req, res) => {
 });
 
 // ── POST /api/keywords/restore ────────────────────────────────────────────
-app.post("/api/keywords/restore", (req, res) => {
+app.post("/api/keywords/restore", requireAuth, (req, res) => {
   const { restoreKeyword } = require("./keywords");
   const { word } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -550,7 +618,7 @@ app.post("/api/keywords/restore", (req, res) => {
 });
 
 // ── DELETE /api/keywords/delete — hapus permanen dari rejected ─────────────
-app.post("/api/keywords/delete", (req, res) => {
+app.post("/api/keywords/delete", requireAuth, (req, res) => {
   const { deleteKeyword } = require("./keywords");
   const { word, from } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -560,7 +628,7 @@ app.post("/api/keywords/delete", (req, res) => {
 });
 
 // ── GET /api/cache/clear ───────────────────────────────────────────────────
-app.get("/api/cache/clear", (req, res) => {
+app.get("/api/cache/clear", requireAuth, (req, res) => {
   cache.flushAll();
   res.json({ message: "Cache berhasil dibersihkan." });
 });
@@ -571,6 +639,9 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+process.on("SIGTERM", () => { savePersistentCache(); process.exit(0); });
+process.on("SIGINT", () => { savePersistentCache(); process.exit(0); });
+
 app.listen(PORT, () => {
   console.log(`\n🏋️  FTL Gym Dashboard berjalan di http://localhost:${PORT}`);
   console.log(`📊  API tersedia di http://localhost:${PORT}/api/dashboard\n`);
