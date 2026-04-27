@@ -704,20 +704,19 @@ function showError(msg, detail) {
   document.getElementById('stateError').innerHTML = `<div class="error-card"><strong>Error:</strong> ${msg}${detail?`<br><span style="opacity:.8">${detail}</span>`:''}</div>`;
 }
 
-if (window._authToken) { loadBranches(); }
+// loadBranches called from DOMContentLoaded
 </script>
 <div class="toast" id="toast"></div>
 <script>
 // ── Auth ─────────────────────────────────────────────────────────────────────
 const _storedToken = localStorage.getItem('ftl_token');
 if (_storedToken) {
-  document.getElementById('loginOverlay').style.display = 'none';
   window._authToken = _storedToken;
-  // Auto-load after token restored
-  window.addEventListener('DOMContentLoaded', () => {
-    if (typeof loadBranches === 'function') loadBranches();
-  });
+  document.getElementById('loginOverlay').style.display = 'none';
 }
+window.addEventListener('DOMContentLoaded', () => {
+  if (window._authToken) loadBranches();
+});
 
 async function doLogin() {
   const pw = document.getElementById('loginInput').value;
@@ -737,9 +736,7 @@ async function doLogin() {
       window._authToken = data.token;
       localStorage.setItem('ftl_token', data.token);
       document.getElementById('loginOverlay').style.display = 'none';
-      if (typeof loadDashboard === 'function') loadDashboard();
-      else if (typeof loadBranches === 'function') if (window._authToken) { loadBranches(); }
-      else if (typeof loadKeywords === 'function') loadKeywords();
+      loadBranches();
     } else {
       err.textContent = data.message || 'Password salah.';
       btn.disabled = false;
@@ -756,7 +753,9 @@ async function doLogin() {
 const _origFetch = window.fetch;
 window.fetch = function(url, opts={}) {
   if (typeof url === 'string' && url.startsWith('/api/') && url !== '/api/auth') {
-    opts.headers = { ...(opts.headers||{}), 'x-app-token': window._authToken||'' };
+    const tok = window._authToken || localStorage.getItem('ftl_token') || '';
+    opts = opts || {};
+    opts.headers = { ...(opts.headers||{}), 'x-app-token': tok };
   }
   return _origFetch(url, opts);
 };

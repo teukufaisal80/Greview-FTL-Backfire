@@ -245,7 +245,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-if (window._authToken) { loadKeywords(); } } else { alert('Failed to approve keyword'); }
+} else { alert('Failed to approve keyword'); }
 }
 
 async function reject(word) {
@@ -273,7 +273,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-if (window._authToken) { loadKeywords(); } } else { alert('Failed to reject keyword'); }
+} else { alert('Failed to reject keyword'); }
 }
 
 async function deletePermanent(word, from) {
@@ -302,7 +302,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-if (window._authToken) { loadKeywords(); } } else { alert('Failed to delete keyword'); }
+} else { alert('Failed to delete keyword'); }
 }
 
 async function restore(word) {
@@ -330,7 +330,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-if (window._authToken) { loadKeywords(); } } else { alert('Failed to restore keyword'); }
+} else { alert('Failed to restore keyword'); }
 }
 
 function initDarkMode() {
@@ -356,7 +356,7 @@ function toggleDarkMode() {
   }
 }
 initDarkMode();
-if (window._authToken) { loadKeywords(); }
+// loadKeywords called from DOMContentLoaded
 </script>
 
 <!-- Review popup modal -->
@@ -387,13 +387,12 @@ function openReviewModal(el) {
 // ── Auth ─────────────────────────────────────────────────────────────────────
 const _storedToken = localStorage.getItem('ftl_token');
 if (_storedToken) {
-  document.getElementById('loginOverlay').style.display = 'none';
   window._authToken = _storedToken;
-  // Auto-load after token restored
-  window.addEventListener('DOMContentLoaded', () => {
-    if (typeof loadKeywords === 'function') loadKeywords();
-  });
+  document.getElementById('loginOverlay').style.display = 'none';
 }
+window.addEventListener('DOMContentLoaded', () => {
+  if (window._authToken) loadKeywords();
+});
 
 async function doLogin() {
   const pw = document.getElementById('loginInput').value;
@@ -413,9 +412,7 @@ async function doLogin() {
       window._authToken = data.token;
       localStorage.setItem('ftl_token', data.token);
       document.getElementById('loginOverlay').style.display = 'none';
-      if (typeof loadDashboard === 'function') loadDashboard();
-      else if (typeof loadBranches === 'function') loadBranches();
-      else if (typeof loadKeywords === 'function') if (window._authToken) { loadKeywords(); }
+      loadKeywords();
     } else {
       err.textContent = data.message || 'Password salah.';
       btn.disabled = false;
@@ -432,7 +429,9 @@ async function doLogin() {
 const _origFetch = window.fetch;
 window.fetch = function(url, opts={}) {
   if (typeof url === 'string' && url.startsWith('/api/') && url !== '/api/auth') {
-    opts.headers = { ...(opts.headers||{}), 'x-app-token': window._authToken||'' };
+    const tok = window._authToken || localStorage.getItem('ftl_token') || '';
+    opts = opts || {};
+    opts.headers = { ...(opts.headers||{}), 'x-app-token': tok };
   }
   return _origFetch(url, opts);
 };

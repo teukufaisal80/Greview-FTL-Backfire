@@ -1981,7 +1981,7 @@ function showSkeleton() {
 
 initDarkMode();
 showSkeleton();
-if (window._authToken) { loadDashboard(); }
+// loadDashboard called from DOMContentLoaded above
 </script>
 <div class="toast" id="toast"></div>
 <script>
@@ -2345,15 +2345,18 @@ async function exportPDF() {
 
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
+// Set token immediately so fetch interceptor has it
 const _storedToken = localStorage.getItem('ftl_token');
 if (_storedToken) {
-  document.getElementById('loginOverlay').style.display = 'none';
   window._authToken = _storedToken;
-  // Auto-load after token restored
-  window.addEventListener('DOMContentLoaded', () => {
-    if (typeof loadDashboard === 'function') loadDashboard();
-  });
+  document.getElementById('loginOverlay').style.display = 'none';
 }
+// Always call loadDashboard after DOM ready — it handles empty/no-token gracefully
+window.addEventListener('DOMContentLoaded', () => {
+  if (window._authToken) {
+    loadDashboard();
+  }
+});
 
 async function doLogin() {
   const pw = document.getElementById('loginInput').value;
@@ -2373,9 +2376,7 @@ async function doLogin() {
       window._authToken = data.token;
       localStorage.setItem('ftl_token', data.token);
       document.getElementById('loginOverlay').style.display = 'none';
-      if (typeof loadDashboard === 'function') if (window._authToken) { loadDashboard(); }
-      else if (typeof loadBranches === 'function') loadBranches();
-      else if (typeof loadKeywords === 'function') loadKeywords();
+      loadDashboard();
     } else {
       err.textContent = data.message || 'Password salah.';
       btn.disabled = false;
@@ -2388,11 +2389,13 @@ async function doLogin() {
   }
 }
 
-// Inject token into all fetch calls
+// Inject token into all fetch calls — always read fresh from localStorage
 const _origFetch = window.fetch;
 window.fetch = function(url, opts={}) {
   if (typeof url === 'string' && url.startsWith('/api/') && url !== '/api/auth') {
-    opts.headers = { ...(opts.headers||{}), 'x-app-token': window._authToken||'' };
+    const tok = window._authToken || localStorage.getItem('ftl_token') || '';
+    opts = opts || {};
+    opts.headers = { ...(opts.headers||{}), 'x-app-token': tok };
   }
   return _origFetch(url, opts);
 };
