@@ -619,11 +619,18 @@ async function loadDashboard() {
     if (data.source === 'empty' || !data.cities || data.cities.length === 0) {
       const es = document.getElementById('emptyState');
       const ct = document.getElementById('content');
-      // Show notice bar (always works regardless of DOM structure)
-      const notice = document.getElementById('scrapeNotice');
-      if (notice) notice.style.display = 'flex';
-      if (es) es.style.display = 'flex';
+      // Inject notice bar directly — no HTML dependency
       if (ct) ct.style.display = 'none';
+      let notice = document.getElementById('scrapeNotice');
+      if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'scrapeNotice';
+        notice.style.cssText = 'background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;margin:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px';
+        notice.innerHTML = '<span style="font-size:13px;color:#92400E;font-weight:600">⚠️ Belum ada data — klik Start Scrape untuk mengambil data Google Reviews dari semua cabang FTL</span><button onclick="startScrape()" style="padding:8px 18px;background:#1B3A6B;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">↻ Start Scrape</button>';
+        const main = document.querySelector('main') || document.body;
+        main.insertBefore(notice, main.firstChild);
+      }
+      notice.style.display = 'flex';
       return;
     }
 
@@ -631,7 +638,7 @@ async function loadDashboard() {
     const es = document.getElementById('emptyState');
     if (es) es.style.display = 'none';
     const notice = document.getElementById('scrapeNotice');
-    if (notice) notice.style.display = 'none';
+    if (notice) notice.remove();
     const ct = document.getElementById('content');
     if (ct) ct.style.display = 'block';
 
@@ -697,7 +704,7 @@ async function startScrape() {
     setTimeout(() => {
       if (progress) progress.classList.remove('visible');
       const notice2 = document.getElementById('scrapeNotice');
-      if (notice2) notice2.style.display = 'none';
+      if (notice2) notice2.remove();
       const ct2 = document.getElementById('content');
       if (ct2) ct2.style.display = 'block';
       populateClubFilter(data.cities);
