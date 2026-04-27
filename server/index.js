@@ -8,9 +8,8 @@ const fs = require("fs");
 
 const app = express();
 
-// Cache 5 jam — hemat Google Places API quota
-const CACHE_TTL_SECONDS = 5 * 60 * 60; // 5 jam
-const cache = new NodeCache({ stdTTL: CACHE_TTL_SECONDS });
+// Cache tanpa expiry — hanya di-replace saat Start Scrape diklik
+const cache = new NodeCache({ stdTTL: 0, checkperiod: 0 });
 
 // File-based persistent cache — agar data tidak hilang saat server restart
 const PERSISTENT_CACHE_FILE = path.join(__dirname, "../data/persistent_cache.json");
@@ -19,16 +18,14 @@ function loadPersistentCache() {
   try {
     if (fs.existsSync(PERSISTENT_CACHE_FILE)) {
       const raw = JSON.parse(fs.readFileSync(PERSISTENT_CACHE_FILE, "utf8"));
-      const now = Date.now();
       let loaded = 0;
-      for (const [key, { value, expiresAt }] of Object.entries(raw)) {
-        if (expiresAt > now) {
-          const ttlLeft = Math.floor((expiresAt - now) / 1000);
-          cache.set(key, value, ttlLeft);
+      for (const [key, { value }] of Object.entries(raw)) {
+        if (value !== undefined) {
+          cache.set(key, value, 0); // TTL 0 = no expiry
           loaded++;
         }
       }
-      console.log(`📦 Loaded ${loaded} cached entries from disk`);
+      console.log(`📦 Loaded ${loaded} cached entries from disk (no expiry)`);
     }
   } catch (e) {
     console.log("⚠️  Could not load persistent cache:", e.message);
@@ -41,13 +38,13 @@ function savePersistentCache() {
     const data = {};
     for (const key of keys) {
       const value = cache.get(key);
-      const ttl = cache.getTtl(key); // timestamp ms when it expires
-      if (value !== undefined && ttl) {
-        data[key] = { value, expiresAt: ttl };
+      if (value !== undefined) {
+        data[key] = { value };
       }
     }
     fs.mkdirSync(path.dirname(PERSISTENT_CACHE_FILE), { recursive: true });
     fs.writeFileSync(PERSISTENT_CACHE_FILE, JSON.stringify(data));
+    console.log(`💾 Cache saved to disk (${keys.length} entries)`);
   } catch (e) {
     console.log("⚠️  Could not save persistent cache:", e.message);
   }
@@ -354,18 +351,26 @@ function analyzeSentiment(reviews = []) {
   };
 }
 
-// ── GET /api/dashboard ─────────────────────────────────────────────────────
+// ── GET /api/dashboard — serve from cache only ────────────────────────────
 app.get("/api/dashboard", requireAuth, async (req, res) => {
   const cacheKey = "dashboard_all";
   if (cache.has(cacheKey)) {
     return res.json({ source: "cache", ...cache.get(cacheKey) });
   }
+  // No cache yet
+  return res.json({ source: "empty", cities: [], lastUpdated: null });
+});
+
+// ── POST /api/scrape — force fetch from Google, replace cache ──────────────
+app.post("/api/scrape", requireAuth, async (req, res) => {
+  const cacheKey = "dashboard_all";
 
   if (!API_KEY || API_KEY === "ISI_API_KEY_KAMU_DI_SINI") {
-    return res.status(400).json({
-      error: "API key belum diisi. Salin .env.example ke .env dan isi GOOGLE_PLACES_API_KEY.",
-    });
+    return res.status(400).json({ error: "API key belum diisi." });
   }
+
+  // Mark scraping in progress
+  cache.set("scrape_status", { status: "running", startedAt: new Date().toISOString() }, 0);
 
   try {
     // Cari semua cabang dari CLUB_LIST (59 club by nama exact)
@@ -474,9 +479,12 @@ app.get("/api/dashboard", requireAuth, async (req, res) => {
       lastUpdated: new Date().toISOString(),
     };
 
-    cache.set(cacheKey, payload);
+    cache.set(cacheKey, payload, 0); // no expiry
+    cache.set("scrape_status", { status: "done", completedAt: new Date().toISOString() }, 0);
+    savePersistentCache();
     res.json({ source: "live", ...payload });
   } catch (err) {
+    cache.set("scrape_status", { status: "error", error: err.message }, 0);
     console.error("Error fetching from Google Places:", err.message);
     res.status(500).json({ error: "Gagal mengambil data dari Google Places API.", detail: err.message });
   }
@@ -628,6 +636,14 @@ app.post("/api/keywords/delete", requireAuth, (req, res) => {
 });
 
 // ── GET /api/cache/clear ───────────────────────────────────────────────────
+// ── GET /api/scrape/status ────────────────────────────────────────────────
+app.get("/api/scrape/status", requireAuth, (req, res) => {
+  const status = cache.get("scrape_status") || { status: "idle" };
+  const hasDashboard = cache.has("dashboard_all");
+  const dashData = hasDashboard ? cache.get("dashboard_all") : null;
+  res.json({ ...status, hasDashboard, lastUpdated: dashData?.lastUpdated || null });
+});
+
 app.get("/api/cache/clear", requireAuth, (req, res) => {
   cache.flushAll();
   res.json({ message: "Cache berhasil dibersihkan." });
