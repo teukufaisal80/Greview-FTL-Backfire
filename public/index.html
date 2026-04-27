@@ -823,6 +823,8 @@ document.addEventListener('click', (e) => {
 });
 
 function populateCompareSelects(cities) {
+  // compareA/compareB removed — skip safely
+  if (!document.getElementById('compareA')) return;
   const items = [];
   cities.forEach((c) => {
     items.push({ value: `city_${c.city}`, label: `${c.city} (City)`, rating: c.avgRating, color: CITY_COLORS[c.city] || '#888' });
