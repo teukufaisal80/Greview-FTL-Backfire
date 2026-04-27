@@ -598,8 +598,18 @@ let trendChartInst = null;
 
 async function loadDashboard() {
   try {
-    const res = await fetch('/api/dashboard');
+    // Always get fresh token from localStorage in case _authToken not set yet
+    const token = window._authToken || localStorage.getItem('ftl_token') || '';
+    const res = await fetch('/api/dashboard', { headers: { 'x-app-token': token } });
     const data = await res.json();
+    if (res.status === 401) {
+      // Token invalid — clear and show login
+      localStorage.removeItem('ftl_token');
+      window._authToken = '';
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('loadingState').style.display = 'none';
+      return;
+    }
     if (!res.ok) { showError(data.error, data.detail); return; }
     
     // No cache yet — show empty state
