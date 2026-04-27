@@ -424,7 +424,11 @@ main{max-width:1200px;margin:0 auto;padding:28px}
   <div class="nav-right">
     <span id="sourceBadge" style="display:none"></span>
     <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
-    <button class="btn" onclick="clearCacheAndReload()">Refresh</button>
+    <button class="btn btn-scrape" id="scrapeBtn" onclick="startScrape()">
+      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+      <span id="scrapeBtnLabel">Update Scrape</span>
+    </button>
+    <button class="btn" onclick="clearCacheAndReload()" style="display:none">Refresh</button>
     <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
       <svg id="darkIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
@@ -529,30 +533,34 @@ main{max-width:1200px;margin:0 auto;padding:28px}
     <div class="section-title">Rating by Region / Club</div>
     <div class="city-grid" id="cityGrid"></div>
 
-    <div class="section-title">Rating Comparison</div>
-    <div class="chart-card" style="margin-bottom:12px">
-      <div class="compare-controls">
-        <div class="compare-select-wrap">
-          <span>Compare</span>
-          <select class="filter-select" id="compareA" style="min-width:180px"></select>
-          <span class="vs-badge">VS</span>
-          <select class="filter-select" id="compareB" style="min-width:180px"></select>
-        </div>
-      </div>
-      <div class="chart-wrap" style="height:260px"><canvas id="compareChart" role="img" aria-label="Perbandingan rating"></canvas></div>
-    </div>
 
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="chart-title">Rating Trend</div>
-        <div class="chart-sub" id="trendSub">Rating trend based on active filter</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="chart-card" style="grid-column:1/-1">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <div>
+            <div class="chart-title">Rating Trend & Comparison</div>
+            <div class="chart-sub" id="trendSub">Based on review timestamps from Google</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="trendSelectors">
+            <select class="filter-select" id="trendSel1" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
+            <select class="filter-select" id="trendSel2" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
+            <select class="filter-select" id="trendSel3" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
+            <select class="filter-select" id="trendSel4" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
+          </div>
+        </div>
         <div class="legend-row" id="trendLegend"></div>
-        <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Tren rating"></canvas></div>
+        <div class="chart-wrap" style="height:240px"><canvas id="trendChart" role="img" aria-label="Rating trend"></canvas></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">Data berdasarkan timestamp review Google (relative_time_description). Semakin banyak review, semakin akurat trendnya.</div>
       </div>
       <div class="chart-card">
         <div class="chart-title">Sentiment Analysis</div>
         <div class="chart-sub">Review distribution by star rating</div>
         <div id="sentimentSection"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Star Distribution</div>
+        <div class="chart-sub">Rating breakdown by stars</div>
+        <div id="starDistSection"></div>
       </div>
     </div>
 
@@ -650,20 +658,23 @@ async function loadDashboard() {
 }
 
 async function startScrape() {
+  // Update button state
   const btn = document.getElementById('scrapeBtn');
-  if (btn) { btn.disabled = true; btn.classList.add('running'); btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Scraping...'; }
+  const lbl = document.getElementById('scrapeBtnLabel');
+  if (btn) { btn.disabled = true; btn.classList.add('running'); }
+  if (lbl) lbl.textContent = 'Scraping...';
 
-  // Hide empty state fallback
-  const esf = document.getElementById('emptyState-fallback');
-  if (esf) esf.style.display = 'none';
-  const es = document.getElementById('emptyState');
-  if (es) es.style.display = 'none';
+  // Hide notices
+  const notice = document.getElementById('scrapeNotice');
+  if (notice) notice.remove();
 
   // Show progress bar
   const progress = document.getElementById('scrapeProgress');
   const bar = document.getElementById('scrapeBar');
   const msg = document.getElementById('scrapeMsg');
   if (progress) progress.classList.add('visible');
+  if (bar) bar.style.width = '0%';
+  if (msg) msg.textContent = 'Memulai...';
 
   // Animate progress bar while scraping
   let pct = 0;
@@ -703,10 +714,12 @@ async function startScrape() {
     rawData = data;
     setTimeout(() => {
       if (progress) progress.classList.remove('visible');
-      const notice2 = document.getElementById('scrapeNotice');
-      if (notice2) notice2.remove();
-      const ct2 = document.getElementById('content');
-      if (ct2) ct2.style.display = 'block';
+      const n = document.getElementById('scrapeNotice');
+      if (n) n.remove();
+      const ct = document.getElementById('content');
+      if (ct) ct.style.display = 'block';
+      const es = document.getElementById('emptyState');
+      if (es) es.style.display = 'none';
       populateClubFilter(data.cities);
       populateCompareSelects(data.cities);
       renderAll();
@@ -722,9 +735,9 @@ async function startScrape() {
 
 function resetScrapeBtn() {
   const btn = document.getElementById('scrapeBtn');
-  btn.disabled = false;
-  btn.classList.remove('running');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Start Scrape';
+  const lbl = document.getElementById('scrapeBtnLabel');
+  if (btn) { btn.disabled = false; btn.classList.remove('running'); }
+  if (lbl) lbl.textContent = 'Update Scrape';
 }
 
 function populateClubFilter(cities) {
@@ -899,9 +912,12 @@ function renderAll() {
   renderCompareChart();
   renderTrendChart(data.cities);
   renderSentiment(data.cities);
+  renderStarDist(data.cities);
   renderReviews(data);
   renderRanking(data);
   renderPriorityScore(data);
+  populateTrendSelectors(data);
+  renderTrendChart();
 }
 
 function animateCount(el, from, to, decimals=0, suffix='', duration=600) {
@@ -1411,31 +1427,208 @@ function renderCompareChart() {
   });
 }
 
-function renderTrendChart(cities) {
-  const labels = ['Nov','Dec','Jan','Feb','Mar','Apr'];
-  const datasets = (cities||[]).map((c) => {
-    const r = c.avgRating || 3.5;
-    const trend = [r-.25, r-.2, r-.12, r-.08, r-.03, r].map((v) => Math.round(Math.max(1,Math.min(5,v))*10)/10);
-    return { label: c.city, data: trend, borderColor: CITY_COLORS[c.city]||'#888', backgroundColor: 'transparent', tension: .4, pointRadius: 3 };
+// ── Convert relative_time_description → month offset ─────────────────────
+function relativeTimeToMonthOffset(str) {
+  if (!str) return null;
+  const s = str.toLowerCase();
+  if (s.includes('hari ini') || s.includes('today') || s.includes('just now') || s.includes('baru saja')) return 0;
+  if (s.includes('kemarin') || s.includes('yesterday')) return 0;
+  if (s.includes('minggu') || s.includes('week')) {
+    const n = parseInt(s) || 1;
+    return n <= 2 ? 0 : -1;
+  }
+  if (s.includes('bulan') || s.includes('month')) {
+    const n = parseInt(s) || 1;
+    return -Math.min(n, 5);
+  }
+  if (s.includes('tahun') || s.includes('year')) {
+    const n = parseInt(s) || 1;
+    return -Math.min(n * 12, 5);
+  }
+  return null;
+}
+
+// Build month labels for last 6 months
+function getMonthLabels() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const labels = [];
+  for (let i = -5; i <= 0; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    labels.push(months[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2));
+  }
+  return labels; // 6 labels: 5 months ago → current
+}
+
+// Get avg rating per month for a set of reviews
+function calcTrendData(reviews) {
+  // monthIndex: 0=5 months ago, 5=current
+  const buckets = [{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0}];
+  reviews.forEach(r => {
+    const offset = relativeTimeToMonthOffset(r.time || r.relative_time_description);
+    if (offset === null) return;
+    const idx = 5 + offset; // offset is 0 or negative
+    if (idx >= 0 && idx <= 5 && r.rating) {
+      buckets[idx].sum += r.rating;
+      buckets[idx].cnt++;
+    }
+  });
+  // Fill gaps with null (Chart.js will skip)
+  return buckets.map(b => b.cnt > 0 ? Math.round((b.sum / b.cnt) * 10) / 10 : null);
+}
+
+// Populate trend selectors based on active filter
+function populateTrendSelectors(data) {
+  const cities = data.cities || [];
+  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city: c.city})));
+  const isClubFilter = activeClub !== 'all';
+  const isCityFilter = activeCity !== 'all';
+
+  // Build option list
+  let items = [];
+  if (isClubFilter) {
+    // Show nearby clubs (same city)
+    const club = allBranches.find(b => b.name === activeClub);
+    const sameCity = allBranches.filter(b => b.city === (club?.city || activeCity));
+    items = sameCity.map(b => ({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
+  } else if (isCityFilter) {
+    // Show clubs in selected city
+    const cityBranches = allBranches.filter(b => b.city === activeCity);
+    items = cityBranches.map(b => ({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
+  } else {
+    // Show cities
+    items = cities.map(c => ({ label: c.city, value: 'city:' + c.city, city: c.city }));
+    // Also add option to view all branches
+    allBranches.forEach(b => items.push({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
+  }
+
+  const colors = ['#1B3A6B','#007AFF','#FF9500','#FF3B30','#34C759','#AF52DE'];
+  const selIds = ['trendSel1','trendSel2','trendSel3','trendSel4'];
+  const defaults = items.slice(0, 4).map(i => i.value);
+
+  selIds.forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— None —</option>' +
+      items.map(i => `<option value="${i.value}" ${i.value === defaults[idx] ? 'selected' : ''}>${i.label}${!isClubFilter && !isCityFilter && i.city ? ' ('+i.city+')' : ''}</option>`).join('');
+  });
+
+  window._trendItems = items;
+  window._trendColors = colors;
+  window._trendData = data;
+}
+
+function renderTrendChart() {
+  const data = window._trendData || rawData;
+  if (!data) return;
+
+  const cities = data.cities || [];
+  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
+  const labels = getMonthLabels();
+  const colors = ['#1B3A6B','#007AFF','#FF9500','#FF3B30'];
+  const selIds = ['trendSel1','trendSel2','trendSel3','trendSel4'];
+
+  const datasets = [];
+  const legendItems = [];
+
+  selIds.forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    const val = sel?.value;
+    if (!val) return;
+
+    let reviews = [];
+    let label = '';
+
+    if (val.startsWith('city:')) {
+      const cityName = val.replace('city:','');
+      const city = cities.find(c => c.city === cityName);
+      reviews = city?.recentReviews || [];
+      label = cityName;
+    } else if (val.startsWith('branch:')) {
+      const branchName = val.replace('branch:','');
+      const city = cities.find(c => (c.branches||[]).some(b => b.name === branchName));
+      const branch = (city?.branches||[]).find(b => b.name === branchName);
+      reviews = branch?.reviews || city?.recentReviews?.filter(r => r.clubName === branchName) || [];
+      // Fallback: use city reviews if branch has none
+      if (!reviews.length && city) reviews = city.recentReviews || [];
+      label = branchName.replace('FTL - ','').replace('Stride - ','');
+    }
+
+    const trendData = calcTrendData(reviews);
+    const color = colors[idx];
+
+    datasets.push({
+      label,
+      data: trendData,
+      borderColor: color,
+      backgroundColor: color + '15',
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: color,
+      borderWidth: 2,
+      spanGaps: true,
+    });
+    legendItems.push({ label, color });
   });
 
   const legend = document.getElementById('trendLegend');
-  legend.innerHTML = (cities||[]).map((c) => `<span><span class="legend-dot" style="background:${CITY_COLORS[c.city]||'#888'}"></span>${c.city}</span>`).join('');
+  if (legend) legend.innerHTML = legendItems.map(l =>
+    `<span><span class="legend-dot" style="background:${l.color}"></span>${l.label}</span>`
+  ).join('');
 
   const ctx = document.getElementById('trendChart');
+  if (!ctx) return;
   if (trendChartInst) trendChartInst.destroy();
   trendChartInst = new Chart(ctx, {
     type: 'line',
     data: { labels, datasets },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: ⭐ ${ctx.parsed.y}` : `${ctx.dataset.label}: No data`
+          }
+        }
+      },
       scales: {
-        y: { min: 3.0, max: 5.0, ticks: { font: { size: 11 }, stepSize: .5 }, grid: { color: 'rgba(0,0,0,.05)' } },
+        y: {
+          min: 3.0, max: 5.0,
+          ticks: { font: { size: 11 }, stepSize: 0.5, callback: v => '⭐ ' + v },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        },
         x: { ticks: { font: { size: 11 } }, grid: { display: false } }
       }
     }
   });
+}
+
+function renderStarDist(cities) {
+  const dist = {1:0,2:0,3:0,4:0,5:0};
+  let total = 0;
+  cities.forEach(c => {
+    Object.entries(c.starDistribution||{}).forEach(([k,v]) => {
+      dist[k] = (dist[k]||0) + v;
+      total += v;
+    });
+  });
+  const el = document.getElementById('starDistSection');
+  if (!el) return;
+  const stars = [5,4,3,2,1];
+  const colors = { 5:'#34C759', 4:'#007AFF', 3:'#FF9500', 2:'#FF6B35', 1:'#FF3B30' };
+  el.innerHTML = stars.map(s => {
+    const pct = total > 0 ? Math.round((dist[s]||0)/total*100) : Math.round((dist[s]||0)/5);
+    return `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--text2);width:20px;text-align:right">${s}★</span>
+      <div style="flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
+        <div style="height:8px;border-radius:4px;background:${colors[s]};width:${pct}%;transition:width .5s"></div>
+      </div>
+      <span style="font-size:12px;color:var(--text2);width:32px">${pct}%</span>
+    </div>`;
+  }).join('');
 }
 
 function renderSentiment(cities) {
@@ -1837,20 +2030,36 @@ function renderPriorityScore(data) {
                   isWarning  ? '<span class="priority-badge badge-warning">Attention</span>' :
                                '<span class="priority-badge badge-good">Good</span>';
     const rankBg = i < 3 ? 'background:var(--red-l);color:var(--red)' : 'background:var(--bg);color:var(--text2)';
+
+    // Score breakdown
+    const ratingScore = b.rating > 0 ? Math.round(Math.max(0, (5 - b.rating) / (5 - 1) * 100) * 0.40) : 20;
+    const negPct = b.cityData?.sentiment?.negative || 0;
+    const negScore = Math.round(Math.min(100, negPct * 2) * 0.35);
+    const totalRatings = b.totalRatings || 0;
+    const visRaw = totalRatings < 50 ? 80 : totalRatings < 100 ? 50 : totalRatings < 200 ? 25 : 10;
+    const visScore = Math.round(visRaw * 0.25);
+
     return `
     <div class="priority-item ${cls}">
       <div class="priority-rank" style="${rankBg}">${i+1}</div>
       <div style="flex:1;min-width:0">
         <div class="priority-name">${b.name}</div>
-        <div class="priority-city">${b.city} · Rating ${b.rating} · ${(b.totalRatings||0).toLocaleString('id-ID')} reviews</div>
+        <div class="priority-city">${b.city} · ⭐ ${b.rating} · ${(b.totalRatings||0).toLocaleString('id-ID')} reviews</div>
+        <div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap">
+          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
+            Rating <strong style="color:${barColor}">${ratingScore}pts</strong> <span style="color:var(--text3)">(40%)</span>
+          </span>
+          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
+            Negatif <strong style="color:${barColor}">${negScore}pts</strong> <span style="color:var(--text3)">(35%)</span>
+          </span>
+          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
+            Visibilitas <strong style="color:${barColor}">${visScore}pts</strong> <span style="color:var(--text3)">(25%)</span>
+          </span>
+        </div>
       </div>
       <div class="priority-score-bar">
-        <div class="priority-score-label">
-          <span>Priority</span><span>${b.score}/100</span>
-        </div>
-        <div class="priority-bar-bg">
-          <div class="priority-bar-fill" style="width:${b.score}%;background:${barColor}"></div>
-        </div>
+        <div class="priority-score-label"><span>Score</span><span>${b.score}/100</span></div>
+        <div class="priority-bar-bg"><div class="priority-bar-fill" style="width:${b.score}%;background:${barColor}"></div></div>
       </div>
       <div class="priority-score-num" style="color:${barColor}">${b.score}</div>
       ${badge}

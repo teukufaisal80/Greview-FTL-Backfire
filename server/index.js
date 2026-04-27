@@ -424,6 +424,13 @@ app.post("/api/scrape", requireAuth, async (req, res) => {
             rating: d.rating,
             totalRatings: d.user_ratings_total,
             location: d.geometry?.location,
+            reviews: (d.reviews||[]).slice(0,20).map(r => ({
+              rating: r.rating,
+              text: r.text,
+              author: r.author_name,
+              time: r.relative_time_description,
+              relative_time_description: r.relative_time_description,
+            })),
           })),
           avgRating: Math.round(avgRating * 10) / 10,
           totalRatings,
@@ -438,6 +445,7 @@ app.post("/api/scrape", requireAuth, async (req, res) => {
               rating: r.rating,
               text: r.text,
               time: r.relative_time_description,
+              relative_time_description: r.relative_time_description,
               profilePhoto: r.profile_photo_url,
             })),
         };
