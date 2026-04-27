@@ -598,31 +598,61 @@ let trendChartInst = null;
 
 async function loadDashboard() {
   try {
-    // Always get fresh token from localStorage in case _authToken not set yet
     const token = window._authToken || localStorage.getItem('ftl_token') || '';
     const res = await fetch('/api/dashboard', { headers: { 'x-app-token': token } });
     const data = await res.json();
+
     if (res.status === 401) {
-      // Token invalid — clear and show login
       localStorage.removeItem('ftl_token');
       window._authToken = '';
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('loadingState').style.display = 'none';
+      const lo = document.getElementById('loginOverlay');
+      if (lo) lo.style.display = 'flex';
       return;
     }
     if (!res.ok) { showError(data.error, data.detail); return; }
-    
+
+    // Hide loading state safely
+    const ls = document.getElementById('loadingState');
+    if (ls) ls.style.display = 'none';
+
     // No cache yet — show empty state
     if (data.source === 'empty' || !data.cities || data.cities.length === 0) {
-      document.getElementById('loadingState').style.display = 'none';
-      document.getElementById('emptyState').style.display = 'flex';
-      document.getElementById('content').style.display = 'none';
+      const es = document.getElementById('emptyState');
+      const ct = document.getElementById('content');
+      if (es) { es.style.display = 'flex'; }
+      else {
+        // Fallback: inject empty state if element missing
+        const main = document.querySelector('main') || document.body;
+        let div = document.getElementById('emptyState-fallback');
+        if (!div) {
+          div = document.createElement('div');
+          div.id = 'emptyState-fallback';
+          div.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px;text-align:center;padding:40px';
+          div.innerHTML = `
+            <div style="width:64px;height:64px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1B3A6B" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h2 style="font-size:18px;font-weight:700">Belum Ada Data</h2>
+            <p style="font-size:14px;color:#6B7280;max-width:360px">Data Google Reviews belum pernah di-scrape. Klik tombol di bawah untuk mulai mengambil data dari semua cabang FTL.</p>
+            <button onclick="startScrape()" style="padding:12px 28px;font-size:15px;font-weight:700;border:none;border-radius:8px;background:#1B3A6B;color:#fff;cursor:pointer;display:flex;align-items:center;gap:8px">
+              &#8635; Start Scrape Sekarang
+            </button>`;
+          main.appendChild(div);
+        }
+      }
+      if (ct) ct.style.display = 'none';
       return;
     }
 
+    // Has data — show dashboard
+    const es = document.getElementById('emptyState');
+    const esf = document.getElementById('emptyState-fallback');
+    if (es) es.style.display = 'none';
+    if (esf) esf.style.display = 'none';
+    const ct = document.getElementById('content');
+    if (ct) ct.style.display = 'block';
+
     rawData = data;
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('content').style.display = 'block';
     populateClubFilter(data.cities);
     populateCompareSelects(data.cities);
     renderAll();
