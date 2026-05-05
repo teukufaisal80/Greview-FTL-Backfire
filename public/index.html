@@ -739,6 +739,30 @@ loadDashboard();
   </div>
 </div>
 
+<script>
+// Auth functions — defined here so login overlay can access them
+async function doLogin() {
+  const pw = document.getElementById('loginInput').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  if (!pw) { err.textContent = 'Enter password first.'; return; }
+  btn.disabled = true; btn.textContent = 'Verifying...';
+  try {
+    const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}) });
+    const data = await res.json();
+    if (data.success) {
+      window._authToken = data.token;
+      localStorage.setItem('ftl_token', data.token);
+      document.getElementById('loginOverlay').style.display = 'none';
+      loadDashboard();
+    } else {
+      err.textContent = data.message || 'Wrong password.';
+      btn.disabled = false; btn.textContent = 'Login';
+    }
+  } catch(e) { err.textContent = 'Cannot connect to server.'; btn.disabled = false; btn.textContent = 'Login'; }
+}
+</script>
+
 <!-- SCRAPING OVERLAY -->
 <div id="scrapingOverlay" class="scraping-overlay">
   <div class="scraping-spinner"></div>
