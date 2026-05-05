@@ -393,7 +393,13 @@ function populateClubFilter(cities) {
 function renderClubDD(clubs) {
   const dd = document.getElementById('clubDropdown');
   if (!dd) return;
-  dd.innerHTML = clubs.map(c => `<div style="padding:8px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between" onmousedown="selectClub('${c.value.replace(/'/g,"\\'")}','${c.label.replace(/'/g,"\\'")}')"><span>${c.label}</span>${c.city?`<span style="font-size:11px;color:var(--text3)">${c.city}</span>`:''}</div>`).join('');
+  try {
+    dd.innerHTML = clubs.map(c => {
+      const v = c.value.replace(/'/g,"\'").replace(/"/g,'&quot;');
+      const l = c.label.replace(/'/g,"\'").replace(/"/g,'&quot;');
+      return `<div style="padding:8px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between" onmousedown="selectClub('${v}','${l}')"><span>${c.label}</span>${c.city?`<span style="font-size:11px;color:var(--text3)">${c.city}</span>`:''}</div>`;
+    }).join('');
+  } catch(e) { console.warn('renderClubDD error:', e.message); }
 }
 function filterClubDD(val) {
   const clubs = _allClubs.filter(c => c.label.toLowerCase().includes(val.toLowerCase()) || c.city.toLowerCase().includes(val.toLowerCase()));
@@ -455,8 +461,7 @@ function populateTrendSelectors(data) {
     const def=(items.slice(0,4)[idx]||{}).value||'';
     sel.innerHTML='<option value="">— None —</option>'+items.map(i=>`<option value="${i.value}" ${i.value===def?'selected':''}>${i.label}${i.city?' ('+i.city+')':''}</option>`).join('');
   });
-  // If no trendSel found, skip
-  if(!document.getElementById('trendSel1')) return;
+
 }
 function renderTrendChart() {
   const data=window._trendData||rawData; if(!data) return;
@@ -555,6 +560,7 @@ function renderPriorityScore(data) {
 // ── Club Rankings ─────────────────────────────────────────────────────────
 let _rankScope='national';
 function renderRanking(data) {
+  const el=document.getElementById('rankingContent'); if(!el) return;
   const cities=data.cities||[];
   const all=cities.flatMap(c=>(c.branches||[]).filter(b=>b.rating).map(b=>({...b,city:c.city})));
   const tabs=document.getElementById('rankingTabs');
@@ -1084,9 +1090,9 @@ async function startScrape(){
       document.getElementById('stateContent').style.display='block';
       if(data.lastUpdated){document.getElementById('lastUpdated').textContent=new Date(data.lastUpdated).toLocaleString('id-ID');document.getElementById('badgeLive').style.display='inline';document.getElementById('badgeCache').style.display='none';}
       populateClubFilter(data.cities);populateCompareSelects(data.cities);renderAll();
-      if(btn){btn.disabled=false;btn.style.background='#34C759';btn.textContent='✓ Updated';setTimeout(()=>{btn.style.background='#1B3A6B';btn.textContent='↻ Update Scrape';},3000);}
+      if(btn){btn.disabled=false;btn.style.background='#34C759';btn.style.color='#fff';btn.textContent='✓ Updated';setTimeout(()=>{btn.style.background='#1B3A6B';btn.style.color='#fff';btn.textContent='↻ Update Scrape';},3000);}
     },600);
-  }catch(e){clearInterval(iv);if(overlay)overlay.classList.remove('active');showError('Scrape failed.');if(btn){btn.disabled=false;btn.textContent='↻ Update Scrape';}}
+  }catch(e){clearInterval(iv);if(overlay)overlay.classList.remove('active');showError('Scrape failed.');if(btn){btn.disabled=false;btn.style.background='#1B3A6B';btn.style.color='#fff';btn.textContent='↻ Update Scrape';}}
 }
 
 async function exportExcel(){
