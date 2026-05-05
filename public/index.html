@@ -384,8 +384,10 @@ let _allClubs = [];
 function populateClubFilter(cities) {
   _allClubs = [{ value:'all', label:'All Clubs', city:'' }];
   cities.forEach(c => (c.branches||[]).forEach(b => _allClubs.push({ value:b.name, label:b.name, city:c.city })));
-  renderClubDD(_allClubs);
-  // Also populate old compareA/compareB if they exist
+  if(document.getElementById('clubDropdown')) renderClubDD(_allClubs);
+  // Fallback for old clubSelect
+  const sel = document.getElementById('clubSelect');
+  if(sel) { sel.innerHTML='<option value="all">All Clubs</option>'+_allClubs.slice(1).map(c=>`<option value="${c.value}">${c.label}</option>`).join(''); }
   populateCompareSelects(cities);
 }
 function renderClubDD(clubs) {
@@ -450,9 +452,11 @@ function populateTrendSelectors(data) {
   window._trendItems=items; window._trendData=data;
   ['trendSel1','trendSel2','trendSel3','trendSel4'].forEach((id,idx)=>{
     const sel=document.getElementById(id); if(!sel) return;
-    const def=items.slice(0,4)[idx]?.value||'';
+    const def=(items.slice(0,4)[idx]||{}).value||'';
     sel.innerHTML='<option value="">— None —</option>'+items.map(i=>`<option value="${i.value}" ${i.value===def?'selected':''}>${i.label}${i.city?' ('+i.city+')':''}</option>`).join('');
   });
+  // If no trendSel found, skip
+  if(!document.getElementById('trendSel1')) return;
 }
 function renderTrendChart() {
   const data=window._trendData||rawData; if(!data) return;
@@ -461,6 +465,7 @@ function renderTrendChart() {
   const labels=getMonthLabels();
   const colors=['#1B3A6B','#007AFF','#FF9500','#FF3B30'];
   const datasets=[];const legendItems=[];
+  if(!document.getElementById('trendSel1')) return;
   ['trendSel1','trendSel2','trendSel3','trendSel4'].forEach((id,idx)=>{
     const val=document.getElementById(id)?.value; if(!val) return;
     let reviews=[],label='';
@@ -553,11 +558,11 @@ function renderRanking(data) {
   const cities=data.cities||[];
   const all=cities.flatMap(c=>(c.branches||[]).filter(b=>b.rating).map(b=>({...b,city:c.city})));
   const tabs=document.getElementById('rankingTabs');
-  if(tabs) tabs.addEventListener('click',e=>{
+  if(tabs && !tabs._bound) { tabs._bound=true; tabs.addEventListener('click',e=>{
     const t=e.target.closest('.chip');if(!t)return;
     tabs.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     t.classList.add('active');_rankScope=t.dataset.scope;drawRanking(all,_rankScope);
-  });
+  }); }
   drawRanking(all,_rankScope);
 }
 function drawRanking(all,scope) {
