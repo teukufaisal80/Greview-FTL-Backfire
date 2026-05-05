@@ -381,8 +381,8 @@ function populateCompareSelects(cities) {
       sel.appendChild(o);
     });
   });
-  document.getElementById('compareA').addEventListener('change', renderCompareChart);
-  document.getElementById('compareB').addEventListener('change', renderCompareChart);
+  if (document.getElementById('compareA')) document.getElementById('compareA').addEventListener('change', renderCompareChart);
+  if (document.getElementById('compareB')) document.getElementById('compareB').addEventListener('change', renderCompareChart);
 }
 
 function getFilteredData() {
@@ -417,16 +417,19 @@ function renderAll() {
   document.getElementById('stateContent').style.display = 'block';
 
   // Badge
-  const badge = document.getElementById('sourceBadge');
-  badge.style.display = 'inline';
-  badge.className = data.source === 'live' ? 'badge-live' : 'badge-cache';
-  badge.textContent = data.source === 'live' ? 'Live' : 'Cache';
-  document.getElementById('lastUpdated').textContent = new Date(data.lastUpdated).toLocaleString('id-ID');
+  const bl = document.getElementById('badgeLive');
+  const bc = document.getElementById('badgeCache');
+  const sb = document.getElementById('sourceBadge');
+  if (bl) bl.style.display = data.source === 'live' ? 'inline' : 'none';
+  if (bc) bc.style.display = data.source === 'cache' ? 'inline' : 'none';
+  if (sb) { sb.style.display = 'inline'; sb.className = data.source === 'live' ? 'badge-live' : 'badge-cache'; sb.textContent = data.source === 'live' ? 'Live' : 'Cache'; }
+  const lu = document.getElementById('lastUpdated');
+  if (lu && data.lastUpdated) lu.textContent = new Date(data.lastUpdated).toLocaleString('id-ID');
 
   renderMetrics(data);
   renderInsight(data);
   renderCityCards(data.cities);
-  renderCompareChart();
+  if (document.getElementById('compareChart')) renderCompareChart();
   renderTrendChart(data.cities);
   renderSentiment(data.cities);
   renderReviews(data);
@@ -557,6 +560,7 @@ function renderCompareChart() {
 
   const rA = getRating(itemA), rB = getRating(itemB);
   const ctx = document.getElementById('compareChart');
+  if (!ctx) return;
   if (compareChartInst) compareChartInst.destroy();
   compareChartInst = new Chart(ctx, {
     type: 'bar',
