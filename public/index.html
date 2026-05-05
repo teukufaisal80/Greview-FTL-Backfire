@@ -137,17 +137,6 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 .vs-badge{font-size:12px;font-weight:700;color:var(--text2);background:var(--bg);padding:4px 10px;border-radius:20px}
 
 
-.btn-scrape{background:var(--navy);color:#fff;border-color:var(--navy);display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
-.btn-scrape:hover{background:var(--navy-d)}
-.btn-scrape:disabled{opacity:.6;cursor:not-allowed}
-.btn-export{background:#1B3A6B;color:#fff;border-color:#1B3A6B;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
-.btn-export:hover{opacity:.85}
-.btn-export-excel{background:#16A34A;color:#fff;border-color:#16A34A;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
-.btn-export-excel:hover{background:#15803D}
-.badge-live{font-size:11px;font-weight:700;background:#DCFCE7;color:#16A34A;padding:3px 8px;border-radius:20px}
-.badge-cache{font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:20px}
-
-/* SCRAPING OVERLAY */
 .scraping-overlay{position:fixed;inset:0;background:rgba(242,242,247,.92);backdrop-filter:blur(12px);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center}
 .scraping-overlay.active{display:flex}
 .scraping-spinner{width:52px;height:52px;border:4px solid rgba(27,58,107,.15);border-top-color:#1B3A6B;border-radius:50%;animation:spin .8s linear infinite}
@@ -155,8 +144,6 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 .scraping-msg{font-size:14px;color:#6B7280}
 .scraping-bar-bg{height:6px;background:rgba(27,58,107,.15);border-radius:3px;overflow:hidden;width:280px;margin-top:8px}
 .scraping-bar-fill{height:6px;background:#1B3A6B;border-radius:3px;width:0%;transition:width .5s}
-
-/* LOGIN */
 .login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
 .login-box{background:var(--surface);border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.12);text-align:center}
 .login-logo{width:56px;height:56px;background:var(--navy);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;margin:0 auto 16px}
@@ -203,13 +190,13 @@ main{max-width:1200px;margin:0 auto;padding:24px}
     <a href="/keywords.html" class="nav-link">Keyword Manager</a>
   </div>
   <div class="nav-right">
-    <span id="badgeLive" class="badge-live" style="display:none">Live</span>
-    <span id="badgeCache" class="badge-cache" style="display:none">Cache</span>
+    <span id="badgeLive" style="display:none;font-size:11px;font-weight:700;background:#DCFCE7;color:#16A34A;padding:3px 8px;border-radius:20px">Live</span>
+    <span id="badgeCache" style="display:none;font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:20px">Cache</span>
     <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
-    <button class="btn btn-scrape" id="scrapeBtn" onclick="startScrape()">&#8635; Update Scrape</button>
-    <button class="btn btn-export-excel" onclick="exportExcel()" id="exportExcelBtn">&#8203;&#9166; Export Excel</button>
-    <button class="btn btn-export" onclick="exportPDF()" id="exportBtn">&#8203;&#8595; Export PDF</button>
-    <button class="btn" onclick="manualRefresh()">Refresh</button>
+    <button id="scrapeBtn" class="btn" style="background:var(--navy);color:#fff;border-color:var(--navy)">&#8635; Update Scrape</button>
+    <button id="exportExcelBtn" class="btn" style="background:#16A34A;color:#fff;border-color:#16A34A">&#8595; Export Excel</button>
+    <button id="exportBtn" class="btn" style="background:#1B3A6B;color:#fff;border-color:#1B3A6B">&#8595; Export PDF</button>
+    <button class="btn" id="refreshBtn">Refresh</button>
   </div>
 </nav>
 
@@ -274,7 +261,7 @@ main{max-width:1200px;margin:0 auto;padding:24px}
       <div class="metric">
         <div class="metric-label">
           <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-          Sentimen Positive
+          Sentimen Positif
         </div>
         <div class="metric-value" id="mSentiment">—</div>
         <div class="metric-sub">stars 4-5</div>
@@ -306,7 +293,7 @@ main{max-width:1200px;margin:0 auto;padding:24px}
     <div class="section-title">Rating by Region / Club</div>
     <div class="city-grid" id="cityGrid"></div>
 
-    <div class="section-title">Rating Comparison</div>
+    <div class="section-title">Perbandingan Rating</div>
     <div class="chart-card" style="margin-bottom:12px">
       <div class="compare-controls">
         <div class="compare-select-wrap">
@@ -321,14 +308,14 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 
     <div class="charts-row">
       <div class="chart-card">
-        <div class="chart-title">Rating Trend</div>
-        <div class="chart-sub" id="trendSub">Rating trend based on active filter</div>
+        <div class="chart-title">Tren Rating</div>
+        <div class="chart-sub" id="trendSub">Pergerakan rating berdasarkan filter aktif</div>
         <div class="legend-row" id="trendLegend"></div>
         <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Tren rating"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Sentiment Analysis</div>
-        <div class="chart-sub">Review distribution by star rating</div>
+        <div class="chart-title">Analisis Sentimen</div>
+        <div class="chart-sub">Distribusi review berdasarkan rating bintang</div>
         <div id="sentimentSection"></div>
       </div>
     </div>
@@ -631,23 +618,23 @@ function renderSentiment(cities) {
 
   document.getElementById('sentimentSection').innerHTML = `
     <div class="sentiment-row">
-      <span class="sentiment-label">Positive <span class="sentiment-range">stars 4-5</span></span>
+      <span class="sentiment-label">Positif <span class="sentiment-range">stars 4-5</span></span>
       <span class="sentiment-val" style="color:var(--navy)">${pos}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${pos}%;background:var(--navy)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Neutral <span class="sentiment-range">star 3</span></span>
+      <span class="sentiment-label">Netral <span class="sentiment-range">bintang 3</span></span>
       <span class="sentiment-val" style="color:var(--amber)">${neu}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neu}%;background:var(--amber)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Negative <span class="sentiment-range">stars 1-2</span></span>
+      <span class="sentiment-label">Negatif <span class="sentiment-range">bintang 1-2</span></span>
       <span class="sentiment-val" style="color:var(--red)">${neg}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neg}%;background:var(--red)"></div></div>
     ${topTopics.length > 0 ? `
     <div class="topic-section">
-      <div class="topic-title">Most mentioned topics</div>
+      <div class="topic-title">Topik yang sering disebut</div>
       <div class="topic-wrap">
         ${topTopics.map((t)=>`<span class="topic-tag ${t.sentiment==='positive'?'topic-pos':'topic-neg'}">${t.word}</span>`).join('')}
       </div>
@@ -727,43 +714,17 @@ function showError(msg, detail) {
 loadDashboard();
 </script>
 
-<!-- LOGIN OVERLAY -->
 <div id="loginOverlay" class="login-overlay">
   <div class="login-box">
     <div class="login-logo">FTL</div>
     <div class="login-title">FTL Gym Dashboard</div>
     <div class="login-sub">Enter password to continue</div>
-    <input class="login-input" type="password" id="loginInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()" id="loginBtn">Login</button>
+    <input class="login-input" type="password" id="loginInput" placeholder="Password">
+    <button class="login-btn" id="loginBtnEl">Login</button>
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
 
-<script>
-// Auth functions — defined here so login overlay can access them
-async function doLogin() {
-  const pw = document.getElementById('loginInput').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  if (!pw) { err.textContent = 'Enter password first.'; return; }
-  btn.disabled = true; btn.textContent = 'Verifying...';
-  try {
-    const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}) });
-    const data = await res.json();
-    if (data.success) {
-      window._authToken = data.token;
-      localStorage.setItem('ftl_token', data.token);
-      document.getElementById('loginOverlay').style.display = 'none';
-      loadDashboard();
-    } else {
-      err.textContent = data.message || 'Wrong password.';
-      btn.disabled = false; btn.textContent = 'Login';
-    }
-  } catch(e) { err.textContent = 'Cannot connect to server.'; btn.disabled = false; btn.textContent = 'Login'; }
-}
-</script>
-
-<!-- SCRAPING OVERLAY -->
 <div id="scrapingOverlay" class="scraping-overlay">
   <div class="scraping-spinner"></div>
   <div class="scraping-title">Scraping Data...</div>
@@ -774,5 +735,107 @@ async function doLogin() {
   </div>
   <div style="font-size:12px;color:#AEAEB2">Please don't close this tab</div>
 </div>
+
+<script>
+// Login handler - runs after DOM ready
+window.addEventListener('load', function() {
+  var loginBtn = document.getElementById('loginBtnEl');
+  var loginInput = document.getElementById('loginInput');
+  if (loginInput) loginInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doLoginFn(); });
+  if (loginBtn) loginBtn.addEventListener('click', doLoginFn);
+});
+
+async function doLoginFn() {
+  var pw = document.getElementById('loginInput').value;
+  var btn = document.getElementById('loginBtnEl');
+  var err = document.getElementById('loginError');
+  if (!pw) { err.textContent='Enter password first.'; return; }
+  btn.disabled=true; btn.textContent='Verifying...';
+  try {
+    var res = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    var data = await res.json();
+    if (data.success) {
+      window._authToken=data.token; localStorage.setItem('ftl_token',data.token);
+      document.getElementById('loginOverlay').style.display='none';
+      loadDashboard();
+    } else { err.textContent=data.message||'Wrong password.'; btn.disabled=false; btn.textContent='Login'; }
+  } catch(e) { err.textContent='Cannot connect.'; btn.disabled=false; btn.textContent='Login'; }
+}
+</script>
+
+<script>
+async function startScrape(){
+  const btn=document.getElementById('scrapeBtn');
+  const overlay=document.getElementById('scrapingOverlay');
+  const overlayMsg=document.getElementById('overlayMsg');
+  const overlayBar=document.getElementById('overlayBar');
+  const overlayPct=document.getElementById('overlayPct');
+  if(overlay)overlay.classList.add('active');
+  if(btn){btn.disabled=true;btn.textContent='↻ Scraping...';}
+  const n=document.getElementById('scrapeNotice');if(n)n.remove();
+  const msgs=['Searching 59 FTL branches...','Fetching Jabodetabek (46 clubs)...','Fetching Bandung (8 clubs)...','Fetching Surabaya & Bali...','Analyzing reviews...','Saving to cache...'];
+  let pct=0,msgIdx=0;
+  const iv=setInterval(()=>{pct=Math.min(pct+1,92);if(overlayBar)overlayBar.style.width=pct+'%';if(overlayPct)overlayPct.textContent=Math.round(pct)+'%';const ni=Math.min(Math.floor(pct/16),msgs.length-1);if(ni!==msgIdx){msgIdx=ni;if(overlayMsg)overlayMsg.textContent=msgs[msgIdx];}},1200);
+  try{
+    const tok=window._authToken||localStorage.getItem('ftl_token')||'';
+    const res=await fetch('/api/scrape',{method:'POST',headers:{'x-app-token':tok,'Content-Type':'application/json'}});
+    const data=await res.json();clearInterval(iv);
+    if(overlayBar)overlayBar.style.width='100%';if(overlayPct)overlayPct.textContent='100%';if(overlayMsg)overlayMsg.textContent='Done!';
+    if(!res.ok){if(overlay)overlay.classList.remove('active');showError(data.error||'Scrape failed.');if(btn){btn.disabled=false;btn.textContent='↻ Update Scrape';}return;}
+    rawData=data;
+    setTimeout(()=>{
+      if(overlay)overlay.classList.remove('active');
+      document.getElementById('stateContent').style.display='block';
+      if(data.lastUpdated){document.getElementById('lastUpdated').textContent=new Date(data.lastUpdated).toLocaleString('id-ID');document.getElementById('badgeLive').style.display='inline';document.getElementById('badgeCache').style.display='none';}
+      populateClubFilter(data.cities);populateCompareSelects(data.cities);renderAll();
+      if(btn){btn.disabled=false;btn.style.background='#34C759';btn.textContent='✓ Updated';setTimeout(()=>{btn.style.background='#1B3A6B';btn.textContent='↻ Update Scrape';},3000);}
+    },600);
+  }catch(e){clearInterval(iv);if(overlay)overlay.classList.remove('active');showError('Scrape failed.');if(btn){btn.disabled=false;btn.textContent='↻ Update Scrape';}}
+}
+
+async function exportExcel(){
+  if(!rawData){alert('Load data first.');return;}
+  const btn=document.getElementById('exportExcelBtn');
+  if(btn){btn.disabled=true;btn.textContent='Downloading...';}
+  try{
+    const tok=window._authToken||localStorage.getItem('ftl_token')||'';
+    const res=await fetch('/api/export/ratings',{headers:{'x-app-token':tok}});
+    if(!res.ok){const d=await res.json();alert(d.error||'Export failed.');return;}
+    const blob=await res.blob();const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='FTL-Ratings-'+new Date().toISOString().split('T')[0]+'.xlsx';a.click();URL.revokeObjectURL(url);
+  }catch(e){alert('Export failed: '+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent='↓ Export Excel';}}
+}
+
+async function exportPDF(){window.print();}
+async function manualRefresh(){rawData=null;document.getElementById('stateContent').style.display='none';document.getElementById('stateLoading').style.display='flex';loadDashboard();}
+
+// Wire up buttons after DOM load
+window.addEventListener('load',function(){
+  var sb=document.getElementById('scrapeBtn');if(sb)sb.addEventListener('click',startScrape);
+  var eb=document.getElementById('exportExcelBtn');if(eb)eb.addEventListener('click',exportExcel);
+  var pb=document.getElementById('exportBtn');if(pb)pb.addEventListener('click',exportPDF);
+  var rb=document.getElementById('refreshBtn');if(rb)rb.addEventListener('click',manualRefresh);
+  var li=document.getElementById('loginInput');if(li)li.addEventListener('keydown',function(e){if(e.key==='Enter')doLoginFn();});
+  var lb=document.getElementById('loginBtnEl');if(lb)lb.addEventListener('click',doLoginFn);
+  // Auth
+  var tok=localStorage.getItem('ftl_token');
+  if(tok){window._authToken=tok;var lo=document.getElementById('loginOverlay');if(lo)lo.style.display='none';loadDashboard();}
+});
+
+async function doLoginFn(){
+  var pw=document.getElementById('loginInput').value;
+  var btn=document.getElementById('loginBtnEl');
+  var err=document.getElementById('loginError');
+  if(!pw){err.textContent='Enter password first.';return;}
+  btn.disabled=true;btn.textContent='Verifying...';
+  try{
+    var res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    var data=await res.json();
+    if(data.success){window._authToken=data.token;localStorage.setItem('ftl_token',data.token);document.getElementById('loginOverlay').style.display='none';loadDashboard();}
+    else{err.textContent=data.message||'Wrong password.';btn.disabled=false;btn.textContent='Login';}
+  }catch(e){err.textContent='Cannot connect.';btn.disabled=false;btn.textContent='Login';}
+}
+</script>
 </body>
 </html>
