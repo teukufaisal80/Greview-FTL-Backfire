@@ -8,6 +8,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  --navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF2FF;
   --green:#1B3A6B;--green-d:#152D54;--green-l:#EEF2FF;
   --text:#1A1A1A;--text2:#6B7280;--text3:#9CA3AF;
   --bg:#F3F4F6;--surface:#FFFFFF;--border:#E5E7EB;
@@ -135,6 +136,38 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 .compare-select-wrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
 .vs-badge{font-size:12px;font-weight:700;color:var(--text2);background:var(--bg);padding:4px 10px;border-radius:20px}
 
+
+.btn-scrape{background:var(--navy);color:#fff;border-color:var(--navy);display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
+.btn-scrape:hover{background:var(--navy-d)}
+.btn-scrape:disabled{opacity:.6;cursor:not-allowed}
+.btn-export{background:#1B3A6B;color:#fff;border-color:#1B3A6B;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
+.btn-export:hover{opacity:.85}
+.btn-export-excel{background:#16A34A;color:#fff;border-color:#16A34A;padding:7px 14px;font-size:12px;font-weight:700;border-radius:var(--r-sm);cursor:pointer;border:1px solid;transition:.15s}
+.btn-export-excel:hover{background:#15803D}
+.badge-live{font-size:11px;font-weight:700;background:#DCFCE7;color:#16A34A;padding:3px 8px;border-radius:20px}
+.badge-cache{font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;padding:3px 8px;border-radius:20px}
+
+/* SCRAPING OVERLAY */
+.scraping-overlay{position:fixed;inset:0;background:rgba(242,242,247,.92);backdrop-filter:blur(12px);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center}
+.scraping-overlay.active{display:flex}
+.scraping-spinner{width:52px;height:52px;border:4px solid rgba(27,58,107,.15);border-top-color:#1B3A6B;border-radius:50%;animation:spin .8s linear infinite}
+.scraping-title{font-size:18px;font-weight:700;color:#1B3A6B}
+.scraping-msg{font-size:14px;color:#6B7280}
+.scraping-bar-bg{height:6px;background:rgba(27,58,107,.15);border-radius:3px;overflow:hidden;width:280px;margin-top:8px}
+.scraping-bar-fill{height:6px;background:#1B3A6B;border-radius:3px;width:0%;transition:width .5s}
+
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--surface);border-radius:16px;padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.12);text-align:center}
+.login-logo{width:56px;height:56px;background:var(--navy);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;margin:0 auto 16px}
+.login-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.login-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;outline:none;background:var(--bg);color:var(--text);margin-bottom:12px;font-family:inherit}
+.login-input:focus{border-color:var(--navy)}
+.login-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-error{font-size:13px;color:var(--red);margin-top:8px;min-height:18px}
+
 /* LOADING / ERROR */
 .state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
@@ -166,21 +199,25 @@ main{max-width:1200px;margin:0 auto;padding:24px}
   </div>
   <div class="nav-links">
     <a href="/" class="nav-link active">Dashboard</a>
-    <a href="/competitor.html" class="nav-link">Analisis Kompetitor</a>
+    <a href="/competitor.html" class="nav-link">Competitor Analysis</a>
     <a href="/keywords.html" class="nav-link">Keyword Manager</a>
   </div>
   <div class="nav-right">
-    <span id="sourceBadge" style="display:none"></span>
+    <span id="badgeLive" class="badge-live" style="display:none">Live</span>
+    <span id="badgeCache" class="badge-cache" style="display:none">Cache</span>
     <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
-    <button class="btn" onclick="clearCacheAndReload()">Refresh</button>
+    <button class="btn btn-scrape" id="scrapeBtn" onclick="startScrape()">&#8635; Update Scrape</button>
+    <button class="btn btn-export-excel" onclick="exportExcel()" id="exportExcelBtn">&#8203;&#9166; Export Excel</button>
+    <button class="btn btn-export" onclick="exportPDF()" id="exportBtn">&#8203;&#8595; Export PDF</button>
+    <button class="btn" onclick="manualRefresh()">Refresh</button>
   </div>
 </nav>
 
 <div class="filter-bar">
   <div class="filter-group">
-    <span class="filter-label">Wilayah</span>
+    <span class="filter-label">Region</span>
     <div class="filter-chips" id="cityChips">
-      <span class="chip active" data-city="all">Semua</span>
+      <span class="chip active" data-city="all">All</span>
       <span class="chip" data-city="Jabodetabek">Jabodetabek</span>
       <span class="chip" data-city="Bandung">Bandung</span>
       <span class="chip" data-city="Surabaya">Surabaya</span>
@@ -191,18 +228,18 @@ main{max-width:1200px;margin:0 auto;padding:24px}
   <div class="filter-group">
     <span class="filter-label">Club</span>
     <select class="filter-select" id="clubSelect" style="min-width:200px">
-      <option value="all">Semua Club</option>
+      <option value="all">All Clubs</option>
     </select>
   </div>
   <div class="filter-divider"></div>
   <div class="filter-group">
-    <span class="filter-label">Periode</span>
+    <span class="filter-label">Period</span>
     <div class="filter-chips" id="timeChips">
-      <span class="chip active" data-time="all">Semua</span>
-      <span class="chip" data-time="week">Minggu ini</span>
-      <span class="chip" data-time="month">Bulan ini</span>
-      <span class="chip" data-time="3month">3 bulan</span>
-      <span class="chip" data-time="6month">6 bulan</span>
+      <span class="chip active" data-time="all">All</span>
+      <span class="chip" data-time="week">This Week</span>
+      <span class="chip" data-time="month">This Month</span>
+      <span class="chip" data-time="3month">3 Months</span>
+      <span class="chip" data-time="6month">6 Months</span>
     </div>
   </div>
 </div>
@@ -210,13 +247,13 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 <main>
   <div id="stateLoading" class="state-center">
     <div class="spinner"></div>
-    <p style="font-weight:600">Mengambil data dari Google Places...</p>
-    <p style="font-size:12px">Proses ini mungkin memerlukan beberapa saat</p>
+    <p style="font-weight:600">Loading data...</p>
+    <p style="font-size:12px">Please wait a moment</p>
   </div>
   <div id="stateError" style="display:none"></div>
   <div id="stateContent" style="display:none">
 
-    <div class="section-title">Ringkasan</div>
+    <div class="section-title">Summary</div>
     <div class="metrics">
       <div class="metric">
         <div class="metric-label">
@@ -224,7 +261,7 @@ main{max-width:1200px;margin:0 auto;padding:24px}
           Rata-rata Rating
         </div>
         <div class="metric-value" id="mRating">—</div>
-        <div class="metric-sub" id="mRatingSub">dari 5 bintang</div>
+        <div class="metric-sub" id="mRatingSub">out of 5 stars</div>
       </div>
       <div class="metric">
         <div class="metric-label">
@@ -237,10 +274,10 @@ main{max-width:1200px;margin:0 auto;padding:24px}
       <div class="metric">
         <div class="metric-label">
           <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-          Sentimen Positif
+          Sentimen Positive
         </div>
         <div class="metric-value" id="mSentiment">—</div>
-        <div class="metric-sub">bintang 4-5</div>
+        <div class="metric-sub">stars 4-5</div>
       </div>
       <div class="metric">
         <div class="metric-label">
@@ -248,11 +285,11 @@ main{max-width:1200px;margin:0 auto;padding:24px}
           Perlu Perhatian
         </div>
         <div class="metric-value" id="mAttention">—</div>
-        <div class="metric-sub" id="mAttentionSub">club dengan rating terendah</div>
+        <div class="metric-sub" id="mAttentionSub">lowest rated club</div>
       </div>
     </div>
 
-    <div class="section-title">Insight & Rekomendasi</div>
+    <div class="section-title">Insights & Recommendations</div>
     <div class="insight-box">
       <div class="insight-header">
         <div class="insight-title">
@@ -266,10 +303,10 @@ main{max-width:1200px;margin:0 auto;padding:24px}
       </div>
     </div>
 
-    <div class="section-title">Rating per Wilayah / Club</div>
+    <div class="section-title">Rating by Region / Club</div>
     <div class="city-grid" id="cityGrid"></div>
 
-    <div class="section-title">Perbandingan Rating</div>
+    <div class="section-title">Rating Comparison</div>
     <div class="chart-card" style="margin-bottom:12px">
       <div class="compare-controls">
         <div class="compare-select-wrap">
@@ -284,19 +321,19 @@ main{max-width:1200px;margin:0 auto;padding:24px}
 
     <div class="charts-row">
       <div class="chart-card">
-        <div class="chart-title">Tren Rating</div>
-        <div class="chart-sub" id="trendSub">Pergerakan rating berdasarkan filter aktif</div>
+        <div class="chart-title">Rating Trend</div>
+        <div class="chart-sub" id="trendSub">Rating trend based on active filter</div>
         <div class="legend-row" id="trendLegend"></div>
         <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Tren rating"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Analisis Sentimen</div>
-        <div class="chart-sub">Distribusi review berdasarkan rating bintang</div>
+        <div class="chart-title">Sentiment Analysis</div>
+        <div class="chart-sub">Review distribution by star rating</div>
         <div id="sentimentSection"></div>
       </div>
     </div>
 
-    <div class="section-title">Ulasan Terbaru</div>
+    <div class="section-title">Latest Reviews</div>
     <div class="review-list" id="reviewList"></div>
 
   </div>
@@ -325,7 +362,7 @@ async function loadDashboard() {
 
 function populateClubFilter(cities) {
   const sel = document.getElementById('clubSelect');
-  sel.innerHTML = '<option value="all">Semua Club</option>';
+  sel.innerHTML = '<option value="all">All Clubs</option>';
   cities.forEach((c) => {
     (c.branches || []).forEach((b) => {
       const o = document.createElement('option');
@@ -594,23 +631,23 @@ function renderSentiment(cities) {
 
   document.getElementById('sentimentSection').innerHTML = `
     <div class="sentiment-row">
-      <span class="sentiment-label">Positif <span class="sentiment-range">bintang 4-5</span></span>
+      <span class="sentiment-label">Positive <span class="sentiment-range">stars 4-5</span></span>
       <span class="sentiment-val" style="color:var(--navy)">${pos}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${pos}%;background:var(--navy)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Netral <span class="sentiment-range">bintang 3</span></span>
+      <span class="sentiment-label">Neutral <span class="sentiment-range">star 3</span></span>
       <span class="sentiment-val" style="color:var(--amber)">${neu}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neu}%;background:var(--amber)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Negatif <span class="sentiment-range">bintang 1-2</span></span>
+      <span class="sentiment-label">Negative <span class="sentiment-range">stars 1-2</span></span>
       <span class="sentiment-val" style="color:var(--red)">${neg}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neg}%;background:var(--red)"></div></div>
     ${topTopics.length > 0 ? `
     <div class="topic-section">
-      <div class="topic-title">Topik yang sering disebut</div>
+      <div class="topic-title">Most mentioned topics</div>
       <div class="topic-wrap">
         ${topTopics.map((t)=>`<span class="topic-tag ${t.sentiment==='positive'?'topic-pos':'topic-neg'}">${t.word}</span>`).join('')}
       </div>
@@ -689,5 +726,29 @@ function showError(msg, detail) {
 
 loadDashboard();
 </script>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">FTL</div>
+    <div class="login-title">FTL Gym Dashboard</div>
+    <div class="login-sub">Enter password to continue</div>
+    <input class="login-input" type="password" id="loginInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()" id="loginBtn">Login</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- SCRAPING OVERLAY -->
+<div id="scrapingOverlay" class="scraping-overlay">
+  <div class="scraping-spinner"></div>
+  <div class="scraping-title">Scraping Data...</div>
+  <div class="scraping-msg" id="overlayMsg">Searching 59 FTL branches...</div>
+  <div style="width:280px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:#6B7280;margin-bottom:4px"><span>Progress</span><span id="overlayPct">0%</span></div>
+    <div class="scraping-bar-bg"><div class="scraping-bar-fill" id="overlayBar"></div></div>
+  </div>
+  <div style="font-size:12px;color:#AEAEB2">Please don't close this tab</div>
+</div>
 </body>
 </html>

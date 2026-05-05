@@ -62,31 +62,9 @@ async function getNearbyGyms(lat, lng, radiusKm, apiKey, cache) {
 async function getPlaceReviews(placeId, apiKey, cache) {
   const cacheKey = `reviews_${placeId}`;
   if (cache.has(cacheKey)) return cache.get(cacheKey);
-
-  // Ambil dari 2 sort order untuk dapat lebih banyak review unik (max ~20)
-  const [r1, r2] = await Promise.all([
-    axios.get(`${PLACES_API_BASE}/details/json`, { params: { place_id: placeId, fields: "name,rating,user_ratings_total,reviews,formatted_address,geometry", key: apiKey, language: "id", reviews_sort: "newest" } }),
-    axios.get(`${PLACES_API_BASE}/details/json`, { params: { place_id: placeId, fields: "reviews", key: apiKey, language: "id", reviews_sort: "most_relevant" } }),
-  ]);
-
-  const result = r1.data.result || null;
-  if (!result) return null;
-
-  // Gabungkan & deduplikasi
-  const seen = new Set();
-  const allReviews = [...(r1.data.result?.reviews || []), ...(r2.data.result?.reviews || [])]
-    .filter((r) => {
-      const key = (r.author_name || '') + '_' + (r.text || '').substring(0, 30);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-
-  // Prioritaskan bintang 1-2 di atas
-  allReviews.sort((a, b) => ((a.rating || 5) <= 2 ? 0 : 1) - ((b.rating || 5) <= 2 ? 0 : 1));
-
-  result.reviews = allReviews;
-  cache.set(cacheKey, result);
+  const { data } = await axios.get(`${PLACES_API_BASE}/details/json`, { params: { place_id: placeId, fields: "name,rating,user_ratings_total,reviews,formatted_address,geometry", key: apiKey, language: "id", reviews_sort: "newest" } });
+  const result = data.result || null;
+  if (result) cache.set(cacheKey, result);
   return result;
 }
 
