@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
@@ -336,15 +336,31 @@ let compareChartInst = null;
 let trendChartInst = null;
 
 async function loadDashboard() {
+  const tok = window._authToken || localStorage.getItem('ftl_token') || '';
   try {
-    const res = await fetch('/api/dashboard');
+    const res = await fetch('/api/dashboard', {headers:{'x-app-token':tok}});
     const data = await res.json();
+    if (res.status===401) { showError('Unauthorized','Please refresh and login again'); return; }
     if (!res.ok) { showError(data.error, data.detail); return; }
+    document.getElementById('stateLoading').style.display = 'none';
+    if (data.source==='empty' || !data.cities || !data.cities.length) {
+      let n=document.getElementById('scrapeNotice');
+      if(!n){n=document.createElement('div');n.id='scrapeNotice';n.style.cssText='background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px';
+      n.innerHTML='<span style="font-size:13px;color:#92400E;font-weight:600">No data yet — click Update Scrape</span><button onclick="startScrape()" style="padding:8px 18px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">↻ Start Scrape</button>';
+      const main=document.querySelector('main');if(main)main.insertBefore(n,main.firstChild);}
+      return;
+    }
+    const n=document.getElementById('scrapeNotice');if(n)n.remove();
+    document.getElementById('stateContent').style.display = 'block';
     rawData = data;
+    if(data.lastUpdated){
+      const lu=document.getElementById('lastUpdated');
+      if(lu)lu.textContent=new Date(data.lastUpdated).toLocaleString('id-ID');
+    }
     populateClubFilter(data.cities);
     populateCompareSelects(data.cities);
     renderAll();
-  } catch(e) { showError('Tidak bisa terhubung ke server.', 'Pastikan server Node.js berjalan dengan npm start'); }
+  } catch(e) { showError('Cannot connect to server.','Make sure Node.js is running'); }
 }
 
 function populateClubFilter(cities) {
