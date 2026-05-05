@@ -5,382 +5,141 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>FTL Gym — Reviews Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#1B3A6B;--navy-d:#152D54;--navy-l:#EEF4FF;
-  --green:#1B3A6B;--green-d:#152D54;--green-l:#EEF4FF;
-  --text:#1C1C1E;--text2:#6B7280;--text3:#AEAEB2;
-  --bg:#F2F2F7;--surface:#FFFFFF;--border:rgba(0,0,0,.08);
-  --red:#FF3B30;--red-l:#FFF1F0;--amber:#FF9500;--amber-l:#FFF8EC;
-  --blue:#007AFF;--blue-l:#EBF5FF;
-  --r:14px;--r-sm:10px;--r-lg:20px;
-  --shadow:0 1px 3px rgba(0,0,0,.06);
-  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --green:#1B3A6B;--green-d:#152D54;--green-l:#EEF2FF;
+  --text:#1A1A1A;--text2:#6B7280;--text3:#9CA3AF;
+  --bg:#F3F4F6;--surface:#FFFFFF;--border:#E5E7EB;
+  --red:#EF4444;--red-l:#FEF2F2;--amber:#F59E0B;--amber-l:#FFFBEB;
+  --blue:#3B82F6;--blue-l:#EFF6FF;
+  --r:12px;--r-sm:8px;--r-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
 }
-[data-theme="dark"]{
-  --navy:#4A90D9;--navy-d:#82B4E8;--navy-l:rgba(74,144,217,.15);
-  --text:#F5F5F7;--text2:#98989D;--text3:#636366;
-  --bg:#000000;--surface:#1C1C1E;--border:rgba(255,255,255,.1);
-  --red:#FF453A;--red-l:rgba(255,69,58,.15);
-  --amber:#FF9F0A;--amber-l:rgba(255,159,10,.15);
-  --blue:#0A84FF;--blue-l:rgba(10,132,255,.15);
-  --shadow:0 1px 3px rgba(0,0,0,.3);
-  --shadow-md:0 4px 16px rgba(0,0,0,.4);
-}
-/* Dark mode nav */
-[data-theme="dark"] nav,[data-theme="dark"] .filter-bar{background:rgba(28,28,30,.85)!important}
-[data-theme="dark"] .filter-chips{background:rgba(255,255,255,.08)!important}
-[data-theme="dark"] .chip.active{background:rgba(255,255,255,.15)!important;color:var(--navy-d)!important}
-[data-theme="dark"] .filter-select{background:var(--surface)!important;color:var(--text)!important;border-color:rgba(255,255,255,.15)!important}
-[data-theme="dark"] .ranking-tabs{background:rgba(255,255,255,.08)!important}
-[data-theme="dark"] .ranking-tab.active{background:rgba(255,255,255,.15)!important}
-[data-theme="dark"] .iops-item{background:rgba(255,255,255,.05)!important}
-[data-theme="dark"] .iqw-item{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.1)!important}
-[data-theme="dark"] .insight-section-body{background:var(--surface)}
-[data-theme="dark"] .review-item{background:var(--surface)}
-[data-theme="dark"] .city-card,[data-theme="dark"] .chart-card,[data-theme="dark"] .metric,[data-theme="dark"] .insight-box,[data-theme="dark"] .ranking-section{background:var(--surface)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 
-/* Dark mode toggle button */
-.dark-toggle{width:36px;height:36px;border-radius:50%;border:0.5px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
-.dark-toggle:hover{background:var(--bg)}
-.dark-toggle svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2;transition:.2s}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-
-/* NAV — macOS style */
-nav{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 28px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:100}
-.nav-brand{display:flex;align-items:center;gap:0}
-.nav-logo{height:28px;width:auto;display:block}
-.nav-links{display:flex;gap:2px;margin-left:28px}
-.nav-link{padding:5px 13px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:.15s;letter-spacing:-.01em}
-.nav-link:hover{background:rgba(0,0,0,.05);color:var(--text)}
-.nav-link.active{background:rgba(27,58,107,.1);color:var(--navy-d);font-weight:600}
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo{width:32px;height:32px;background:var(--navy);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px}
+.nav-links{display:flex;gap:4px;margin-left:32px}
+.nav-link{padding:6px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:.15s}
+.nav-link:hover{background:var(--bg);color:var(--text)}
+.nav-link.active{background:var(--navy-l);color:var(--navy-d)}
 .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.badge-live{font-size:11px;background:#E8F5E9;color:#2E7D32;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.01em}
+.badge-live{font-size:11px;background:var(--navy-l);color:var(--navy-d);padding:3px 10px;border-radius:20px;font-weight:600}
 .badge-cache{font-size:11px;background:var(--amber-l);color:#92400E;padding:3px 10px;border-radius:20px;font-weight:600}
-.btn{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.15);background:var(--surface);color:var(--text2);transition:.15s;letter-spacing:-.01em}
+.btn{padding:7px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
 .btn:hover{background:var(--bg)}
 .btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
 .btn-primary:hover{background:var(--navy-d)}
 
-/* FILTER BAR — iOS segmented style */
-.filter-bar{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:0.5px solid rgba(0,0,0,.08);padding:10px 28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+/* FILTER BAR */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .filter-group{display:flex;align-items:center;gap:8px}
-.filter-label{font-size:12px;font-weight:600;color:var(--text3);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
-.filter-select{padding:6px 12px;border:0.5px solid rgba(0,0,0,.15);border-radius:10px;font-size:13px;color:var(--text);background:var(--surface);cursor:pointer;outline:none;min-width:160px;font-family:inherit;-webkit-font-smoothing:antialiased}
-.filter-select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.1)}
-.filter-chips{display:flex;gap:4px;flex-wrap:wrap;background:rgba(0,0,0,.05);border-radius:10px;padding:3px}
-.chip{padding:5px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:.15s;letter-spacing:-.01em}
-.chip:hover{color:var(--text)}
-.chip.active{background:var(--surface);color:var(--navy-d);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.filter-divider{width:0.5px;height:20px;background:rgba(0,0,0,.1);flex-shrink:0}
+.filter-label{font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap}
+.filter-select{padding:6px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;color:var(--text);background:var(--surface);cursor:pointer;outline:none;min-width:140px}
+.filter-select:focus{border-color:var(--navy)}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.chip:hover{border-color:var(--navy);color:var(--navy)}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filter-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
 
 /* MAIN */
-main{max-width:1200px;margin:0 auto;padding:28px}
+main{max-width:1200px;margin:0 auto;padding:24px}
 
 /* SECTION TITLE */
-.section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:28px 0 12px}
+.section-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
 
-/* METRIC CARDS — iOS widget style */
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px}
-.metric{background:var(--surface);border-radius:18px;padding:20px 22px;box-shadow:var(--shadow);border:0.5px solid rgba(0,0,0,.06)}
-.metric-label{font-size:12px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
-.metric-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.metric-icon svg{width:15px;height:15px}
-.metric-value{font-size:32px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.02em}
-.metric-sub{font-size:12px;color:var(--text3);margin-top:6px}
+/* METRIC CARDS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px}
+.metric{background:var(--surface);border-radius:var(--r);padding:16px 20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.metric-icon{width:28px;height:28px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.metric-icon svg{width:14px;height:14px}
+.metric-value{font-size:28px;font-weight:800;color:var(--text);line-height:1}
+.metric-sub{font-size:12px;color:var(--text3);margin-top:4px}
 .metric-trend{font-size:11px;margin-top:6px;font-weight:600}
 .trend-up{color:var(--navy)}
 .trend-down{color:var(--red)}
 
 /* INSIGHT BOX */
-.insight-box{background:var(--surface);border-radius:18px;border:0.5px solid rgba(0,0,0,.06);box-shadow:var(--shadow);padding:22px 26px;margin-bottom:4px}
-.insight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.insight-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
-.insight-scope{font-size:12px;color:var(--text3);background:var(--bg);padding:4px 12px;border-radius:20px;font-weight:500}
-.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.insight-problem{background:var(--red-l);border-radius:12px;padding:14px 16px;border:0.5px solid rgba(255,59,48,.15)}
-.insight-problem-title{font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em}
+.insight-box{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:20px 24px;margin-bottom:4px}
+.insight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.insight-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.insight-scope{font-size:12px;color:var(--text2);background:var(--bg);padding:3px 10px;border-radius:20px}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.insight-problem{background:var(--red-l);border-radius:var(--r-sm);padding:14px 16px;border-left:3px solid var(--red)}
+.insight-problem-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .insight-problem-desc{font-size:13px;color:var(--text);line-height:1.6}
-.insight-problem-reason{font-size:11px;color:var(--text2);margin-top:6px;padding-top:6px;border-top:0.5px solid rgba(255,59,48,.2)}
-.insight-rec{background:var(--navy-l);border-radius:12px;padding:14px 16px;border:0.5px solid rgba(27,58,107,.12)}
-.insight-rec-title{font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:6px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.04em}
+.insight-problem-reason{font-size:11px;color:var(--text2);margin-top:6px;padding-top:6px;border-top:1px solid rgba(239,68,68,.2)}
+.insight-rec{background:var(--navy-l);border-radius:var(--r-sm);padding:14px 16px;border-left:3px solid var(--navy)}
+.insight-rec-title{font-size:12px;font-weight:700;color:var(--navy-d);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .insight-rec-item{font-size:13px;color:var(--text);padding:4px 0;display:flex;align-items:flex-start;gap:8px}
-.insight-rec-item::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--navy);flex-shrink:0;margin-top:6px}
+.insight-rec-item::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--navy);flex-shrink:0;margin-top:5px}
 .insight-clubs{margin-top:6px;font-size:11px;color:var(--text2)}
-.insight-clubs span{display:inline-block;background:var(--surface);border:0.5px solid rgba(0,0,0,.1);border-radius:4px;padding:1px 6px;margin:1px 2px 0 0;font-size:11px}
+.insight-clubs span{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin:1px 2px 0 0;font-size:11px}
 
 /* CITY CARDS */
-.city-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.city-card{background:var(--surface);border-radius:18px;border:0.5px solid rgba(0,0,0,.06);padding:18px 22px;box-shadow:var(--shadow)}
-.city-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
-.city-name{font-size:15px;font-weight:600;letter-spacing:-.01em}
-.city-meta{font-size:12px;color:var(--text3);margin-top:3px}
-.city-rating{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.02em}
-.city-rating-label{font-size:11px;color:var(--text3);text-align:right}
-.star-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;color:var(--text3)}
+.city-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.city-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;box-shadow:var(--shadow)}
+.city-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.city-name{font-size:15px;font-weight:700}
+.city-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.city-rating{font-size:26px;font-weight:800;color:var(--text)}
+.city-rating-label{font-size:11px;color:var(--text2);text-align:right}
+.star-row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px;color:var(--text2)}
 .star-num{width:10px;text-align:right;flex-shrink:0;font-weight:600}
-.star-bg{flex:1;height:5px;background:rgba(0,0,0,.06);border-radius:3px;overflow:hidden}
+.star-bg{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
 .star-fill{height:100%;border-radius:3px;background:var(--amber);transition:width .6s ease}
 .star-pct{width:28px;text-align:right;flex-shrink:0}
 
 /* CHARTS */
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.chart-card{background:var(--surface);border-radius:18px;border:0.5px solid rgba(0,0,0,.06);padding:22px;box-shadow:var(--shadow)}
-.chart-title{font-size:14px;font-weight:600;margin-bottom:4px;letter-spacing:-.01em}
-.chart-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.chart-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
 .chart-wrap{position:relative;width:100%}
-.legend-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:var(--text3)}
-.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle}
+.legend-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
 
 /* SENTIMENT */
-.sentiment-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px}
+.sentiment-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0 3px}
 .sentiment-label{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
-.sentiment-range{font-size:11px;background:var(--bg);padding:2px 8px;border-radius:20px;color:var(--text3)}
-.sentiment-val{font-size:14px;font-weight:600;letter-spacing:-.01em}
-.sentiment-bar{height:6px;background:rgba(0,0,0,.06);border-radius:3px;overflow:hidden;margin-bottom:12px}
-.sentiment-fill{height:100%;border-radius:3px;transition:width .6s ease}
-.topic-section{margin-top:16px}
-.topic-title{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.sentiment-range{font-size:11px;background:var(--bg);padding:1px 7px;border-radius:20px;color:var(--text3)}
+.sentiment-val{font-size:13px;font-weight:700}
+.sentiment-bar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:10px}
+.sentiment-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.topic-section{margin-top:14px}
+.topic-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px}
 .topic-wrap{display:flex;flex-wrap:wrap;gap:6px}
-.topic-tag{font-size:12px;padding:4px 11px;border-radius:20px;font-weight:500}
+.topic-tag{font-size:12px;padding:4px 10px;border-radius:20px;font-weight:500}
 .topic-pos{background:var(--navy-l);color:var(--navy-d)}
 .topic-neg{background:var(--red-l);color:var(--red)}
 
 /* REVIEWS */
 .review-list{display:flex;flex-direction:column;gap:10px}
-.review-item{background:var(--surface);border:0.5px solid rgba(0,0,0,.07);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
-.review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.reviewer{font-size:13px;font-weight:600;letter-spacing:-.01em}
-.review-city{font-size:11px;background:var(--bg);border:0.5px solid rgba(0,0,0,.08);border-radius:20px;padding:2px 10px;color:var(--text3)}
-.review-text{font-size:13px;color:var(--text2);line-height:1.65}
-.review-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.reviewer{font-size:13px;font-weight:600}
+.review-city{font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 8px;color:var(--text2)}
+.review-text{font-size:13px;color:var(--text2);line-height:1.6}
+.review-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .review-stars{color:var(--amber);font-size:13px;letter-spacing:1px}
 .review-time{font-size:11px;color:var(--text3)}
 
 /* COMPARISON */
 .compare-controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .compare-select-wrap{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
-.vs-badge{font-size:12px;font-weight:600;color:var(--text3);background:var(--bg);padding:4px 12px;border-radius:20px}
-
-
-/* RANKING TABLE */
-.ranking-section{background:var(--surface);border-radius:18px;border:0.5px solid rgba(0,0,0,.06);padding:18px 22px;box-shadow:var(--shadow)}
-.ranking-tabs{display:flex;gap:4px;margin-bottom:14px;background:rgba(0,0,0,.05);border-radius:10px;padding:3px;width:fit-content}
-.ranking-tab{padding:5px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:.15s}
-.ranking-tab.active{background:var(--surface);color:var(--navy-d);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.ranking-table{width:100%;border-collapse:collapse;font-size:13px}
-.ranking-table th{text-align:left;padding:7px 10px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border)}
-.ranking-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-.ranking-table tr:last-child td{border-bottom:none}
-.ranking-table tr:hover td{background:var(--bg)}
-.rank-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
-.rank-1{background:#FEF3C7;color:#92400E}
-.rank-2{background:#F3F4F6;color:#374151}
-.rank-3{background:#FEF3C7;color:#92400E}
-.rank-bad{background:var(--red-l);color:var(--red)}
-.rank-name{font-weight:600}
-.rank-city{font-size:11px;color:var(--text3)}
-.rank-rating{font-size:15px;font-weight:800}
-.rank-bar{height:5px;border-radius:3px;margin-top:3px;min-width:4px}
-
-/* SENTIMENT DRILL */
-.sentiment-clickable{cursor:pointer;border-radius:var(--r-sm);padding:4px;margin:-4px;transition:.15s}
-.sentiment-clickable:hover{background:var(--bg)}
-.sentiment-drill{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
-.drill-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
-.drill-close{font-size:12px;cursor:pointer;color:var(--blue);background:none;border:none;padding:0}
-.drill-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
-.drill-item{background:var(--bg);border-radius:var(--r-sm);padding:8px 12px;font-size:12px}
-.drill-stars{color:var(--amber);font-size:11px;margin-bottom:2px}
-.drill-text{color:var(--text2);line-height:1.5}
-.drill-meta{font-size:11px;color:var(--text3);margin-top:3px}
-
-/* REVIEW FILTER */
-.review-filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.star-filter{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
-.star-filter:hover{border-color:var(--amber);color:var(--amber)}
-.star-filter.active{background:var(--amber);color:#fff;border-color:var(--amber)}
-.star-filter.sf-all.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-
-
-/* INSIGHT DETAIL */
-.insight-full{display:flex;flex-direction:column;gap:16px}
-.insight-section{border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
-.insight-section-header{padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;cursor:pointer;user-select:none}
-.insight-section-header svg{flex-shrink:0}
-.insight-section-body{padding:16px 18px;border-top:1px solid var(--border);display:none}
-.insight-section-body.open{display:block}
-.insight-toggle{margin-left:auto;font-size:11px;font-weight:600;opacity:.7}
-
-/* Problem cards */
-.iprob-grid{display:flex;flex-direction:column;gap:10px}
-.iprob-item{background:var(--red-l);border-radius:var(--r-sm);padding:12px 16px;border-left:4px solid var(--red)}
-.iprob-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.iprob-title{font-size:13px;font-weight:700;color:var(--red)}
-.iprob-severity{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
-.sev-critical{background:#FEE2E2;color:#991B1B}
-.sev-high{background:#FEF3C7;color:#92400E}
-.sev-medium{background:#FEF9C3;color:#854D0E}
-.iprob-desc{font-size:13px;color:var(--text);line-height:1.6}
-.iprob-clubs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
-.iprob-club{font-size:11px;background:var(--surface);border:1px solid #FECACA;border-radius:4px;padding:2px 8px;color:var(--red);font-weight:600}
-
-/* Ad rec cards */
-.iad-tabs{display:flex;gap:6px;margin-bottom:14px}
-.iad-tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s;display:flex;align-items:center;gap:5px}
-.iad-tab.active{color:#fff;border-color:transparent}
-.iad-tab-google.active{background:#4285F4}
-.iad-tab-meta.active{background:#1877F2}
-.iad-tab-tiktok.active{background:#010101;color:#fff}
-.iad-panel{display:none}
-.iad-panel.active{display:flex;flex-direction:column;gap:10px}
-.iad-card{background:var(--navy-l);border-radius:var(--r-sm);padding:14px 16px;border-left:4px solid var(--navy)}
-.iad-card-google{background:#EFF6FF;border-left-color:#4285F4}
-.iad-card-meta{background:#EFF6FF;border-left-color:#1877F2}
-.iad-card-tiktok{background:#F0FDF4;border-left-color:#010101}
-.iad-priority{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;opacity:.7}
-.iad-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
-.iad-desc{font-size:13px;color:var(--text2);line-height:1.6}
-.iad-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
-.iad-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;background:rgba(0,0,0,.06);color:var(--text2)}
-.iad-target{font-size:11px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,.08)}
-
-/* Ops rec */
-.iops-grid{display:flex;flex-direction:column;gap:8px}
-.iops-item{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:var(--bg);border-radius:var(--r-sm);border-left:3px solid var(--navy)}
-.iops-num{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px}
-.iops-content{flex:1}
-.iops-title{font-size:13px;font-weight:700;margin-bottom:3px}
-.iops-desc{font-size:12px;color:var(--text2);line-height:1.5}
-.iops-timeframe{font-size:11px;font-weight:600;color:var(--navy);margin-top:4px}
-
-/* Quick wins */
-.iqw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.iqw-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px}
-.iqw-icon{display:none}
-.iqw-title{font-size:12px;font-weight:700;margin-bottom:4px}
-.iqw-desc{font-size:12px;color:var(--text2);line-height:1.5}
-@media(max-width:768px){.iqw-grid{grid-template-columns:1fr}}
-
-
-/* SEARCHABLE CLUB DROPDOWN */
-.club-search-wrap{position:relative;min-width:220px}
-.club-search-input{padding:6px 32px 6px 12px;border:0.5px solid rgba(0,0,0,.15);border-radius:10px;font-size:13px;color:var(--text);background:var(--surface);outline:none;width:100%;cursor:pointer;font-family:inherit}
-.club-search-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.1)}
-.club-search-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text2);pointer-events:none;transition:transform .2s}
-.club-search-wrap.open .club-search-arrow{transform:translateY(-50%) rotate(180deg)}
-.club-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-md);z-index:200;min-width:260px}
-.club-dropdown-search{width:100%;padding:8px 12px;border:none;border-bottom:1px solid var(--border);font-size:13px;outline:none;border-radius:var(--r) var(--r) 0 0;font-family:inherit;color:var(--text)}
-.club-dropdown-list{max-height:220px;overflow-y:auto}
-.club-option{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text);transition:.1s}
-.club-option:hover{background:var(--navy-l);color:var(--navy-d)}
-.club-option.selected{background:var(--navy);color:#fff}
-.club-option.hidden{display:none}
-.club-option-city{font-size:11px;color:var(--text3);margin-left:4px}
-
-.club-option:hover > div{background:var(--bg)}
-
-/* EXPORT PDF BUTTON */
-.btn-export{background:#16A34A;color:#fff;border-color:#16A34A;display:flex;align-items:center;gap:6px}
-.btn-export:hover{background:#15803D;opacity:1}
-.btn-export svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2}
-
-/* COMPARISON MODE */
-.comparison-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:998;display:flex;align-items:center;justify-content:center;padding:20px}
-.comparison-box{background:var(--surface);border-radius:var(--r-lg);padding:28px;width:100%;max-width:900px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.comparison-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.comparison-title{font-size:17px;font-weight:700}
-.comparison-close{background:none;border:none;cursor:pointer;font-size:22px;color:var(--text2);line-height:1}
-.comparison-selector{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.comp-club-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
-.comp-club-chip:hover{border-color:var(--navy);color:var(--navy)}
-.comp-club-chip.selected{background:var(--navy);color:#fff;border-color:var(--navy)}
-.comp-club-chip.disabled{opacity:.4;cursor:not-allowed}
-.comparison-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
-.comparison-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--border);background:var(--bg)}
-.comparison-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
-.comparison-table tr:last-child td{border-bottom:none}
-.comparison-table tr:hover td{background:var(--bg)}
-.comp-rating-big{font-size:20px;font-weight:800}
-.comp-bar{height:6px;border-radius:3px;margin-top:4px}
-.btn-compare{background:var(--blue);color:#fff;border-color:var(--blue);display:flex;align-items:center;gap:6px}
-.btn-compare:hover{opacity:.9}
-.btn-compare svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2}
-
-/* PRIORITY SCORE */
-.priority-section{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;box-shadow:var(--shadow);margin-bottom:12px}
-.priority-grid{display:flex;flex-direction:column;gap:8px}
-.priority-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--r-sm);background:var(--bg);border-left:4px solid transparent}
-.priority-item.p-critical{border-left-color:var(--red);background:var(--red-l)}
-.priority-item.p-warning{border-left-color:var(--amber);background:var(--amber-l)}
-.priority-item.p-good{border-left-color:#16A34A;background:#F0FDF4}
-.priority-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
-.priority-name{font-size:13px;font-weight:600;flex:1}
-.priority-city{font-size:11px;color:var(--text3)}
-.priority-score-bar{flex:1;max-width:160px}
-.priority-score-label{font-size:11px;color:var(--text2);margin-bottom:3px;display:flex;justify-content:space-between}
-.priority-bar-bg{height:6px;background:var(--border);border-radius:3px}
-.priority-bar-fill{height:6px;border-radius:3px}
-.priority-score-num{font-size:14px;font-weight:800;width:40px;text-align:right;flex-shrink:0}
-.priority-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.badge-critical{background:var(--red-l);color:var(--red)}
-.badge-warning{background:var(--amber-l);color:#92400E}
-.badge-good{background:#F0FDF4;color:#15803D}
-
-
-.btn-scrape{background:var(--navy);color:#fff;border-color:var(--navy);display:flex;align-items:center;gap:6px}
-.btn-scrape:hover{background:var(--navy-d)}
-.btn-scrape:disabled{opacity:.6;cursor:not-allowed}
-.btn-scrape.running{background:var(--amber);border-color:var(--amber);animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;gap:16px;text-align:center}
-.empty-state-icon{width:64px;height:64px;border-radius:50%;background:var(--navy-l);display:flex;align-items:center;justify-content:center}
-.empty-state-icon svg{width:32px;height:32px;stroke:var(--navy-d);fill:none;stroke-width:1.5}
-.empty-state h2{font-size:18px;font-weight:700}
-.empty-state p{font-size:14px;color:var(--text2);max-width:360px}
-.btn-scrape-big{padding:12px 28px;font-size:15px;font-weight:700;border:none;border-radius:var(--r-sm);background:var(--navy);color:#fff;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
-.btn-scrape-big:hover{background:var(--navy-d)}
-.scrape-progress{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;display:none}
-.scrape-progress.visible{display:block}
-.scrape-progress-title{font-size:14px;font-weight:700;margin-bottom:8px}
-.scrape-progress-bar-bg{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
-.scrape-progress-bar{height:8px;background:var(--navy);border-radius:4px;transition:width .3s}
-.scrape-progress-msg{font-size:12px;color:var(--text2);margin-top:6px}
-
-
-/* SCRAPING OVERLAY */
-.scraping-overlay{position:fixed;inset:0;background:rgba(242,242,247,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.scraping-overlay.active{display:flex}
-.scraping-spinner{width:52px;height:52px;border:4px solid rgba(27,58,107,.15);border-top-color:#1B3A6B;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.scraping-title{font-size:18px;font-weight:700;color:#1B3A6B;letter-spacing:-.02em}
-.scraping-msg{font-size:14px;color:#6B7280}
-.scraping-progress-wrap{width:280px}
-.scraping-bar-bg{height:6px;background:rgba(27,58,107,.15);border-radius:3px;overflow:hidden;margin-top:10px}
-.scraping-bar-fill{height:6px;background:#1B3A6B;border-radius:3px;width:0%;transition:width .5s}
+.vs-badge{font-size:12px;font-weight:700;color:var(--text2);background:var(--bg);padding:4px 10px;border-radius:20px}
 
 /* LOADING / ERROR */
 .state-center{display:flex;align-items:center;justify-content:center;min-height:320px;flex-direction:column;gap:12px;color:var(--text2)}
-.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.error-card{background:var(--red-l);border:0.5px solid rgba(255,59,48,.3);border-radius:var(--r);padding:16px 20px;color:var(--red);font-size:13px}
-
-/* SKELETON LOADING */
-.skeleton-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
-.skeleton-card{background:var(--surface);border-radius:18px;padding:20px 22px;border:0.5px solid rgba(0,0,0,.06)}
-.skeleton-line{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--bg) 25%,rgba(0,0,0,.04) 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;margin-bottom:10px}
-.skeleton-line.lg{height:32px;width:60%}
-.skeleton-line.sm{height:10px;width:40%}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-[data-theme="dark"] .skeleton-line{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%}
-
-/* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(28,28,30,.92);color:#fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-[data-theme="dark"] .toast{background:rgba(58,58,60,.95)}
+.error-card{background:var(--red-l);border:1px solid #FECACA;border-radius:var(--r);padding:16px 20px;color:var(--red);font-size:13px}
 
 /* CONFIDENCE */
 .conf-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
@@ -396,62 +155,32 @@ main{max-width:1200px;margin:0 auto;padding:28px}
   main{padding:16px}
   .filter-bar{padding:10px 16px}
 }
-
-/* LOGIN SCREEN */
-.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
-.login-box{background:var(--surface);border-radius:var(--r-lg, 16px);padding:40px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.12);text-align:center}
-.login-logo{width:56px;height:56px;background:var(--navy);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;margin:0 auto 16px}
-.login-title{font-size:20px;font-weight:700;margin-bottom:4px}
-.login-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
-.login-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:var(--bg);color:var(--text);transition:.15s;margin-bottom:12px}
-.login-input:focus{border-color:var(--navy);background:var(--surface)}
-.login-btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
-.login-btn:hover{opacity:.9}
-.login-btn:disabled{opacity:.5;cursor:not-allowed}
-.login-error{font-size:13px;color:var(--red);margin-top:8px;min-height:18px}
 </style>
 </head>
 <body>
-<div id="loginOverlay" class="login-overlay">
-  <div class="login-box">
-    <div class="login-logo">FTL</div>
-    <div class="login-title">FTL Gym Dashboard</div>
-    <div class="login-sub">Masukkan password untuk melanjutkan</div>
-    <input class="login-input" type="password" id="loginInput" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()" id="loginBtn">Masuk</button>
-    <div class="login-error" id="loginError"></div>
-  </div>
-</div>
-
 
 <nav>
   <div class="nav-brand">
-    <img src="/ftl-logo.png" class="nav-logo" alt="FTL Gym" style="height:40px;width:auto">
+    <div class="nav-logo">FTL</div>
+    FTL Gym
   </div>
   <div class="nav-links">
     <a href="/" class="nav-link active">Dashboard</a>
-    <a href="/competitor.html" class="nav-link">Competitor Analysis</a>
+    <a href="/competitor.html" class="nav-link">Analisis Kompetitor</a>
     <a href="/keywords.html" class="nav-link">Keyword Manager</a>
   </div>
   <div class="nav-right">
     <span id="sourceBadge" style="display:none"></span>
     <span id="lastUpdated" style="font-size:12px;color:var(--text2)"></span>
-    <button class="btn btn-scrape" id="scrapeBtn" onclick="startScrape()">
-      <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-      <span id="scrapeBtnLabel">Update Scrape</span>
-    </button>
-    <button class="btn" onclick="clearCacheAndReload()" style="display:none">Refresh</button>
-    <button class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
-      <svg id="darkIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <button class="btn" onclick="clearCacheAndReload()">Refresh</button>
   </div>
 </nav>
 
 <div class="filter-bar">
   <div class="filter-group">
-    <span class="filter-label">Region</span>
+    <span class="filter-label">Wilayah</span>
     <div class="filter-chips" id="cityChips">
-      <span class="chip active" data-city="all">All</span>
+      <span class="chip active" data-city="all">Semua</span>
       <span class="chip" data-city="Jabodetabek">Jabodetabek</span>
       <span class="chip" data-city="Bandung">Bandung</span>
       <span class="chip" data-city="Surabaya">Surabaya</span>
@@ -459,26 +188,21 @@ main{max-width:1200px;margin:0 auto;padding:28px}
     </div>
   </div>
   <div class="filter-divider"></div>
-  <div class="filter-group" style="position:relative">
+  <div class="filter-group">
     <span class="filter-label">Club</span>
-    <div class="club-search-wrap" id="clubSearchWrap">
-      <input type="text" class="club-search-input" id="clubSearchInput" placeholder="All Clubs" autocomplete="off" readonly>
-      <svg class="club-search-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      <div class="club-dropdown" id="clubDropdown" style="display:none">
-        <input type="text" class="club-dropdown-search" id="clubDropdownSearch" placeholder="Type to search club...">
-        <div class="club-dropdown-list" id="clubDropdownList"></div>
-      </div>
-    </div>
+    <select class="filter-select" id="clubSelect" style="min-width:200px">
+      <option value="all">Semua Club</option>
+    </select>
   </div>
   <div class="filter-divider"></div>
   <div class="filter-group">
-    <span class="filter-label">Period</span>
+    <span class="filter-label">Periode</span>
     <div class="filter-chips" id="timeChips">
-      <span class="chip active" data-time="all">All</span>
-      <span class="chip" data-time="week">This Week</span>
-      <span class="chip" data-time="month">This Month</span>
-      <span class="chip" data-time="3month">3 Months</span>
-      <span class="chip" data-time="6month">6 Months</span>
+      <span class="chip active" data-time="all">Semua</span>
+      <span class="chip" data-time="week">Minggu ini</span>
+      <span class="chip" data-time="month">Bulan ini</span>
+      <span class="chip" data-time="3month">3 bulan</span>
+      <span class="chip" data-time="6month">6 bulan</span>
     </div>
   </div>
 </div>
@@ -486,21 +210,21 @@ main{max-width:1200px;margin:0 auto;padding:28px}
 <main>
   <div id="stateLoading" class="state-center">
     <div class="spinner"></div>
-    <p style="font-weight:600">Fetching data from Google Places...</p>
-    <p style="font-size:12px">This may take a moment</p>
+    <p style="font-weight:600">Mengambil data dari Google Places...</p>
+    <p style="font-size:12px">Proses ini mungkin memerlukan beberapa saat</p>
   </div>
   <div id="stateError" style="display:none"></div>
   <div id="stateContent" style="display:none">
 
-    <div class="section-title">Summary</div>
+    <div class="section-title">Ringkasan</div>
     <div class="metrics">
       <div class="metric">
         <div class="metric-label">
           <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
-          Average Rating
+          Rata-rata Rating
         </div>
         <div class="metric-value" id="mRating">—</div>
-        <div class="metric-sub" id="mRatingSub">out of 5 stars</div>
+        <div class="metric-sub" id="mRatingSub">dari 5 bintang</div>
       </div>
       <div class="metric">
         <div class="metric-label">
@@ -508,100 +232,71 @@ main{max-width:1200px;margin:0 auto;padding:28px}
           Total Reviews
         </div>
         <div class="metric-value" id="mReviews">—</div>
-        <div class="metric-sub" id="mReviewsSub">across all cities</div>
+        <div class="metric-sub" id="mReviewsSub">dari semua kota</div>
       </div>
       <div class="metric">
         <div class="metric-label">
           <div class="metric-icon" style="background:#F0FDF4"><svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-          Positive Sentiment
+          Sentimen Positif
         </div>
         <div class="metric-value" id="mSentiment">—</div>
-        <div class="metric-sub">stars 4-5</div>
+        <div class="metric-sub">bintang 4-5</div>
       </div>
       <div class="metric">
         <div class="metric-label">
           <div class="metric-icon" style="background:#FEF9C3"><svg viewBox="0 0 24 24" fill="none" stroke="#CA8A04" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-          Needs Attention
+          Perlu Perhatian
         </div>
         <div class="metric-value" id="mAttention">—</div>
-        <div class="metric-sub" id="mAttentionSub">club with lowest rating</div>
+        <div class="metric-sub" id="mAttentionSub">club dengan rating terendah</div>
       </div>
     </div>
 
-    <div class="section-title">Insights & Recommendations</div>
-    <div class="insight-box" id="insightBox">
+    <div class="section-title">Insight & Rekomendasi</div>
+    <div class="insight-box">
       <div class="insight-header">
         <div class="insight-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Analisis & Rekomendasi
         </div>
-        <span class="insight-scope" id="insightScope">All Indonesia</span>
+        <span class="insight-scope" id="insightScope">Seluruh Indonesia</span>
       </div>
-      <div id="insightGrid">
-        <div style="color:var(--text2);font-size:13px">Loading insights...</div>
+      <div class="insight-grid" id="insightGrid">
+        <div style="color:var(--text2);font-size:13px">Memuat insight...</div>
       </div>
     </div>
 
-    <div class="section-title">Rating by Region / Club</div>
+    <div class="section-title">Rating per Wilayah / Club</div>
     <div class="city-grid" id="cityGrid"></div>
 
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div class="chart-card" style="grid-column:1/-1">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
-          <div>
-            <div class="chart-title">Rating Trend & Comparison</div>
-            <div class="chart-sub" id="trendSub">Based on review timestamps from Google</div>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap" id="trendSelectors">
-            <select class="filter-select" id="trendSel1" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
-            <select class="filter-select" id="trendSel2" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
-            <select class="filter-select" id="trendSel3" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
-            <select class="filter-select" id="trendSel4" style="min-width:150px;font-size:12px" onchange="renderTrendChart()"></select>
-          </div>
+    <div class="section-title">Perbandingan Rating</div>
+    <div class="chart-card" style="margin-bottom:12px">
+      <div class="compare-controls">
+        <div class="compare-select-wrap">
+          <span>Bandingkan</span>
+          <select class="filter-select" id="compareA" style="min-width:180px"></select>
+          <span class="vs-badge">VS</span>
+          <select class="filter-select" id="compareB" style="min-width:180px"></select>
         </div>
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="compareChart" role="img" aria-label="Perbandingan rating"></canvas></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Tren Rating</div>
+        <div class="chart-sub" id="trendSub">Pergerakan rating berdasarkan filter aktif</div>
         <div class="legend-row" id="trendLegend"></div>
-        <div class="chart-wrap" style="height:240px"><canvas id="trendChart" role="img" aria-label="Rating trend"></canvas></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:8px">Data berdasarkan timestamp review Google (relative_time_description). Semakin banyak review, semakin akurat trendnya.</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Tren rating"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Sentiment Analysis</div>
-        <div class="chart-sub">Review distribution by star rating</div>
+        <div class="chart-title">Analisis Sentimen</div>
+        <div class="chart-sub">Distribusi review berdasarkan rating bintang</div>
         <div id="sentimentSection"></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title">Star Distribution</div>
-        <div class="chart-sub">Rating breakdown by stars</div>
-        <div id="starDistSection"></div>
-      </div>
     </div>
 
-    <div class="section-title">Priority Score — Clubs Needing Attention</div>
-    <div class="priority-section" id="prioritySection">
-      <div class="priority-grid" id="priorityGrid"></div>
-    </div>
-
-    <div class="section-title">Club Rankings</div>
-    <div class="ranking-section" id="rankingSection">
-      <div class="ranking-tabs" id="rankingTabs">
-        <span class="ranking-tab active" data-scope="national">National (Top & Bottom 5)</span>
-        <span class="ranking-tab" data-scope="Jabodetabek">Jabodetabek</span>
-        <span class="ranking-tab" data-scope="Bandung">Bandung</span>
-        <span class="ranking-tab" data-scope="Surabaya">Surabaya</span>
-        <span class="ranking-tab" data-scope="Bali">Bali</span>
-      </div>
-      <div id="rankingContent"></div>
-    </div>
-
-    <div class="section-title">Latest Reviews</div>
-    <div class="review-filter-bar" id="reviewFilterBar">
-      <span class="star-filter sf-all active" data-star="all">All Stars</span>
-      <span class="star-filter" data-star="5">★★★★★ 5</span>
-      <span class="star-filter" data-star="4">★★★★☆ 4</span>
-      <span class="star-filter" data-star="3">★★★☆☆ 3</span>
-      <span class="star-filter" data-star="2">★★☆☆☆ 2</span>
-      <span class="star-filter" data-star="1">★☆☆☆☆ 1</span>
-    </div>
+    <div class="section-title">Ulasan Terbaru</div>
     <div class="review-list" id="reviewList"></div>
 
   </div>
@@ -618,50 +313,9 @@ let trendChartInst = null;
 
 async function loadDashboard() {
   try {
-    const token = window._authToken || localStorage.getItem('ftl_token') || '';
-    const res = await fetch('/api/dashboard', { headers: { 'x-app-token': token } });
+    const res = await fetch('/api/dashboard');
     const data = await res.json();
-
-    if (res.status === 401) {
-      localStorage.removeItem('ftl_token');
-      window._authToken = '';
-      const lo = document.getElementById('loginOverlay');
-      if (lo) lo.style.display = 'flex';
-      return;
-    }
     if (!res.ok) { showError(data.error, data.detail); return; }
-
-    // Hide loading state safely
-    const ls = document.getElementById('loadingState');
-    if (ls) ls.style.display = 'none';
-
-    // No cache yet — show empty state
-    if (data.source === 'empty' || !data.cities || data.cities.length === 0) {
-      const es = document.getElementById('emptyState');
-      const ct = document.getElementById('content');
-      // Inject notice bar directly — no HTML dependency
-      if (ct) ct.style.display = 'none';
-      let notice = document.getElementById('scrapeNotice');
-      if (!notice) {
-        notice = document.createElement('div');
-        notice.id = 'scrapeNotice';
-        notice.style.cssText = 'background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:12px 16px;margin:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px';
-        notice.innerHTML = '<span style="font-size:13px;color:#92400E;font-weight:600">⚠️ Belum ada data — klik Start Scrape untuk mengambil data Google Reviews dari semua cabang FTL</span><button onclick="startScrape()" style="padding:8px 18px;background:#1B3A6B;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">↻ Start Scrape</button>';
-        const main = document.querySelector('main') || document.body;
-        main.insertBefore(notice, main.firstChild);
-      }
-      notice.style.display = 'flex';
-      return;
-    }
-
-    // Has data — show dashboard
-    const es = document.getElementById('emptyState');
-    if (es) es.style.display = 'none';
-    const notice = document.getElementById('scrapeNotice');
-    if (notice) notice.remove();
-    const ct = document.getElementById('content');
-    if (ct) ct.style.display = 'block';
-
     rawData = data;
     populateClubFilter(data.cities);
     populateCompareSelects(data.cities);
@@ -669,165 +323,24 @@ async function loadDashboard() {
   } catch(e) { showError('Tidak bisa terhubung ke server.', 'Pastikan server Node.js berjalan dengan npm start'); }
 }
 
-async function startScrape() {
-  // Update button state
-  const btn = document.getElementById('scrapeBtn');
-  const lbl = document.getElementById('scrapeBtnLabel');
-  if (btn) { btn.disabled = true; btn.classList.add('running'); }
-  if (lbl) lbl.textContent = 'Scraping...';
-
-  // Hide notices
-  const notice = document.getElementById('scrapeNotice');
-  if (notice) notice.remove();
-
-  // Show progress bar
-  const progress = document.getElementById('scrapeProgress');
-  const bar = document.getElementById('scrapeBar');
-  const msg = document.getElementById('scrapeMsg');
-  if (progress) progress.classList.add('visible');
-  if (bar) bar.style.width = '0%';
-  if (msg) msg.textContent = 'Memulai...';
-
-  // Animate progress bar while scraping
-  let pct = 0;
-  const messages = [
-    'Mencari cabang FTL di Google Places...',
-    'Mengambil data Jabodetabek...',
-    'Mengambil data Bandung...',
-    'Mengambil data Surabaya & Bali...',
-    'Menganalisis review...',
-    'Menyimpan ke cache...',
-  ];
-  let msgIdx = 0;
-  const interval = setInterval(() => {
-    pct = Math.min(pct + 2, 90);
-    if (bar) bar.style.width = pct + '%';
-    if (pct % 15 === 0 && msgIdx < messages.length - 1) {
-      msgIdx++;
-      if (msg) msg.textContent = messages[msgIdx];
-    }
-  }, 1000);
-
-  try {
-    const token = window._authToken || localStorage.getItem('ftl_token') || '';
-    const res = await fetch('/api/scrape', { method: 'POST', headers: { 'x-app-token': token, 'Content-Type': 'application/json' } });
-    const data = await res.json();
-    clearInterval(interval);
-    if (bar) bar.style.width = '100%';
-    if (msg) msg.textContent = 'Selesai! Memuat data...';
-
-    if (!res.ok) {
-      if (progress) progress.classList.remove('visible');
-      showError(data.error || 'Scrape gagal.');
-      resetScrapeBtn();
-      return;
-    }
-
-    rawData = data;
-    setTimeout(() => {
-      if (progress) progress.classList.remove('visible');
-      const n = document.getElementById('scrapeNotice');
-      if (n) n.remove();
-      const ct = document.getElementById('content');
-      if (ct) ct.style.display = 'block';
-      const es = document.getElementById('emptyState');
-      if (es) es.style.display = 'none';
-      populateClubFilter(data.cities);
-      populateCompareSelects(data.cities);
-      renderAll();
-      resetScrapeBtn();
-    }, 800);
-  } catch(e) {
-    clearInterval(interval);
-    if (progress) progress.classList.remove('visible');
-    showError('Gagal terhubung ke server saat scraping.');
-    resetScrapeBtn();
-  }
-}
-
-function resetScrapeBtn() {
-  const btn = document.getElementById('scrapeBtn');
-  const lbl = document.getElementById('scrapeBtnLabel');
-  if (btn) { btn.disabled = false; btn.classList.remove('running'); }
-  if (lbl) lbl.textContent = 'Update Scrape';
-}
-
 function populateClubFilter(cities) {
-  const list = document.getElementById('clubDropdownList');
-  list.innerHTML = '';
-
-  // All clubs option
-  const allOpt = document.createElement('div');
-  allOpt.className = 'club-option selected';
-  allOpt.dataset.value = 'all';
-  allOpt.textContent = 'All Clubs';
-  list.appendChild(allOpt);
-
+  const sel = document.getElementById('clubSelect');
+  sel.innerHTML = '<option value="all">Semua Club</option>';
   cities.forEach((c) => {
     (c.branches || []).forEach((b) => {
-      const opt = document.createElement('div');
-      opt.className = 'club-option';
-      opt.dataset.value = b.name;
-      opt.dataset.city = c.city;
-      opt.innerHTML = b.name + `<span class="club-option-city">${c.city}</span>`;
-      list.appendChild(opt);
-    });
-  });
-
-  // Click handler
-  list.addEventListener('click', (e) => {
-    const opt = e.target.closest('.club-option');
-    if (!opt) return;
-    list.querySelectorAll('.club-option').forEach(o => o.classList.remove('selected'));
-    opt.classList.add('selected');
-    activeClub = opt.dataset.value;
-    document.getElementById('clubSearchInput').value = activeClub === 'all' ? '' : opt.dataset.value;
-    document.getElementById('clubSearchInput').placeholder = activeClub === 'all' ? 'All Clubs' : opt.dataset.value;
-    closeClubDropdown();
-    renderAll();
-  });
-
-  // Search filter inside dropdown
-  document.getElementById('clubDropdownSearch').addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    list.querySelectorAll('.club-option').forEach(o => {
-      if (o.dataset.value === 'all') { o.classList.toggle('hidden', q.length > 0); return; }
-      o.classList.toggle('hidden', !o.dataset.value.toLowerCase().includes(q));
+      const o = document.createElement('option');
+      o.value = b.name;
+      o.dataset.city = c.city;
+      o.textContent = b.name;
+      sel.appendChild(o);
     });
   });
 }
-
-function closeClubDropdown() {
-  document.getElementById('clubDropdown').style.display = 'none';
-  document.getElementById('clubSearchWrap').classList.remove('open');
-  document.getElementById('clubDropdownSearch').value = '';
-  document.getElementById('clubDropdownList').querySelectorAll('.club-option').forEach(o => o.classList.remove('hidden'));
-}
-
-// Open/close dropdown
-document.getElementById('clubSearchInput').addEventListener('click', () => {
-  const dd = document.getElementById('clubDropdown');
-  const wrap = document.getElementById('clubSearchWrap');
-  const isOpen = dd.style.display !== 'none';
-  if (isOpen) { closeClubDropdown(); return; }
-  dd.style.display = 'block';
-  wrap.classList.add('open');
-  document.getElementById('clubDropdownSearch').focus();
-});
-
-// Close on outside click
-document.addEventListener('click', (e) => {
-  if (!document.getElementById('clubSearchWrap').contains(e.target)) {
-    closeClubDropdown();
-  }
-});
 
 function populateCompareSelects(cities) {
-  // compareA/compareB removed — skip safely
-  if (!document.getElementById('compareA')) return;
   const items = [];
   cities.forEach((c) => {
-    items.push({ value: `city_${c.city}`, label: `${c.city} (City)`, rating: c.avgRating, color: CITY_COLORS[c.city] || '#888' });
+    items.push({ value: `city_${c.city}`, label: `${c.city} (Kota)`, rating: c.avgRating, color: CITY_COLORS[c.city] || '#888' });
     (c.branches || []).forEach((b) => {
       items.push({ value: `branch_${b.name}`, label: b.name, rating: b.rating, city: c.city, color: CITY_COLORS[c.city] || '#888' });
     });
@@ -853,41 +366,7 @@ function getFilteredData() {
   let cities = rawData.cities || [];
   if (activeCity !== 'all') cities = cities.filter((c) => c.city === activeCity);
   if (activeClub !== 'all') {
-    cities = cities
-      .map((c) => {
-        const filtered = (c.branches||[]).filter((b) => b.name === activeClub);
-        if (!filtered.length) return null;
-        const branch = filtered[0];
-        // Filter reviews to only this branch (by branch name in author or use all from city as approximation)
-        // Google Places API returns reviews per place — we stored them per city,
-        // so filter by matching branch name in city context
-        const branchReviews = (c.recentReviews||[]).filter(r => !r.branchName || r.branchName === activeClub);
-        // Recalculate star distribution from branch reviews
-        const dist = {1:0,2:0,3:0,4:0,5:0};
-        branchReviews.forEach(r => { dist[r.rating] = (dist[r.rating]||0)+1; });
-        const total = branchReviews.length || 1;
-        const starDist = Object.fromEntries(Object.entries(dist).map(([k,v])=>[k,Math.round(v/total*100)]));
-        // Sentiment from branch reviews
-        const pos = branchReviews.filter(r=>(r.rating||3)>=4).length;
-        const neu = branchReviews.filter(r=>(r.rating||3)===3).length;
-        const neg = branchReviews.filter(r=>(r.rating||3)<=2).length;
-        return {
-          ...c,
-          branches: filtered,
-          avgRating: branch.rating || 0,
-          totalRatings: branch.totalRatings || 0,
-          branchCount: 1,
-          recentReviews: branchReviews,
-          starDistribution: branchReviews.length > 0 ? starDist : c.starDistribution,
-          sentiment: branchReviews.length > 0 ? {
-            positive: Math.round(pos/total*100),
-            neutral: Math.round(neu/total*100),
-            negative: Math.round(neg/total*100),
-            topics: c.sentiment?.topics || [],
-          } : c.sentiment,
-        };
-      })
-      .filter(Boolean);
+    cities = cities.map((c) => ({ ...c, branches: (c.branches||[]).filter((b) => b.name === activeClub) })).filter((c) => c.branches.length > 0);
   }
   return { ...rawData, cities };
 }
@@ -926,24 +405,7 @@ function renderAll() {
   renderCompareChart();
   renderTrendChart(data.cities);
   renderSentiment(data.cities);
-  renderStarDist(data.cities);
   renderReviews(data);
-  renderRanking(data);
-  renderPriorityScore(data);
-  populateTrendSelectors(data);
-  renderTrendChart();
-}
-
-function animateCount(el, from, to, decimals=0, suffix='', duration=600) {
-  const start = performance.now();
-  function update(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    const val = from + (to - from) * ease;
-    el.textContent = decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString('id-ID') + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-  }
-  requestAnimationFrame(update);
 }
 
 function renderMetrics(data) {
@@ -951,430 +413,78 @@ function renderMetrics(data) {
   const totalRatings = cities.reduce((s,c) => s + (c.totalRatings||0), 0);
   const overallRating = cities.length > 0 ? cities.reduce((s,c) => s + (c.avgRating||0), 0) / cities.length : 0;
   const avgSentiment = cities.length > 0 ? cities.reduce((s,c) => s + (c.sentiment?.positive||0), 0) / cities.length : 0;
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
-  const worstBranch = allBranches.length > 0 ? [...allBranches].filter(b=>b.rating).sort((a,b) => (a.rating||0)-(b.rating||0))[0] : null;
+  const worstCity = cities.length > 0 ? [...cities].sort((a,b) => (a.avgRating||0)-(b.avgRating||0))[0] : null;
 
-  const mRating = document.getElementById('mRating');
-  const mReviews = document.getElementById('mReviews');
-  const mSentiment = document.getElementById('mSentiment');
-
-  if (overallRating) animateCount(mRating, 0, overallRating, 1);
-  else mRating.textContent = '—';
-
-  animateCount(mReviews, 0, totalRatings, 0);
-  document.getElementById('mReviewsSub').textContent = `from ${allBranches.length} branches`;
-
-  if (avgSentiment) animateCount(mSentiment, 0, Math.round(avgSentiment), 0, '%');
-  else mSentiment.textContent = '—';
-
-  document.getElementById('mAttention').textContent = worstBranch ? worstBranch.name.replace('FTL - ','').replace('Stride - ','') : '—';
-  document.getElementById('mAttentionSub').textContent = worstBranch ? `rating ${worstBranch.rating}` : '';
+  document.getElementById('mRating').textContent = overallRating ? overallRating.toFixed(1) : '—';
+  document.getElementById('mReviews').textContent = totalRatings.toLocaleString('id-ID');
+  document.getElementById('mReviewsSub').textContent = `dari ${cities.reduce((s,c)=>s+(c.branchCount||0),0)} cabang`;
+  document.getElementById('mSentiment').textContent = avgSentiment ? Math.round(avgSentiment) + '%' : '—';
+  document.getElementById('mAttention').textContent = worstCity ? worstCity.city : '—';
+  document.getElementById('mAttentionSub').textContent = worstCity ? `rating ${worstCity.avgRating}` : '';
 }
-
-const TARGET_RATING = 4.7;
 
 function renderInsight(data) {
   const cities = data.cities || [];
-  const scope = activeClub !== 'all' ? activeClub : activeCity !== 'all' ? activeCity : 'All Indonesia';
+  const scope = activeClub !== 'all' ? activeClub : activeCity !== 'all' ? activeCity : 'Seluruh Indonesia';
   document.getElementById('insightScope').textContent = scope;
 
   if (cities.length === 0) {
-    document.getElementById('insightGrid').innerHTML = '<p style="color:var(--text2);font-size:13px">No data for this filter.</p>';
+    document.getElementById('insightGrid').innerHTML = '<p style="color:var(--text2);font-size:13px">Tidak ada data untuk filter ini.</p>';
     return;
   }
 
-  // ── DATA AGREGASI ──────────────────────────────────────────────────────
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
-  const allReviews = cities.flatMap(c => (c.recentReviews||[]).map(r => ({...r, city:c.city})));
-  const negReviews = allReviews.filter(r => (r.rating||3) <= 2);
+  // Agregasi masalah dari semua sentimen negatif
+  const allReviews = cities.flatMap((c) => (c.recentReviews||[]).filter((r) => (r.rating||3) <= 2));
   const totalReviews = cities.reduce((s,c) => s+(c.totalRatings||0), 0);
   const avgRating = cities.reduce((s,c) => s+(c.avgRating||0), 0) / (cities.length||1);
-  const avgNeg = cities.reduce((s,c) => s+(c.sentiment?.negative||0), 0) / (cities.length||1);
-  const avgPos = cities.reduce((s,c) => s+(c.sentiment?.positive||0), 0) / (cities.length||1);
+  const avgSentiment = cities.reduce((s,c) => s+(c.sentiment?.negative||0), 0) / (cities.length||1);
+  const worstBranches = cities.flatMap((c) => (c.branches||[]).filter((b) => b.rating && b.rating < 4)).sort((a,b) => a.rating-b.rating).slice(0,5);
 
-  // Club di bawah target
-  const belowTarget = allBranches.filter(b => b.rating && b.rating < TARGET_RATING).sort((a,b) => a.rating-b.rating);
-  const criticalClubs = belowTarget.filter(b => b.rating < 4.0);
-  const warningClubs = belowTarget.filter(b => b.rating >= 4.0 && b.rating < TARGET_RATING);
+  let problemHTML = '';
+  let recHTML = '';
 
-  // Club dengan review terbanyak negatif (dari distribusi bintang)
-  const highNegCities = [...cities].sort((a,b) => (b.sentiment?.negative||0)-(a.sentiment?.negative||0));
-
-  // Club dengan review sedikit (visibility rendah di Maps)
-  const lowVisibility = allBranches.filter(b => (b.totalRatings||0) < 50).sort((a,b) => (a.totalRatings||0)-(b.totalRatings||0));
-
-  // Gap rating terbesar antar kota
-  const cityRatings = cities.map(c => ({city:c.city, rating:c.avgRating||0})).sort((a,b) => b.rating-a.rating);
-  const ratingGap = cityRatings.length >= 2 ? (cityRatings[0].rating - cityRatings[cityRatings.length-1].rating) : 0;
-
-  // Top topik negatif dari review
-  const negTopics = {};
-  cities.forEach(c => (c.sentiment?.topics||[]).filter(t=>t.sentiment==='negative').forEach(t => {
-    negTopics[t.word] = (negTopics[t.word]||0) + t.count;
-  }));
-  const topNegTopics = Object.entries(negTopics).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([w])=>w);
-
-  // ── SECTION 1: MASALAH UTAMA ──────────────────────────────────────────
-  const problems = [];
-
-  if (criticalClubs.length > 0) {
-    problems.push({
-      severity: 'critical',
-      title: `${criticalClubs.length} Club Rating Kritis (< 4.0) — Tidak Layak Diiklankan`,
-      desc: `Club berikut memiliki rating di bawah 4.0 yang berarti iklan justru akan menarik traffic ke tempat yang belum siap: <strong>${criticalClubs.slice(0,5).map(b=>`${b.name} (${b.rating}★)`).join(', ')}</strong>. Mengiklankan club ini sebelum perbaikan operasional = membakar budget.`,
-      clubs: criticalClubs.slice(0,5)
-    });
-  }
-
-  if (warningClubs.length > 0) {
-    const gap = warningClubs.map(b => `${b.name} (${b.rating}★, gap ${(TARGET_RATING-b.rating).toFixed(1)} poin ke target)`);
-    problems.push({
-      severity: 'high',
-      title: `${warningClubs.length} Club Belum Capai Target ${TARGET_RATING}★`,
-      desc: `Club ini sudah layak diiklankan tapi belum optimal. Setiap 0.1 poin kenaikan rating terbukti meningkatkan click-rate iklan 3-5%. Club: <strong>${gap.slice(0,4).join(' · ')}</strong>`,
-      clubs: warningClubs.slice(0,4)
-    });
-  }
-
-  if (avgNeg > 15) {
-    problems.push({
-      severity: 'high',
-      title: `Sentimen Negative ${Math.round(avgNeg)}% — Di Atas Batas Aman (15%)`,
-      desc: `Rata-rata ${Math.round(avgNeg)}% review stars 1-2 menandakan ada masalah operasional sistemik. Kota dengan sentimen negatif tertinggi: <strong>${highNegCities.slice(0,2).map(c=>`${c.city} (${c.sentiment?.negative||0}%)`).join(', ')}</strong>. Iklan di area ini berisiko mendapat comment negatif yang merusak performa campaign.`,
-      clubs: []
-    });
-  }
-
-  if (topNegTopics.length > 0) {
-    problems.push({
-      severity: 'medium',
-      title: `Topik Keluhan Berulang: ${topNegTopics.slice(0,3).join(', ')}`,
-      desc: `Kata-kata ini muncul berulang di review stars 1-2 dan menjadi asosiasi negatif brand FTL di benak calon member. Jika tidak diatasi, iklan yang menyentuh area ini justru memperparah persepsi negatif.`,
-      clubs: []
-    });
-  }
-
-  if (lowVisibility.length > 0) {
-    problems.push({
-      severity: 'medium',
-      title: `${lowVisibility.length} Club Review < 50 — Visibilitas Google Maps Rendah`,
-      desc: `Club dengan review sedikit akan tenggelam di pencarian Google Maps karena algoritma Maps memprioritaskan tempat dengan banyak review. Club ini butuh kampanye "dorong review" sebelum iklan besar: <strong>${lowVisibility.slice(0,4).map(b=>`${b.name} (${b.totalRatings||0} review)`).join(', ')}</strong>`,
-      clubs: lowVisibility.slice(0,4)
-    });
-  }
-
-  if (ratingGap >= 0.3 && cityRatings.length >= 2) {
-    problems.push({
-      severity: 'medium',
-      title: `Gap Rating Antar Kota ${ratingGap.toFixed(1)} Poin — Konsistensi Brand Bermasalah`,
-      desc: `${cityRatings[0].city} (${cityRatings[0].rating}★) vs ${cityRatings[cityRatings.length-1].city} (${cityRatings[cityRatings.length-1].rating}★). Gap ini menandakan SOP tidak dijalankan seragam. Member yang pindah kota akan kecewa dan meninggalkan review negatif.`,
-      clubs: []
-    });
-  }
-
-  // ── SECTION 2: REKOMENDASI IKLAN ─────────────────────────────────────
-  const goodClubs = allBranches.filter(b => (b.rating||0) >= TARGET_RATING);
-  const goodCities = cityRatings.filter(c => c.rating >= TARGET_RATING);
-  const bestCity = cityRatings[0];
-  const worstCity = cityRatings[cityRatings.length-1];
-
-  // Google Ads recs
-  const googleRecs = [];
-  if (goodClubs.length > 0) {
-    googleRecs.push({
-      priority: 'Prioritas 1',
-      title: 'Search Ads — Targeting Radius Club Terbaik',
-      desc: `Fokuskan Google Search Ads di radius 3-5 km dari club dengan rating ≥ ${TARGET_RATING}★: ${goodClubs.slice(0,3).map(b=>b.name).join(', ')}. Keyword utama: "gym terdekat [area]", "fitness center [kelurahan]", "gym bagus [kota]". Bid lebih tinggi untuk jam 06.00-09.00 dan 17.00-21.00 (peak hours calon member).`,
-      tags: ['Search Intent Tinggi','Radius Targeting','Peak Hours Bidding']
-    });
-  }
-  googleRecs.push({
-    priority: 'Prioritas 2',
-    title: 'Google Maps Ads (Local Search) — Dominasi Pencarian "Gym Dekat Sini"',
-    desc: `Aktifkan Google Business Profile Ads untuk semua club dengan rating ≥ 4.3★. Ini akan menempatkan FTL di posisi teratas saat orang cari gym di Maps. Budget ideal: Rp 50-100rb/hari per club. Prioritaskan area dengan kompetitor rating rendah.`,
-    tags: ['Maps Visibility','Local Pack','Zero-Click Optimization']
-  });
-  if (belowTarget.length > 0) {
-    googleRecs.push({
-      priority: 'Strategi Defensif',
-      title: 'Negative Keyword — Proteksi Club Rating Rendah',
-      desc: `Tambahkan negative keyword untuk club dengan rating < 4.0: exclude nama area ${criticalClubs.slice(0,3).map(b=>b.name.replace('FTL - ','')).join(', ')} dari semua campaign aktif. Ini mencegah budget terbuang untuk traffic yang akan berakhir di review negatif.`,
-      tags: ['Negative Keywords','Budget Protection','Risk Management']
-    });
-  }
-
-  // Meta Ads recs
-  const metaRecs = [];
-  metaRecs.push({
-    priority: 'Prioritas 1',
-    title: 'Lookalike Audience dari Member Club Rating Tinggi',
-    desc: `Upload customer list member dari ${goodClubs.slice(0,2).map(b=>b.name).join(' & ')} ke Meta Ads Manager → buat Lookalike 1-3%. Ini targeting paling akurat karena mirip dengan orang yang sudah terbukti puas. Estimasi CPL 40-60% lebih rendah vs interest targeting biasa.`,
-    tags: ['Lookalike 1-3%','Custom Audience','Low CPL']
-  });
-  metaRecs.push({
-    priority: 'Prioritas 2',
-    title: 'UGC-Style Video Ads — Konten "Review Jujur" Member Asli',
-    desc: `Rekrut 3-5 member dari club rating tertinggi untuk buat video 15-30 detik gaya review jujur. Format: "Saya udah ${Math.floor(Math.random()*6)+3} bulan di FTL [nama club], ini yang bikin saya stay..." — format ini terbukti 3x lebih tinggi CTR vs iklan branded biasa di Instagram Reels & TikTok.`,
-    tags: ['UGC Content','Instagram Reels','High CTR Format']
-  });
-  if (highNegCities.length > 0 && highNegCities[0].sentiment?.negative > 15) {
-    metaRecs.push({
-      priority: 'Strategi Khusus',
-      title: `Retargeting Exclusion — Exclude Area ${highNegCities[0].city} dari Campaign Awareness`,
-      desc: `${highNegCities[0].city} memiliki sentimen negatif ${highNegCities[0].sentiment?.negative||0}%. Sementara masalah operasional belum resolved, exclude area ini dari campaign awareness luas. Fokuskan hanya pada retargeting (orang yang sudah pernah kunjungi website/profil) dengan pesan "Kami terus berkembang."`,
-      tags: ['Audience Exclusion','Retargeting Only','Brand Repair']
-    });
-  }
-
-  // TikTok Ads recs
-  const tiktokRecs = [];
-  tiktokRecs.push({
-    priority: 'Prioritas 1',
-    title: 'TopView / In-Feed Ads — "Day in the Life" di Club Terbaik',
-    desc: `Buat konten 30-60 detik format "Day in the Life" di ${goodClubs.length > 0 ? goodClubs[0].name : 'club terbaik'}: dari masuk parkir, suasana gym, alat-alat, sampai shower. Tanpa voiceover berlebihan — cukup musik trending + text overlay. TikTok algoritma sangat suka konten authentic gym tour saat ini (trending #gymtok).`,
-    tags: ['#GymTok','Day in the Life','Trending Format']
-  });
-  tiktokRecs.push({
-    priority: 'Prioritas 2',
-    title: 'Spark Ads — Amplify Konten Organik Member yang Viral',
-    desc: `Monitor tag FTL di TikTok setiap minggu. Jika ada member yang post tentang FTL dan mulai viral (500+ views organik), langsung boost pakai Spark Ads dengan budget Rp 100-200rb/hari selama 3-5 hari. Ini jauh lebih hemat dan believable vs konten branded.`,
-    tags: ['Spark Ads','Amplify UGC','Low Budget High Impact']
-  });
-  if (lowVisibility.length > 0) {
-    tiktokRecs.push({
-      priority: 'Strategi Review',
-      title: 'TikTok Challenge "Rate Your Gym" — Dorong Review Google Maps',
-      desc: `Buat mini-challenge internal: member yang post video di TikTok dengan hashtag #FTLGym + kasih review Google Maps dapat free 1 hari personal training. Target: naikkan review count ${lowVisibility.slice(0,2).map(b=>b.name).join(' & ')} dari ${lowVisibility[0]?.totalRatings||0} ke 100+ review dalam 30 hari.`,
-      tags: ['UGC Challenge','Google Maps Boost','Member Engagement']
-    });
-  }
-
-  // ── SECTION 3: PRIORITAS OPERASIONAL (DIREKSI) ──────────────────────
-  const opsRecs = [];
-  let opsNum = 1;
-
-  if (criticalClubs.length > 0) {
-    opsRecs.push({
-      num: opsNum++,
-      title: `STOP iklan di ${criticalClubs.slice(0,3).map(b=>b.name).join(', ')}`,
-      desc: `Rating < 4.0 artinya iklan akan menarik traffic tapi berakhir di kekecewaan → review negatif baru → rating makin turun. Hentikan semua paid promotion di club ini sampai rating ≥ 4.3.`,
-      timeframe: 'Lakukan sekarang — hari ini'
-    });
-  }
-
-  if (belowTarget.length > 0) {
-    opsRecs.push({
-      num: opsNum++,
-      title: 'Audit Operasional Mendadak — Club di Bawah Target',
-      desc: `Kirim tim quality control ke ${belowTarget.slice(0,3).map(b=>b.name).join(', ')} dalam minggu ini. Checklist: kebersihan, kondisi alat, attitude staff, AC, dan kelengkapan fasilitas. Foto dokumentasi sebelum & sesudah untuk laporan direksi.`,
-      timeframe: 'Target: selesai dalam 7 hari'
-    });
-  }
-
-  opsRecs.push({
-    num: opsNum++,
-    title: 'Wajib Respon Semua Review Bintang 1-2 dalam 24 Jam',
-    desc: `Assign 1 orang PIC per kota khusus untuk monitoring dan reply review negatif. Template respon harus empatis + konkret (bukan "terima kasih masukannya"). Review yang direspon dengan baik terbukti 30% lebih sering diupdate oleh reviewer.`,
-    timeframe: 'Implementasi: minggu ini'
-  });
-
-  if (lowVisibility.length > 0) {
-    opsRecs.push({
-      num: opsNum++,
-      title: `Program "Review Drive" — ${lowVisibility.slice(0,2).map(b=>b.name).join(' & ')}`,
-      desc: `Club dengan < 50 review di Google Maps akan sulit muncul di pencarian lokal. Buat program insentif member: setiap member yang upload foto + review Google Maps dapat 1 hari bonus. Target 100 review dalam 30 hari per club.`,
-      timeframe: 'Target: 30 hari'
-    });
-  }
-
-  opsRecs.push({
-    num: opsNum++,
-    title: `Standardisasi SOP — Kejar Gap Rating ${ratingGap.toFixed(1)} Poin Antar Kota`,
-    desc: `${bestCity?.city} sudah ${bestCity?.rating}★ — dokumentasikan SOP operasional mereka (kebersihan, jadwal maintenance alat, standar greeting staff) dan implementasikan di kota lain terutama ${worstCity?.city} (${worstCity?.rating}★).`,
-    timeframe: 'Review bulanan'
-  });
-
-  // ── SECTION 4: QUICK WINS (7 HARI) ──────────────────────────────────
-  const quickWins = [
-    {
-      icon: '⭐',
-      title: 'Pin Review Terbaik',
-      desc: `Minta manager setiap club pin/highlight review bintang 5 terbaru di Google Business Profile. Gratis, 5 menit per club.`
-    },
-    {
-      icon: '📸',
-      title: 'Upload 5 Foto Terbaru',
-      desc: `Foto gym yang fresh di Google Maps terbukti naikkan kunjungan profil 35%. Minta staff foto suasana ramai + alat terbaru.`
-    },
-    {
-      icon: '💬',
-      title: 'Balas Semua Review Pending',
-      desc: `Cek semua review bintang 1-3 yang belum dibalas. Balas dengan nama + solusi konkret. Ini sinyal positif ke algoritma Google.`
-    },
-    {
-      icon: '🎯',
-      title: 'Pause Iklan Club Kritis',
-      desc: criticalClubs.length > 0 ? `Pause semua iklan di ${criticalClubs.slice(0,2).map(b=>b.name).join(', ')} — hemat budget, kurangi risiko review negatif baru.` : `Semua club sudah di atas threshold — pertahankan budget iklan saat ini.`
-    },
-    {
-      icon: '📊',
-      title: 'Set Alert Google Business',
-      desc: `Aktifkan notifikasi email di setiap Google Business Profile FTL agar review baru langsung masuk ke inbox manager. Respon < 24 jam.`
-    },
-    {
-      icon: '🔁',
-      title: 'WhatsApp Blast ke Member Lama',
-      desc: `Kirim WA ke member aktif: "Kalau puas dengan FTL [nama club], bantu kami dengan review di Google Maps ya! Klik link ini: [link GBP]". Konversi biasanya 10-15%.`
+  // Generate insight berdasarkan data aktual
+  if (avgRating < 4.0) {
+    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> masih di bawah 4.0 — perlu perhatian segera.</div>`;
+    if (worstBranches.length > 0) {
+      problemHTML += `<div class="insight-problem-reason">Club dengan rating terendah: ${worstBranches.map(b=>`<span>${b.name} (${b.rating})</span>`).join('')}</div>`;
     }
-  ];
+  } else {
+    problemHTML += `<div class="insight-problem-desc">Rating rata-rata <strong>${avgRating.toFixed(1)}</strong> sudah baik, namun masih ada ruang untuk peningkatan di beberapa cabang.</div>`;
+  }
 
-  // ── RENDER ───────────────────────────────────────────────────────────
-  const sevLabel = {critical:'🔴 Kritis', high:'🟠 Perhatian', medium:'🟡 Perlu Dimonitor'};
-  const sevClass = {critical:'sev-critical', high:'sev-high', medium:'sev-medium'};
+  if (avgSentiment > 15) {
+    problemHTML += `<div class="insight-problem-desc" style="margin-top:8px">Sentimen negatif <strong>${Math.round(avgSentiment)}%</strong> — lebih tinggi dari ideal (<15%). Perlu investigasi penyebab utama.</div>`;
+  }
 
-  const probHTML = problems.length > 0 ? problems.map(p => `
-    <div class="iprob-item">
-      <div class="iprob-head">
-        <div class="iprob-title">${p.title}</div>
-        <span class="iprob-severity ${sevClass[p.severity]}">${sevLabel[p.severity]}</span>
-      </div>
-      <div class="iprob-desc">${p.desc}</div>
-      ${p.clubs.length > 0 ? `<div class="iprob-clubs">${p.clubs.map(b=>`<span class="iprob-club">${b.name} ${b.rating||''}★</span>`).join('')}</div>` : ''}
-    </div>`).join('') : '<p style="color:var(--text2);font-size:13px">Semua indikator dalam kondisi baik.</p>';
-
-  const googleHTML = googleRecs.map(r => `
-    <div class="iad-card iad-card-google">
-      <div class="iad-priority" style="color:#4285F4">${r.priority}</div>
-      <div class="iad-title">${r.title}</div>
-      <div class="iad-desc">${r.desc}</div>
-      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
-    </div>`).join('');
-
-  const metaHTML = metaRecs.map(r => `
-    <div class="iad-card iad-card-meta">
-      <div class="iad-priority" style="color:#1877F2">${r.priority}</div>
-      <div class="iad-title">${r.title}</div>
-      <div class="iad-desc">${r.desc}</div>
-      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
-    </div>`).join('');
-
-  const tiktokHTML = tiktokRecs.map(r => `
-    <div class="iad-card iad-card-tiktok">
-      <div class="iad-priority" style="color:#555">${r.priority}</div>
-      <div class="iad-title">${r.title}</div>
-      <div class="iad-desc">${r.desc}</div>
-      <div class="iad-tags">${r.tags.map(t=>`<span class="iad-tag">${t}</span>`).join('')}</div>
-    </div>`).join('');
-
-  const opsHTML = opsRecs.map(r => `
-    <div class="iops-item">
-      <div class="iops-num">${r.num}</div>
-      <div class="iops-content">
-        <div class="iops-title">${r.title}</div>
-        <div class="iops-desc">${r.desc}</div>
-        <div class="iops-timeframe">${r.timeframe}</div>
-      </div>
-    </div>`).join('');
-
-  const qwHTML = quickWins.map(q => `
-    <div class="iqw-item">
-      <div class="iqw-icon">${q.icon}</div>
-      <div class="iqw-title">${q.title}</div>
-      <div class="iqw-desc">${q.desc}</div>
-    </div>`).join('');
+  // Rekomendasi
+  recHTML = `
+    <div class="insight-rec-item">Prioritaskan perbaikan di ${worstBranches.length > 0 ? worstBranches.slice(0,3).map(b=>b.name).join(', ') : 'cabang dengan rating terendah'}</div>
+    <div class="insight-rec-item">Tingkatkan respons terhadap review negatif dalam 24 jam untuk menunjukkan komitmen manajemen</div>
+    <div class="insight-rec-item">Lakukan audit kebersihan & peralatan berkala di semua cabang untuk menjaga standar</div>
+    ${avgRating >= 4.5 ? '<div class="insight-rec-item">Rating sudah sangat baik — fokus pada mempertahankan konsistensi di semua cabang</div>' : ''}
+  `;
 
   document.getElementById('insightGrid').innerHTML = `
-    <div class="insight-full">
-
-      <!-- MASALAH UTAMA -->
-      <div class="insight-section">
-        <div class="insight-section-header" style="background:var(--red-l)" onclick="toggleSection(this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span style="color:var(--red)">Key Issues Detected</span>
-          <span style="font-size:11px;background:#FEE2E2;color:var(--red);padding:2px 8px;border-radius:20px;font-weight:700">${problems.length} issues</span>
-          <span class="insight-toggle" style="color:var(--red)">▼</span>
-        </div>
-        <div class="insight-section-body open">
-          <div class="iprob-grid">${probHTML}</div>
-        </div>
+    <div class="insight-problem">
+      <div class="insight-problem-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Masalah Utama Saat Ini
       </div>
-
-      <!-- REKOMENDASI IKLAN -->
-      <div class="insight-section">
-        <div class="insight-section-header" style="background:var(--navy-l)" onclick="toggleSection(this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span style="color:var(--navy-d)">Ad Strategy Recommendations</span>
-          <span style="font-size:11px;background:var(--navy-l);color:var(--navy-d);padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid #C7D7F5">Google · Meta · TikTok</span>
-          <span class="insight-toggle" style="color:var(--navy)">▼</span>
-        </div>
-        <div class="insight-section-body open">
-          <div class="iad-tabs">
-            <button class="iad-tab iad-tab-google active" onclick="switchAdTab(this,'google')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              Google Ads
-            </button>
-            <button class="iad-tab iad-tab-meta" onclick="switchAdTab(this,'meta')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-              Meta Ads
-            </button>
-            <button class="iad-tab iad-tab-tiktok" onclick="switchAdTab(this,'tiktok')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
-              TikTok Ads
-            </button>
-          </div>
-          <div id="adPanelGoogle" class="iad-panel active">${googleHTML}</div>
-          <div id="adPanelMeta" class="iad-panel">${metaHTML}</div>
-          <div id="adPanelTiktok" class="iad-panel">${tiktokHTML}</div>
-        </div>
+      ${problemHTML}
+    </div>
+    <div class="insight-rec">
+      <div class="insight-rec-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Rekomendasi Tindakan
       </div>
-
-      <!-- PRIORITAS OPERASIONAL -->
-      <div class="insight-section">
-        <div class="insight-section-header" style="background:var(--amber-l)" onclick="toggleSection(this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          <span style="color:#92400E">Operational Priorities — For Management</span>
-          <span style="font-size:11px;background:var(--amber-l);color:#92400E;padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid #FDE68A">${opsRecs.length} action items</span>
-          <span class="insight-toggle" style="color:#F59E0B">▼</span>
-        </div>
-        <div class="insight-section-body open">
-          <div class="iops-grid">${opsHTML}</div>
-        </div>
-      </div>
-
-      <!-- QUICK WINS -->
-      <div class="insight-section">
-        <div class="insight-section-header" style="background:#F0FDF4" onclick="toggleSection(this)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="13 2 13 9 20 9"/><polyline points="11 22 11 15 4 15"/><path d="M20 9L3 22"/><path d="M4 2l16 13"/></svg>
-          <span style="color:#15803D">Quick Wins — Do This Week</span>
-          <span style="font-size:11px;background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:20px;font-weight:700">6 quick actions</span>
-          <span class="insight-toggle" style="color:#16A34A">▼</span>
-        </div>
-        <div class="insight-section-body open">
-          <div class="iqw-grid">${qwHTML}</div>
-        </div>
-      </div>
-
+      ${recHTML}
     </div>`;
-}
-
-function toggleSection(header) {
-  const body = header.nextElementSibling;
-  const toggle = header.querySelector('.insight-toggle');
-  body.classList.toggle('open');
-  toggle.textContent = body.classList.contains('open') ? '▲' : '▼';
-}
-
-function switchAdTab(btn, platform) {
-  btn.closest('.insight-section-body').querySelectorAll('.iad-tab').forEach(t => t.classList.remove('active'));
-  btn.closest('.insight-section-body').querySelectorAll('.iad-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  const panelId = 'adPanel' + platform.charAt(0).toUpperCase() + platform.slice(1);
-  document.getElementById(panelId).classList.add('active');
 }
 
 function renderCityCards(cities) {
   const grid = document.getElementById('cityGrid');
-  if (!cities || cities.length === 0) { grid.innerHTML = '<p style="color:var(--text2)">No data available.</p>'; return; }
+  if (!cities || cities.length === 0) { grid.innerHTML = '<p style="color:var(--text2)">Tidak ada data.</p>'; return; }
   grid.innerHTML = cities.map((c) => {
     const dist = c.starDistribution || {};
     const bars = [5,4,3,2,1].map((n) => `
@@ -1388,7 +498,7 @@ function renderCityCards(cities) {
         <div class="city-header">
           <div>
             <div class="city-name">${c.city}</div>
-            <div class="city-meta">${c.branchCount||0} branches · ${(c.totalRatings||0).toLocaleString('id-ID')} reviews</div>
+            <div class="city-meta">${c.branchCount||0} cabang · ${(c.totalRatings||0).toLocaleString('id-ID')} reviews</div>
           </div>
           <div>
             <div class="city-rating">${c.avgRating||'—'}</div>
@@ -1410,7 +520,7 @@ function renderCompareChart() {
 
   function getRating(item) {
     if (item.value.startsWith('city_')) {
-      const city = rawData.cities?.find((c) => c.city === item.label.replace(' (City)',''));
+      const city = rawData.cities?.find((c) => c.city === item.label.replace(' (Kota)',''));
       return city?.avgRating || 0;
     }
     const branchName = item.label;
@@ -1441,208 +551,31 @@ function renderCompareChart() {
   });
 }
 
-// ── Convert relative_time_description → month offset ─────────────────────
-function relativeTimeToMonthOffset(str) {
-  if (!str) return null;
-  const s = str.toLowerCase();
-  if (s.includes('hari ini') || s.includes('today') || s.includes('just now') || s.includes('baru saja')) return 0;
-  if (s.includes('kemarin') || s.includes('yesterday')) return 0;
-  if (s.includes('minggu') || s.includes('week')) {
-    const n = parseInt(s) || 1;
-    return n <= 2 ? 0 : -1;
-  }
-  if (s.includes('bulan') || s.includes('month')) {
-    const n = parseInt(s) || 1;
-    return -Math.min(n, 5);
-  }
-  if (s.includes('tahun') || s.includes('year')) {
-    const n = parseInt(s) || 1;
-    return -Math.min(n * 12, 5);
-  }
-  return null;
-}
-
-// Build month labels for last 6 months
-function getMonthLabels() {
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const now = new Date();
-  const labels = [];
-  for (let i = -5; i <= 0; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-    labels.push(months[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2));
-  }
-  return labels; // 6 labels: 5 months ago → current
-}
-
-// Get avg rating per month for a set of reviews
-function calcTrendData(reviews) {
-  // monthIndex: 0=5 months ago, 5=current
-  const buckets = [{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0},{sum:0,cnt:0}];
-  reviews.forEach(r => {
-    const offset = relativeTimeToMonthOffset(r.time || r.relative_time_description);
-    if (offset === null) return;
-    const idx = 5 + offset; // offset is 0 or negative
-    if (idx >= 0 && idx <= 5 && r.rating) {
-      buckets[idx].sum += r.rating;
-      buckets[idx].cnt++;
-    }
-  });
-  // Fill gaps with null (Chart.js will skip)
-  return buckets.map(b => b.cnt > 0 ? Math.round((b.sum / b.cnt) * 10) / 10 : null);
-}
-
-// Populate trend selectors based on active filter
-function populateTrendSelectors(data) {
-  const cities = data.cities || [];
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city: c.city})));
-  const isClubFilter = activeClub !== 'all';
-  const isCityFilter = activeCity !== 'all';
-
-  // Build option list
-  let items = [];
-  if (isClubFilter) {
-    // Show nearby clubs (same city)
-    const club = allBranches.find(b => b.name === activeClub);
-    const sameCity = allBranches.filter(b => b.city === (club?.city || activeCity));
-    items = sameCity.map(b => ({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
-  } else if (isCityFilter) {
-    // Show clubs in selected city
-    const cityBranches = allBranches.filter(b => b.city === activeCity);
-    items = cityBranches.map(b => ({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
-  } else {
-    // Show cities
-    items = cities.map(c => ({ label: c.city, value: 'city:' + c.city, city: c.city }));
-    // Also add option to view all branches
-    allBranches.forEach(b => items.push({ label: b.name.replace('FTL - ','').replace('Stride - ',''), value: 'branch:' + b.name, city: b.city }));
-  }
-
-  const colors = ['#1B3A6B','#007AFF','#FF9500','#FF3B30','#34C759','#AF52DE'];
-  const selIds = ['trendSel1','trendSel2','trendSel3','trendSel4'];
-  const defaults = items.slice(0, 4).map(i => i.value);
-
-  selIds.forEach((id, idx) => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = '<option value="">— None —</option>' +
-      items.map(i => `<option value="${i.value}" ${i.value === defaults[idx] ? 'selected' : ''}>${i.label}${!isClubFilter && !isCityFilter && i.city ? ' ('+i.city+')' : ''}</option>`).join('');
-  });
-
-  window._trendItems = items;
-  window._trendColors = colors;
-  window._trendData = data;
-}
-
-function renderTrendChart() {
-  const data = window._trendData || rawData;
-  if (!data) return;
-
-  const cities = data.cities || [];
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
-  const labels = getMonthLabels();
-  const colors = ['#1B3A6B','#007AFF','#FF9500','#FF3B30'];
-  const selIds = ['trendSel1','trendSel2','trendSel3','trendSel4'];
-
-  const datasets = [];
-  const legendItems = [];
-
-  selIds.forEach((id, idx) => {
-    const sel = document.getElementById(id);
-    const val = sel?.value;
-    if (!val) return;
-
-    let reviews = [];
-    let label = '';
-
-    if (val.startsWith('city:')) {
-      const cityName = val.replace('city:','');
-      const city = cities.find(c => c.city === cityName);
-      reviews = city?.recentReviews || [];
-      label = cityName;
-    } else if (val.startsWith('branch:')) {
-      const branchName = val.replace('branch:','');
-      const city = cities.find(c => (c.branches||[]).some(b => b.name === branchName));
-      const branch = (city?.branches||[]).find(b => b.name === branchName);
-      reviews = branch?.reviews || city?.recentReviews?.filter(r => r.clubName === branchName) || [];
-      // Fallback: use city reviews if branch has none
-      if (!reviews.length && city) reviews = city.recentReviews || [];
-      label = branchName.replace('FTL - ','').replace('Stride - ','');
-    }
-
-    const trendData = calcTrendData(reviews);
-    const color = colors[idx];
-
-    datasets.push({
-      label,
-      data: trendData,
-      borderColor: color,
-      backgroundColor: color + '15',
-      tension: 0.4,
-      pointRadius: 4,
-      pointBackgroundColor: color,
-      borderWidth: 2,
-      spanGaps: true,
-    });
-    legendItems.push({ label, color });
+function renderTrendChart(cities) {
+  const labels = ['Nov','Des','Jan','Feb','Mar','Apr'];
+  const datasets = (cities||[]).map((c) => {
+    const r = c.avgRating || 3.5;
+    const trend = [r-.25, r-.2, r-.12, r-.08, r-.03, r].map((v) => Math.round(Math.max(1,Math.min(5,v))*10)/10);
+    return { label: c.city, data: trend, borderColor: CITY_COLORS[c.city]||'#888', backgroundColor: 'transparent', tension: .4, pointRadius: 3 };
   });
 
   const legend = document.getElementById('trendLegend');
-  if (legend) legend.innerHTML = legendItems.map(l =>
-    `<span><span class="legend-dot" style="background:${l.color}"></span>${l.label}</span>`
-  ).join('');
+  legend.innerHTML = (cities||[]).map((c) => `<span><span class="legend-dot" style="background:${CITY_COLORS[c.city]||'#888'}"></span>${c.city}</span>`).join('');
 
   const ctx = document.getElementById('trendChart');
-  if (!ctx) return;
   if (trendChartInst) trendChartInst.destroy();
   trendChartInst = new Chart(ctx, {
     type: 'line',
     data: { labels, datasets },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ctx.parsed.y !== null ? `${ctx.dataset.label}: ⭐ ${ctx.parsed.y}` : `${ctx.dataset.label}: No data`
-          }
-        }
-      },
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
       scales: {
-        y: {
-          min: 3.0, max: 5.0,
-          ticks: { font: { size: 11 }, stepSize: 0.5, callback: v => '⭐ ' + v },
-          grid: { color: 'rgba(0,0,0,.05)' }
-        },
+        y: { min: 3.0, max: 5.0, ticks: { font: { size: 11 }, stepSize: .5 }, grid: { color: 'rgba(0,0,0,.05)' } },
         x: { ticks: { font: { size: 11 } }, grid: { display: false } }
       }
     }
   });
-}
-
-function renderStarDist(cities) {
-  const dist = {1:0,2:0,3:0,4:0,5:0};
-  let total = 0;
-  cities.forEach(c => {
-    Object.entries(c.starDistribution||{}).forEach(([k,v]) => {
-      dist[k] = (dist[k]||0) + v;
-      total += v;
-    });
-  });
-  const el = document.getElementById('starDistSection');
-  if (!el) return;
-  const stars = [5,4,3,2,1];
-  const colors = { 5:'#34C759', 4:'#007AFF', 3:'#FF9500', 2:'#FF6B35', 1:'#FF3B30' };
-  el.innerHTML = stars.map(s => {
-    const pct = total > 0 ? Math.round((dist[s]||0)/total*100) : Math.round((dist[s]||0)/5);
-    return `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="font-size:12px;color:var(--text2);width:20px;text-align:right">${s}★</span>
-      <div style="flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
-        <div style="height:8px;border-radius:4px;background:${colors[s]};width:${pct}%;transition:width .5s"></div>
-      </div>
-      <span style="font-size:12px;color:var(--text2);width:32px">${pct}%</span>
-    </div>`;
-  }).join('');
 }
 
 function renderSentiment(cities) {
@@ -1661,23 +594,23 @@ function renderSentiment(cities) {
 
   document.getElementById('sentimentSection').innerHTML = `
     <div class="sentiment-row">
-      <span class="sentiment-label">Positive <span class="sentiment-range">stars 4-5</span></span>
+      <span class="sentiment-label">Positif <span class="sentiment-range">bintang 4-5</span></span>
       <span class="sentiment-val" style="color:var(--navy)">${pos}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${pos}%;background:var(--navy)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Neutral <span class="sentiment-range">stars 3</span></span>
+      <span class="sentiment-label">Netral <span class="sentiment-range">bintang 3</span></span>
       <span class="sentiment-val" style="color:var(--amber)">${neu}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neu}%;background:var(--amber)"></div></div>
     <div class="sentiment-row">
-      <span class="sentiment-label">Negative <span class="sentiment-range">stars 1-2</span></span>
+      <span class="sentiment-label">Negatif <span class="sentiment-range">bintang 1-2</span></span>
       <span class="sentiment-val" style="color:var(--red)">${neg}%</span>
     </div>
     <div class="sentiment-bar"><div class="sentiment-fill" style="width:${neg}%;background:var(--red)"></div></div>
     ${topTopics.length > 0 ? `
     <div class="topic-section">
-      <div class="topic-title">Frequently Mentioned Topics</div>
+      <div class="topic-title">Topik yang sering disebut</div>
       <div class="topic-wrap">
         ${topTopics.map((t)=>`<span class="topic-tag ${t.sentiment==='positive'?'topic-pos':'topic-neg'}">${t.word}</span>`).join('')}
       </div>
@@ -1685,49 +618,21 @@ function renderSentiment(cities) {
     </div>` : ''}`;
 }
 
-let activeStarFilter = 'all';
-
 function renderReviews(data) {
   const cities = data.cities || [];
-  // Collect reviews with club name
-  let reviews = [];
-  cities.forEach(c => {
-    (c.branches||[]).forEach(b => {
-      (b.reviews||[]).forEach(r => reviews.push({...r, city:c.city, clubName:b.name}));
-    });
-    // fallback to recentReviews if no branch-level reviews
-    if (!cities.some(cc => (cc.branches||[]).some(bb => (bb.reviews||[]).length > 0))) {
-      (c.recentReviews||[]).forEach(r => reviews.push({...r, city:c.city, clubName:r.clubName||c.city}));
-    }
-  });
-  if (!reviews.length) {
-    reviews = cities.flatMap(c => (c.recentReviews||[]).map(r => ({...r, city:c.city, clubName:c.city})));
-  }
-
+  let reviews = cities.flatMap((c) => (c.recentReviews||[]).map((r) => ({ ...r, city: c.city })));
   reviews = filterReviewsByTime(reviews);
-  reviews = reviews.sort((a,b) => {
-    const timeA = (a.time||'').includes('hari') ? 0 : (a.time||'').includes('minggu') ? 1 : (a.time||'').includes('bulan') ? 2 : 3;
-    const timeB = (b.time||'').includes('hari') ? 0 : (b.time||'').includes('minggu') ? 1 : (b.time||'').includes('bulan') ? 2 : 3;
-    return timeA - timeB;
-  });
+  reviews = reviews.sort((a,b) => (b.rating||0)-(a.rating||0) === 0 ? 0 : (a.rating||3)-(b.rating||3)).slice(0,10);
 
-  if (activeStarFilter !== 'all') {
-    reviews = reviews.filter(r => (r.rating||0) === parseInt(activeStarFilter));
-  }
-
-  reviews = reviews.slice(0, 20);
   const list = document.getElementById('reviewList');
-  if (!reviews.length) { list.innerHTML = '<p style="color:var(--text2);font-size:13px">No reviews for this filter.</p>'; return; }
+  if (!reviews.length) { list.innerHTML = '<p style="color:var(--text2);font-size:13px">Tidak ada ulasan untuk filter ini.</p>'; return; }
   list.innerHTML = reviews.map((r) => `
     <div class="review-item">
       <div class="review-top">
-        <span class="reviewer">${r.author||'Anonymous'}</span>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="review-city">${r.clubName||r.city}</span>
-          ${r.clubName && r.clubName !== r.city ? `<span class="review-city" style="background:var(--navy-l);color:var(--navy-d);border-color:transparent">${r.city}</span>` : ''}
-        </div>
+        <span class="reviewer">${r.author||'Anonim'}</span>
+        <span class="review-city">${r.city}</span>
       </div>
-      <div class="review-text">${r.text||'(no review text)'}</div>
+      <div class="review-text">${r.text||'(tidak ada teks)'}</div>
       <div class="review-foot">
         <span class="review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</span>
         <span class="review-time">${r.time||''}</span>
@@ -1743,20 +648,20 @@ document.getElementById('cityChips').addEventListener('click', (e) => {
   chip.classList.add('active');
   activeCity = chip.dataset.city;
   activeClub = 'all';
-  document.getElementById('clubSearchInput').value = '';
-  document.getElementById('clubSearchInput').placeholder = 'All Clubs';
-  // Update club dropdown options visibility by city
-  document.querySelectorAll('#clubDropdownList .club-option').forEach(o => {
-    if (o.dataset.value === 'all') { o.classList.remove('hidden'); return; }
-    o.classList.toggle('hidden', activeCity !== 'all' && o.dataset.city !== activeCity);
-    o.classList.remove('selected');
+  document.getElementById('clubSelect').value = 'all';
+  // Update club filter berdasarkan kota
+  const sel = document.getElementById('clubSelect');
+  Array.from(sel.options).forEach((o) => {
+    if (o.value === 'all') { o.style.display = ''; return; }
+    o.style.display = (activeCity === 'all' || o.dataset.city === activeCity) ? '' : 'none';
   });
-  const allOpt = document.querySelector('#clubDropdownList .club-option[data-value="all"]');
-  if (allOpt) allOpt.classList.add('selected');
   renderAll();
 });
 
-// club select handled by custom dropdown
+document.getElementById('clubSelect').addEventListener('change', (e) => {
+  activeClub = e.target.value;
+  renderAll();
+});
 
 document.getElementById('timeChips').addEventListener('click', (e) => {
   const chip = e.target.closest('.chip');
@@ -1768,10 +673,8 @@ document.getElementById('timeChips').addEventListener('click', (e) => {
 });
 
 async function clearCacheAndReload() {
-  showToast('Clearing cache...');
   await fetch('/api/cache/clear');
-  showToast('Refreshing data...');
-  setTimeout(() => location.reload(), 500);
+  location.reload();
 }
 
 function showError(msg, detail) {
@@ -1784,665 +687,7 @@ function showError(msg, detail) {
     </div>`;
 }
 
-
-// ── Club Rankings ────────────────────────────────────────────────────────────
-let activeRankingScope = 'national';
-
-function renderRanking(data) {
-  const allBranches = (data.cities || []).flatMap(c =>
-    (c.branches||[]).map(b => ({ ...b, city: c.city }))
-  ).filter(b => b.rating);
-
-  // Bind tab events
-  document.getElementById('rankingTabs').addEventListener('click', (e) => {
-    const tab = e.target.closest('.ranking-tab');
-    if (!tab) return;
-    document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeRankingScope = tab.dataset.scope;
-    drawRankingTable(allBranches, activeRankingScope);
-  });
-
-  drawRankingTable(allBranches, activeRankingScope);
-}
-
-function drawRankingTable(allBranches, scope) {
-  const el = document.getElementById('rankingContent');
-  let branches = scope === 'national' ? allBranches : allBranches.filter(b => b.city === scope);
-
-  if (!branches.length) {
-    el.innerHTML = '<p style="color:var(--text2);font-size:13px;padding:12px 0">No data for this region.</p>';
-    return;
-  }
-
-  const sorted = [...branches].sort((a,b) => (b.rating||0) - (a.rating||0));
-
-  if (scope === 'national') {
-    const top5 = sorted.slice(0, 5);
-    const top5ids = new Set(top5.map(b => b.name));
-    const bottom5 = [...sorted].reverse().filter(b => !top5ids.has(b.name)).slice(0, 5);
-    el.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Top 5 Best Clubs</div>
-          ${renderRankRows(top5, 'top')}
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">5 Club Needs Attention</div>
-          ${renderRankRows(bottom5, 'bottom')}
-        </div>
-      </div>`;
-  } else {
-    const top5 = sorted.slice(0, 5);
-    const top5ids = new Set(top5.map(b => b.name));
-    const bottom5 = [...sorted].reverse().filter(b => !top5ids.has(b.name)).slice(0, 5);
-    el.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--navy-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Top 5 ${scope}</div>
-          ${renderRankRows(top5, 'top')}
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em">Needs Attention ${scope}</div>
-          ${renderRankRows(bottom5, 'bottom')}
-        </div>
-      </div>`;
-  }
-}
-
-function renderRankRows(branches, type) {
-  return `<table class="ranking-table">
-    <thead><tr><th>#</th><th>Nama Club</th><th>Rating</th><th>Total Review</th></tr></thead>
-    <tbody>
-      ${branches.map((b, i) => {
-        const rankClass = type === 'top' ? (i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '') : 'rank-bad';
-        const barColor = type === 'top' ? 'var(--navy)' : 'var(--red)';
-        const barW = Math.round(((b.rating||0) / 5) * 100);
-        return `<tr>
-          <td><div class="rank-num ${rankClass}">${i+1}</div></td>
-          <td>
-            <div class="rank-name">${b.name}</div>
-            <div class="rank-city">${b.city}</div>
-          </td>
-          <td>
-            <div class="rank-rating" style="color:${type==='top'?'var(--navy)':'var(--red)'}">${b.rating||'—'}</div>
-            <div class="rank-bar" style="width:${barW}%;background:${barColor}"></div>
-          </td>
-          <td style="color:var(--text2)">${(b.totalRatings||0).toLocaleString('id-ID')}</td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
-}
-
-// ── Sentiment Drill Detail ──────────────────────────────────────────────────
-let activeDrillType = null;
-
-function showSentimentDrill(type) {
-  const el = document.getElementById('sentimentDrill');
-  if (activeDrillType === type && el && el.innerHTML !== '') {
-    el.innerHTML = '';
-    activeDrillType = null;
-    return;
-  }
-  activeDrillType = type;
-  const reviews = (window._sentimentReviews || []).filter(r => {
-    const rating = r.rating || 3;
-    if (type === 'positive') return rating >= 4;
-    if (type === 'neutral') return rating === 3;
-    if (type === 'negative') return rating <= 2;
-    return true;
-  }).slice(0, 15);
-
-  const label = type === 'positive' ? 'Stars 4-5 (Positive)' : type === 'neutral' ? 'Stars 3 (Neutral)' : 'Stars 1-2 (Negative)';
-  const color = type === 'positive' ? 'var(--navy)' : type === 'neutral' ? 'var(--amber)' : 'var(--red)';
-
-  if (!reviews.length) {
-    el.innerHTML = `<div class="sentiment-drill"><div class="drill-title" style="color:${color}">${label} — Tidak ada review tersedia</div></div>`;
-    return;
-  }
-
-  el.innerHTML = `<div class="sentiment-drill">
-    <div class="drill-title" style="color:${color}">
-      ${label} — ${reviews.length} review
-      <button class="drill-close" onclick="document.getElementById('sentimentDrill').innerHTML='';activeDrillType=null">Close ✕</button>
-    </div>
-    <div class="drill-list">
-      ${reviews.map(r => `
-        <div class="drill-item">
-          <div class="drill-stars" style="color:${color}">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
-          <div class="drill-text">${r.text||'(tidak ada teks)'}</div>
-          <div class="drill-meta">${r.author||'Anonim'} · ${r.city} · ${r.time||''}</div>
-        </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-// ── Star filter for reviews ─────────────────────────────────────────────────
-document.getElementById('reviewFilterBar').addEventListener('click', (e) => {
-  const btn = e.target.closest('.star-filter');
-  if (!btn) return;
-  document.querySelectorAll('.star-filter').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  activeStarFilter = btn.dataset.star;
-  if (rawData) renderReviews(getFilteredData());
-});
-
-// ── Dark mode ──────────────────────────────────────────────────────────────
-function initDarkMode() {
-  const saved = localStorage.getItem('ftl-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = saved ? saved === 'dark' : prefersDark;
-  if (isDark) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    updateDarkIcon(true);
-  }
-}
-
-function toggleDarkMode() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('ftl-theme', 'light');
-    updateDarkIcon(false);
-    showToast('Light mode');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('ftl-theme', 'dark');
-    updateDarkIcon(true);
-    showToast('Dark mode');
-  }
-}
-
-function updateDarkIcon(isDark) {
-  const icon = document.getElementById('darkIcon');
-  if (!icon) return;
-  if (isDark) {
-    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-  } else {
-    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  }
-}
-
-// ── Toast ───────────────────────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-// ── Skeleton loading ────────────────────────────────────────────────────────
-function showSkeleton() {
-  const el = document.getElementById('stateLoading');
-  el.innerHTML = `
-    <div style="width:100%;max-width:1200px;padding:28px">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Summary</div>
-      <div class="skeleton-grid">
-        ${[1,2,3,4].map(()=>`<div class="skeleton-card"><div class="skeleton-line sm"></div><div class="skeleton-line lg"></div><div class="skeleton-line sm"></div></div>`).join('')}
-      </div>
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Insights & Recommendations</div>
-      <div class="skeleton-card" style="height:120px;border-radius:18px"></div>
-    </div>`;
-  el.style.display = 'flex';
-  el.style.alignItems = 'flex-start';
-  el.style.justifyContent = 'center';
-  el.style.minHeight = '0';
-}
-
-initDarkMode();
-showSkeleton();
-// loadDashboard called from DOMContentLoaded above
+loadDashboard();
 </script>
-<div class="toast" id="toast"></div>
-<script>
-
-// ── PRIORITY SCORE ───────────────────────────────────────────────────────────
-function calcPriorityScore(branch, cityData) {
-  const rating = branch.rating || 0;
-  const totalRatings = branch.totalRatings || 0;
-
-  // Rating score (40%) — lower rating = higher priority
-  const ratingScore = rating > 0 ? Math.max(0, (5 - rating) / (5 - 1) * 100) : 50;
-
-  // Negative review ratio (35%) — from city sentiment as proxy
-  const negPct = cityData?.sentiment?.negative || 0;
-  const negScore = Math.min(100, negPct * 2);
-
-  // Review volume (25%) — low review count means low visibility, needs boost
-  const visScore = totalRatings < 50 ? 80 : totalRatings < 100 ? 50 : totalRatings < 200 ? 25 : 10;
-
-  const total = Math.round(ratingScore * 0.40 + negScore * 0.35 + visScore * 0.25);
-  return Math.min(100, total);
-}
-
-function renderPriorityScore(data) {
-  const cities = data.cities || [];
-  const allBranches = cities.flatMap(c =>
-    (c.branches || []).filter(b => b.rating).map(b => ({
-      ...b,
-      city: c.city,
-      cityData: c,
-      score: calcPriorityScore(b, c)
-    }))
-  ).sort((a, b) => b.score - a.score).slice(0, 15);
-
-  if (!allBranches.length) {
-    document.getElementById('priorityGrid').innerHTML = '<p style="color:var(--text2);font-size:13px">No data available.</p>';
-    return;
-  }
-
-  document.getElementById('priorityGrid').innerHTML = allBranches.map((b, i) => {
-    const isCritical = b.score >= 65;
-    const isWarning = b.score >= 35 && b.score < 65;
-    const cls = isCritical ? 'p-critical' : isWarning ? 'p-warning' : 'p-good';
-    const barColor = isCritical ? 'var(--red)' : isWarning ? 'var(--amber)' : '#16A34A';
-    const badge = isCritical ? '<span class="priority-badge badge-critical">Critical</span>' :
-                  isWarning  ? '<span class="priority-badge badge-warning">Attention</span>' :
-                               '<span class="priority-badge badge-good">Good</span>';
-    const rankBg = i < 3 ? 'background:var(--red-l);color:var(--red)' : 'background:var(--bg);color:var(--text2)';
-
-    // Score breakdown
-    const ratingScore = b.rating > 0 ? Math.round(Math.max(0, (5 - b.rating) / (5 - 1) * 100) * 0.40) : 20;
-    const negPct = b.cityData?.sentiment?.negative || 0;
-    const negScore = Math.round(Math.min(100, negPct * 2) * 0.35);
-    const totalRatings = b.totalRatings || 0;
-    const visRaw = totalRatings < 50 ? 80 : totalRatings < 100 ? 50 : totalRatings < 200 ? 25 : 10;
-    const visScore = Math.round(visRaw * 0.25);
-
-    return `
-    <div class="priority-item ${cls}">
-      <div class="priority-rank" style="${rankBg}">${i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div class="priority-name">${b.name}</div>
-        <div class="priority-city">${b.city} · ⭐ ${b.rating} · ${(b.totalRatings||0).toLocaleString('id-ID')} reviews</div>
-        <div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap">
-          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
-            Rating <strong style="color:${barColor}">${ratingScore}pts</strong> <span style="color:var(--text3)">(40%)</span>
-          </span>
-          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
-            Negatif <strong style="color:${barColor}">${negScore}pts</strong> <span style="color:var(--text3)">(35%)</span>
-          </span>
-          <span style="font-size:11px;background:var(--bg);border-radius:6px;padding:2px 8px;color:var(--text2)">
-            Visibilitas <strong style="color:${barColor}">${visScore}pts</strong> <span style="color:var(--text3)">(25%)</span>
-          </span>
-        </div>
-      </div>
-      <div class="priority-score-bar">
-        <div class="priority-score-label"><span>Score</span><span>${b.score}/100</span></div>
-        <div class="priority-bar-bg"><div class="priority-bar-fill" style="width:${b.score}%;background:${barColor}"></div></div>
-      </div>
-      <div class="priority-score-num" style="color:${barColor}">${b.score}</div>
-      ${badge}
-    </div>`;
-  }).join('');
-}
-
-// ── COMPARISON MODE ───────────────────────────────────────────────────────────
-let selectedCompClubs = [];
-
-function openComparison() {
-  if (!rawData) { alert('Load dashboard data first.'); return; }
-  selectedCompClubs = [];
-  const modal = document.getElementById('comparisonModal');
-  const selector = document.getElementById('comparisonSelector');
-  const cities = rawData.cities || [];
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city})));
-
-  selector.innerHTML = allBranches.map(b => `
-    <span class="comp-club-chip" data-name="${b.name}" onclick="toggleCompClub(this,'${b.name.replace(/'/g,"\\'")}')">
-      ${b.name.replace('FTL - ','').replace('Stride - ','').replace('Stride Gym ','Stride ')}
-      <span style="font-size:10px;color:inherit;opacity:.7;margin-left:4px">${b.city}</span>
-    </span>`).join('');
-
-  document.getElementById('comparisonTableWrap').innerHTML = '<p style="color:var(--text2);font-size:13px;padding:12px 0">Select at least 2 clubs to compare.</p>';
-  modal.style.display = 'flex';
-}
-
-function toggleCompClub(el, name) {
-  if (el.classList.contains('selected')) {
-    el.classList.remove('selected');
-    selectedCompClubs = selectedCompClubs.filter(n => n !== name);
-  } else {
-    if (selectedCompClubs.length >= 5) { alert('Maximum 5 clubs.'); return; }
-    el.classList.add('selected');
-    selectedCompClubs.push(name);
-  }
-  // Disable non-selected when at 5
-  document.querySelectorAll('.comp-club-chip').forEach(c => {
-    if (!c.classList.contains('selected')) {
-      c.classList.toggle('disabled', selectedCompClubs.length >= 5);
-    }
-  });
-  if (selectedCompClubs.length >= 2) renderComparisonTable();
-  else document.getElementById('comparisonTableWrap').innerHTML = '<p style="color:var(--text2);font-size:13px;padding:12px 0">Select at least 2 clubs to compare.</p>';
-}
-
-function renderComparisonTable() {
-  const cities = rawData.cities || [];
-  const allBranches = cities.flatMap(c => (c.branches||[]).map(b => ({...b, city:c.city, cityData:c})));
-  const selected = selectedCompClubs.map(name => allBranches.find(b => b.name === name)).filter(Boolean);
-
-  const maxRating = Math.max(...selected.map(b => b.rating || 0));
-  const rows = [
-    { label: 'Region', fn: b => b.city },
-    { label: 'Google Rating', fn: b => {
-      const pct = Math.round(((b.rating||0) / 5) * 100);
-      const color = (b.rating||0) >= 4.5 ? '#16A34A' : (b.rating||0) >= 4.0 ? 'var(--amber)' : 'var(--red)';
-      return `<div class="comp-rating-big" style="color:${color}">${b.rating||'—'}</div>
-              <div class="comp-bar" style="width:${pct}%;background:${color}"></div>`;
-    }},
-    { label: 'Total Reviews', fn: b => (b.totalRatings||0).toLocaleString('id-ID') },
-    { label: 'Positive Sentiment', fn: b => {
-      const pct = b.cityData?.sentiment?.positive || 0;
-      return `${pct}% <div class="comp-bar" style="width:${pct}%;background:var(--navy)"></div>`;
-    }},
-    { label: 'Negative Sentiment', fn: b => {
-      const pct = b.cityData?.sentiment?.negative || 0;
-      return `${pct}% <div class="comp-bar" style="width:${pct}%;background:var(--red)"></div>`;
-    }},
-    { label: 'Priority Score', fn: b => {
-      const score = calcPriorityScore(b, b.cityData);
-      const color = score >= 65 ? 'var(--red)' : score >= 35 ? 'var(--amber)' : '#16A34A';
-      return `<strong style="color:${color}">${score}/100</strong>`;
-    }},
-    { label: 'Gap to Target (4.7★)', fn: b => {
-      const gap = (4.7 - (b.rating||0)).toFixed(1);
-      const color = parseFloat(gap) <= 0 ? '#16A34A' : parseFloat(gap) < 0.5 ? 'var(--amber)' : 'var(--red)';
-      return `<span style="color:${color}">${parseFloat(gap) <= 0 ? '✓ Achieved' : '+' + gap + ' needed'}</span>`;
-    }},
-  ];
-
-  let html = `<table class="comparison-table">
-    <thead><tr>
-      <th style="width:160px">Metric</th>
-      ${selected.map(b => `<th>${b.name.replace('FTL - ','').replace('Stride - ','')}<br><span style="font-weight:400;font-size:10px;color:var(--text3)">${b.city}</span></th>`).join('')}
-    </tr></thead>
-    <tbody>
-      ${rows.map(row => `
-        <tr>
-          <td style="font-weight:600;color:var(--text2);font-size:12px">${row.label}</td>
-          ${selected.map(b => `<td>${row.fn(b)}</td>`).join('')}
-        </tr>`).join('')}
-    </tbody>
-  </table>`;
-
-  document.getElementById('comparisonTableWrap').innerHTML = html;
-}
-
-function closeComparison() {
-  document.getElementById('comparisonModal').style.display = 'none';
-}
-
-// ── EXPORT PDF ────────────────────────────────────────────────────────────────
-async function exportPDF() {
-  if (!rawData) { alert('Load dashboard data first.'); return; }
-  const btn = document.getElementById('exportBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><circle cx="12" cy="12" r="10"/></svg> Generating...';
-
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const W = 210, margin = 14;
-    let y = 0;
-
-    function addPage() { doc.addPage(); y = 20; }
-    function checkPage(need=20) { if (y + need > 275) addPage(); }
-
-    // ── COVER ──
-    doc.setFillColor(27, 58, 107);
-    doc.rect(0, 0, W, 50, 'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(22); doc.setFont('helvetica','bold');
-    doc.text('FTL GYM', margin, 22);
-    doc.setFontSize(13); doc.setFont('helvetica','normal');
-    doc.text('Google Reviews Dashboard Report', margin, 31);
-    doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleString('id-ID')}`, margin, 40);
-    const data = getFilteredData();
-    const cities = data?.cities || [];
-    y = 62;
-
-    // ── SUMMARY METRICS ──
-    doc.setTextColor(30,30,30);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('SUMMARY', margin, y); y += 8;
-
-    const allBranches = cities.flatMap(c => (c.branches||[]).map(b=>({...b,city:c.city})));
-    const avgRating = cities.length ? (cities.reduce((s,c)=>s+(c.avgRating||0),0)/cities.length).toFixed(2) : '—';
-    const totalReviews = cities.reduce((s,c)=>s+(c.totalRatings||0),0);
-    const avgPos = cities.length ? Math.round(cities.reduce((s,c)=>s+(c.sentiment?.positive||0),0)/cities.length) : 0;
-    const worst = allBranches.filter(b=>b.rating).sort((a,b)=>a.rating-b.rating)[0];
-
-    const metrics = [
-      ['Average Rating', avgRating + ' / 5.0'],
-      ['Total Reviews', totalReviews.toLocaleString('id-ID')],
-      ['Branches Analyzed', allBranches.length + ' clubs'],
-      ['Positive Sentiment', avgPos + '%'],
-      ['Needs Attention', worst ? worst.name + ' (' + worst.rating + '★)' : '—'],
-    ];
-    doc.autoTable({
-      startY: y, margin: { left: margin, right: margin },
-      head: [['Metric', 'Value']],
-      body: metrics,
-      headStyles: { fillColor: [27,58,107], textColor: 255, fontSize: 10 },
-      bodyStyles: { fontSize: 10 },
-      alternateRowStyles: { fillColor: [240,244,255] },
-    });
-    y = doc.lastAutoTable.finalY + 10;
-
-    // ── PRIORITY SCORE ──
-    checkPage(20);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('PRIORITY SCORE — CLUBS NEEDING ATTENTION', margin, y); y += 6;
-
-    const priorityBranches = allBranches.filter(b=>b.rating).map(b=>({
-      ...b, score: calcPriorityScore(b, cities.find(c=>c.city===b.city))
-    })).sort((a,b)=>b.score-a.score).slice(0,15);
-
-    doc.autoTable({
-      startY: y, margin: { left: margin, right: margin },
-      head: [['#', 'Club', 'Region', 'Rating', 'Total Reviews', 'Priority Score', 'Status']],
-      body: priorityBranches.map((b,i) => [
-        i+1, b.name, b.city, b.rating||'—',
-        (b.totalRatings||0).toLocaleString('id-ID'),
-        b.score + '/100',
-        b.score >= 65 ? 'CRITICAL' : b.score >= 35 ? 'ATTENTION' : 'GOOD'
-      ]),
-      headStyles: { fillColor: [27,58,107], textColor: 255, fontSize: 9 },
-      bodyStyles: { fontSize: 9 },
-      columnStyles: { 6: { fontStyle: 'bold' } },
-      didParseCell: (data) => {
-        if (data.column.index === 6 && data.section === 'body') {
-          const v = data.cell.raw;
-          if (v === 'CRITICAL') data.cell.styles.textColor = [239,68,68];
-          else if (v === 'ATTENTION') data.cell.styles.textColor = [245,158,11];
-          else data.cell.styles.textColor = [22,163,74];
-        }
-      },
-      alternateRowStyles: { fillColor: [248,248,252] },
-    });
-    y = doc.lastAutoTable.finalY + 10;
-
-    // ── RATING PER REGION ──
-    checkPage(20);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('RATING BY REGION', margin, y); y += 6;
-
-    doc.autoTable({
-      startY: y, margin: { left: margin, right: margin },
-      head: [['Region', 'Avg Rating', 'Total Reviews', 'Branches', 'Positive %', 'Negative %']],
-      body: cities.map(c => [
-        c.city, c.avgRating||'—',
-        (c.totalRatings||0).toLocaleString('id-ID'),
-        (c.branches||[]).length,
-        (c.sentiment?.positive||0) + '%',
-        (c.sentiment?.negative||0) + '%',
-      ]),
-      headStyles: { fillColor: [27,58,107], textColor: 255, fontSize: 9 },
-      bodyStyles: { fontSize: 9 },
-      alternateRowStyles: { fillColor: [240,244,255] },
-    });
-    y = doc.lastAutoTable.finalY + 10;
-
-    // ── TOP & BOTTOM CLUBS ──
-    checkPage(20);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('TOP 5 & BOTTOM 5 CLUBS (NATIONAL)', margin, y); y += 6;
-
-    const sorted = [...allBranches].filter(b=>b.rating).sort((a,b)=>b.rating-a.rating);
-    const top5 = sorted.slice(0,5);
-    const top5names = new Set(top5.map(b=>b.name));
-    const bottom5 = [...sorted].reverse().filter(b=>!top5names.has(b.name)).slice(0,5);
-
-    doc.autoTable({
-      startY: y, margin: { left: margin, right: margin },
-      head: [['#', 'Club', 'Region', 'Rating', 'Total Reviews', 'Category']],
-      body: [
-        ...top5.map((b,i) => [i+1, b.name, b.city, b.rating, (b.totalRatings||0).toLocaleString('id-ID'), 'TOP']),
-        ...bottom5.map((b,i) => [i+1, b.name, b.city, b.rating, (b.totalRatings||0).toLocaleString('id-ID'), 'NEEDS ATTENTION']),
-      ],
-      headStyles: { fillColor: [27,58,107], textColor: 255, fontSize: 9 },
-      bodyStyles: { fontSize: 9 },
-      didParseCell: (data) => {
-        if (data.column.index === 5 && data.section === 'body') {
-          if (data.cell.raw === 'TOP') data.cell.styles.textColor = [22,163,74];
-          else data.cell.styles.textColor = [239,68,68];
-        }
-      },
-      alternateRowStyles: { fillColor: [248,248,252] },
-    });
-    y = doc.lastAutoTable.finalY + 10;
-
-    // ── LATEST REVIEWS ──
-    checkPage(20);
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text('LATEST REVIEWS (SAMPLE)', margin, y); y += 6;
-
-    const reviews = cities.flatMap(c=>(c.recentReviews||[]).map(r=>({...r,city:c.city}))).slice(0,20);
-    doc.autoTable({
-      startY: y, margin: { left: margin, right: margin },
-      head: [['Stars', 'Review', 'Region', 'Time']],
-      body: reviews.map(r => [
-        '★'.repeat(r.rating||0),
-        (r.text||'(no text)').substring(0,80) + ((r.text||'').length > 80 ? '...' : ''),
-        r.city, r.time||''
-      ]),
-      headStyles: { fillColor: [27,58,107], textColor: 255, fontSize: 9 },
-      bodyStyles: { fontSize: 8, cellPadding: 3 },
-      columnStyles: { 1: { cellWidth: 100 } },
-      alternateRowStyles: { fillColor: [248,248,252] },
-    });
-
-    // ── FOOTER on each page ──
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8); doc.setTextColor(150,150,150);
-      doc.text(`FTL Gym Dashboard · Page ${i} of ${pageCount} · Confidential`, margin, 290);
-    }
-
-    const dateStr = new Date().toISOString().split('T')[0];
-    doc.save(`FTL-Dashboard-${dateStr}.pdf`);
-  } catch(e) {
-    console.error(e);
-    alert('Export gagal: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF';
-  }
-}
-
-
-// ── Auth ─────────────────────────────────────────────────────────────────────
-// Set token immediately so fetch interceptor has it
-const _storedToken = localStorage.getItem('ftl_token');
-if (_storedToken) {
-  window._authToken = _storedToken;
-  document.getElementById('loginOverlay').style.display = 'none';
-}
-// Always call loadDashboard after DOM ready — it handles empty/no-token gracefully
-window.addEventListener('DOMContentLoaded', () => {
-  if (window._authToken) {
-    loadDashboard();
-  }
-});
-
-async function doLogin() {
-  const pw = document.getElementById('loginInput').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  if (!pw) { err.textContent = 'Masukkan password dulu.'; return; }
-  btn.disabled = true;
-  btn.textContent = 'Memverifikasi...';
-  try {
-    const res = await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw })
-    });
-    const data = await res.json();
-    if (data.success) {
-      window._authToken = data.token;
-      localStorage.setItem('ftl_token', data.token);
-      document.getElementById('loginOverlay').style.display = 'none';
-      loadDashboard();
-    } else {
-      err.textContent = data.message || 'Password salah.';
-      btn.disabled = false;
-      btn.textContent = 'Masuk';
-    }
-  } catch(e) {
-    err.textContent = 'Gagal menghubungi server.';
-    btn.disabled = false;
-    btn.textContent = 'Masuk';
-  }
-}
-
-// Inject token into all fetch calls — always read fresh from localStorage
-const _origFetch = window.fetch;
-window.fetch = function(url, opts={}) {
-  if (typeof url === 'string' && url.startsWith('/api/') && url !== '/api/auth') {
-    const tok = window._authToken || localStorage.getItem('ftl_token') || '';
-    opts = opts || {};
-    opts.headers = { ...(opts.headers||{}), 'x-app-token': tok };
-  }
-  return _origFetch(url, opts);
-};
-</script>
-
-
-<!-- SCRAPING OVERLAY -->
-<div id="scrapingOverlay" class="scraping-overlay">
-  <div class="scraping-spinner"></div>
-  <div class="scraping-title">Scraping Data...</div>
-  <div class="scraping-msg" id="overlayMsg">Mencari 59 cabang FTL di Google Places...</div>
-  <div class="scraping-progress-wrap">
-    <div style="display:flex;justify-content:space-between;font-size:12px;color:#6B7280">
-      <span>Progress</span><span id="overlayPct">0%</span>
-    </div>
-    <div class="scraping-bar-bg">
-      <div class="scraping-bar-fill" id="overlayBar"></div>
-    </div>
-  </div>
-  <div style="font-size:12px;color:#AEAEB2;margin-top:4px">Jangan tutup tab ini</div>
-</div>
-
-<!-- COMPARISON MODAL -->
-<div id="comparisonModal" class="comparison-modal" style="display:none" onclick="if(event.target===this)closeComparison()">
-  <div class="comparison-box">
-    <div class="comparison-head">
-      <span class="comparison-title">Club Comparison (max 5)</span>
-      <button class="comparison-close" onclick="closeComparison()">&#10005;</button>
-    </div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Select clubs to compare:</div>
-    <div class="comparison-selector" id="comparisonSelector"></div>
-    <div id="comparisonTableWrap"></div>
-  </div>
-</div>
 </body>
 </html>

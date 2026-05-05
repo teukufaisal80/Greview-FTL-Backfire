@@ -1,81 +1,17 @@
 require("dotenv").config();
+const ExcelJS = require("exceljs");
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const NodeCache = require("node-cache");
 const path = require("path");
-const fs = require("fs");
 
 const app = express();
-
-// Cache tanpa expiry — hanya di-replace saat Start Scrape diklik
-const cache = new NodeCache({ stdTTL: 0, checkperiod: 0 });
-
-// File-based persistent cache — agar data tidak hilang saat server restart
-const PERSISTENT_CACHE_FILE = path.join(__dirname, "../data/persistent_cache.json");
-
-function loadPersistentCache() {
-  try {
-    if (fs.existsSync(PERSISTENT_CACHE_FILE)) {
-      const raw = JSON.parse(fs.readFileSync(PERSISTENT_CACHE_FILE, "utf8"));
-      let loaded = 0;
-      for (const [key, { value }] of Object.entries(raw)) {
-        if (value !== undefined) {
-          cache.set(key, value, 0); // TTL 0 = no expiry
-          loaded++;
-        }
-      }
-      console.log(`📦 Loaded ${loaded} cached entries from disk (no expiry)`);
-    }
-  } catch (e) {
-    console.log("⚠️  Could not load persistent cache:", e.message);
-  }
-}
-
-function savePersistentCache() {
-  try {
-    const keys = cache.keys();
-    const data = {};
-    for (const key of keys) {
-      const value = cache.get(key);
-      if (value !== undefined) {
-        data[key] = { value };
-      }
-    }
-    fs.mkdirSync(path.dirname(PERSISTENT_CACHE_FILE), { recursive: true });
-    fs.writeFileSync(PERSISTENT_CACHE_FILE, JSON.stringify(data));
-    console.log(`💾 Cache saved to disk (${keys.length} entries)`);
-  } catch (e) {
-    console.log("⚠️  Could not save persistent cache:", e.message);
-  }
-}
-
-// Save cache to disk every 10 minutes
-setInterval(savePersistentCache, 10 * 60 * 1000);
-loadPersistentCache();
-
-// ── Password protection middleware ───────────────────────────────────────────
-const APP_PASSWORD = process.env.APP_PASSWORD || "ftlsmart";
-
-function requireAuth(req, res, next) {
-  const token = req.headers["x-app-token"] || req.query._token;
-  if (token === APP_PASSWORD) return next();
-  return res.status(401).json({ error: "Unauthorized", message: "Invalid or missing token." });
-}
+const cache = new NodeCache({ stdTTL: Number(process.env.CACHE_TTL) || 3600 });
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
-
-// ── Auth endpoint — frontend calls this to get a session token ───────────────
-app.post("/api/auth", (req, res) => {
-  const { password } = req.body;
-  if (password === APP_PASSWORD) {
-    res.json({ success: true, token: APP_PASSWORD });
-  } else {
-    res.status(401).json({ success: false, message: "Password salah." });
-  }
-});
 
 const PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
@@ -234,26 +170,18 @@ async function searchAllClubs() {
 
   // Batch per 5 supaya tidak kena rate limit
   const results = [];
-  const notFound = [];
   const batchSize = 5;
   for (let i = 0; i < CLUB_LIST.length; i += batchSize) {
     const batch = CLUB_LIST.slice(i, i + batchSize);
     const batchResults = await Promise.all(batch.map((name) => searchOneClub(name)));
     batchResults.forEach((r, idx) => {
       if (r) results.push({ ...r, searchName: batch[idx] });
-      else notFound.push(batch[idx]);
     });
     // Delay antar batch supaya tidak kena rate limit
     if (i + batchSize < CLUB_LIST.length) {
       await new Promise((r) => setTimeout(r, 500));
     }
   }
-
-  if (notFound.length > 0) {
-    console.log(`\n⚠️  ${notFound.length} club tidak ditemukan di Google Places:`);
-    notFound.forEach(n => console.log(`   - ${n}`));
-  }
-  console.log(`✅  ${results.length} dari ${CLUB_LIST.length} club berhasil ditemukan\n`);
 
   // Deduplikasi by place_id
   const seen = new Set();
@@ -351,26 +279,18 @@ function analyzeSentiment(reviews = []) {
   };
 }
 
-// ── GET /api/dashboard — serve from cache only ────────────────────────────
-app.get("/api/dashboard", requireAuth, async (req, res) => {
+// ── GET /api/dashboard ─────────────────────────────────────────────────────
+app.get("/api/dashboard", async (req, res) => {
   const cacheKey = "dashboard_all";
   if (cache.has(cacheKey)) {
     return res.json({ source: "cache", ...cache.get(cacheKey) });
   }
-  // No cache yet
-  return res.json({ source: "empty", cities: [], lastUpdated: null });
-});
-
-// ── POST /api/scrape — force fetch from Google, replace cache ──────────────
-app.post("/api/scrape", requireAuth, async (req, res) => {
-  const cacheKey = "dashboard_all";
 
   if (!API_KEY || API_KEY === "ISI_API_KEY_KAMU_DI_SINI") {
-    return res.status(400).json({ error: "API key belum diisi." });
+    return res.status(400).json({
+      error: "API key belum diisi. Salin .env.example ke .env dan isi GOOGLE_PLACES_API_KEY.",
+    });
   }
-
-  // Mark scraping in progress
-  cache.set("scrape_status", { status: "running", startedAt: new Date().toISOString() }, 0);
 
   try {
     // Cari semua cabang dari CLUB_LIST (59 club by nama exact)
@@ -424,13 +344,6 @@ app.post("/api/scrape", requireAuth, async (req, res) => {
             rating: d.rating,
             totalRatings: d.user_ratings_total,
             location: d.geometry?.location,
-            reviews: (d.reviews||[]).slice(0,20).map(r => ({
-              rating: r.rating,
-              text: r.text,
-              author: r.author_name,
-              time: r.relative_time_description,
-              relative_time_description: r.relative_time_description,
-            })),
           })),
           avgRating: Math.round(avgRating * 10) / 10,
           totalRatings,
@@ -445,7 +358,6 @@ app.post("/api/scrape", requireAuth, async (req, res) => {
               rating: r.rating,
               text: r.text,
               time: r.relative_time_description,
-              relative_time_description: r.relative_time_description,
               profilePhoto: r.profile_photo_url,
             })),
         };
@@ -487,19 +399,16 @@ app.post("/api/scrape", requireAuth, async (req, res) => {
       lastUpdated: new Date().toISOString(),
     };
 
-    cache.set(cacheKey, payload, 0); // no expiry
-    cache.set("scrape_status", { status: "done", completedAt: new Date().toISOString() }, 0);
-    savePersistentCache();
+    cache.set(cacheKey, payload);
     res.json({ source: "live", ...payload });
   } catch (err) {
-    cache.set("scrape_status", { status: "error", error: err.message }, 0);
     console.error("Error fetching from Google Places:", err.message);
     res.status(500).json({ error: "Gagal mengambil data dari Google Places API.", detail: err.message });
   }
 });
 
 // ── GET /api/competitor/:placeId — analisis kompetitor sekitar 1 cabang FTL
-app.get("/api/competitor/:placeId", requireAuth, async (req, res) => {
+app.get("/api/competitor/:placeId", async (req, res) => {
   const { analyzeCompetitorsForBranch } = require("./competitor");
   const { placeId } = req.params;
   const radiusKm = parseFloat(req.query.radius) || 2;
@@ -539,7 +448,7 @@ app.get("/api/competitor/:placeId", requireAuth, async (req, res) => {
 });
 
 // ── GET /api/branches — daftar semua cabang FTL (untuk dropdown halaman competitor)
-app.get("/api/branches", requireAuth, async (req, res) => {
+app.get("/api/branches", async (req, res) => {
   const cacheKey = "all_branches";
   if (cache.has(cacheKey)) return res.json(cache.get(cacheKey));
 
@@ -603,7 +512,7 @@ app.get("/api/keywords", (req, res) => {
 });
 
 // ── POST /api/keywords/approve ────────────────────────────────────────────
-app.post("/api/keywords/approve", requireAuth, (req, res) => {
+app.post("/api/keywords/approve", (req, res) => {
   const { approveKeyword } = require("./keywords");
   const { word, category } = req.body;
   if (!word || !category) return res.status(400).json({ error: "word dan category wajib diisi" });
@@ -614,7 +523,7 @@ app.post("/api/keywords/approve", requireAuth, (req, res) => {
 });
 
 // ── POST /api/keywords/reject ─────────────────────────────────────────────
-app.post("/api/keywords/reject", requireAuth, (req, res) => {
+app.post("/api/keywords/reject", (req, res) => {
   const { rejectKeyword } = require("./keywords");
   const { word, reason } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -624,7 +533,7 @@ app.post("/api/keywords/reject", requireAuth, (req, res) => {
 });
 
 // ── POST /api/keywords/restore ────────────────────────────────────────────
-app.post("/api/keywords/restore", requireAuth, (req, res) => {
+app.post("/api/keywords/restore", (req, res) => {
   const { restoreKeyword } = require("./keywords");
   const { word } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -634,7 +543,7 @@ app.post("/api/keywords/restore", requireAuth, (req, res) => {
 });
 
 // ── DELETE /api/keywords/delete — hapus permanen dari rejected ─────────────
-app.post("/api/keywords/delete", requireAuth, (req, res) => {
+app.post("/api/keywords/delete", (req, res) => {
   const { deleteKeyword } = require("./keywords");
   const { word, from } = req.body;
   if (!word) return res.status(400).json({ error: "word wajib diisi" });
@@ -644,15 +553,7 @@ app.post("/api/keywords/delete", requireAuth, (req, res) => {
 });
 
 // ── GET /api/cache/clear ───────────────────────────────────────────────────
-// ── GET /api/scrape/status ────────────────────────────────────────────────
-app.get("/api/scrape/status", requireAuth, (req, res) => {
-  const status = cache.get("scrape_status") || { status: "idle" };
-  const hasDashboard = cache.has("dashboard_all");
-  const dashData = hasDashboard ? cache.get("dashboard_all") : null;
-  res.json({ ...status, hasDashboard, lastUpdated: dashData?.lastUpdated || null });
-});
-
-app.get("/api/cache/clear", requireAuth, (req, res) => {
+app.get("/api/cache/clear", (req, res) => {
   cache.flushAll();
   res.json({ message: "Cache berhasil dibersihkan." });
 });
@@ -663,9 +564,6 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-process.on("SIGTERM", () => { savePersistentCache(); process.exit(0); });
-process.on("SIGINT", () => { savePersistentCache(); process.exit(0); });
-
 app.listen(PORT, () => {
   console.log(`\n🏋️  FTL Gym Dashboard berjalan di http://localhost:${PORT}`);
   console.log(`📊  API tersedia di http://localhost:${PORT}/api/dashboard\n`);
